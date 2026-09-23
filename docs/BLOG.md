@@ -95,16 +95,20 @@ looking for that; it fell out of the validation step, and it's a good demonstrat
 policy treats a risk score as "a reason to look, never a verdict."
 
 We measured the whole verdict stage on 1,376 closed September cases that nothing was fitted on.
-When the agent commits to fraud or legitimate it is right 93.8% of the time (91.7%
-class-balanced), and it commits on 59% of cases. The rest stay uncertain and go to
-verification. Its fraud calls are right 99.6% of the time, it names the pattern correctly on
-92.8% of confirmed fraud, and only 3 of 118 cleared customers were wrongly called fraud.
+When the agent commits to fraud or legitimate it is right 99.3% of the time (95.8%
+class-balanced), and it commits on 55% of cases. The rest stay uncertain and go to
+verification. Only 2 of 1,258 confirmed frauds were called legitimate, its fraud calls are
+right 99.6% of the time, and it names the pattern correctly on 92.8% of confirmed fraud.
 
-The evaluation also caught one of our bugs. Our "recurring charge" defence matched any
-same-amount charges that happened to be about a month apart, and it overrode the verdict to
-legitimate. In the bank's history those matches were fraud every time: repeat charges on a
-stolen card look "recurring". It now needs a real monthly series and only steers the R7 actions.
-Before the fix, decided accuracy was 86.0%.
+It took two fixes, both found by this evaluation, to get there; decided accuracy was 86.0% and
+121 frauds were called legitimate before them. Our "recurring charge" defence matched any
+same-amount charges that happened to be about a month apart and overrode the verdict to
+legitimate. In the bank's history those matches were fraud every time: repeat charges on a stolen
+card look "recurring". The second fix was about what may clear a case at all. A low probability
+plus "looks like a trip" still hid fraud, while the one defence the cleared cases back is a new
+phone. So the agent now clears a case on its own only with that evidence. Otherwise it asks the
+customer, which costs one message and never blocks anyone. Both fixes held on the months the
+model was fitted on as well as on the holdout.
 
 Two more pieces of evidence come straight from the graph rather than from the model.
 
@@ -116,7 +120,8 @@ five or more earlier transactions at least a week before the flag, none in any c
 probability at 0.15 (0.17% of in-person transactions on such accounts were fraud, n=18,055); an
 account with a transaction in a confirmed case is prosecution evidence and, with a bank risk
 score ≥0.5, floors it at 0.9 (97.2% fraud, n=431). HHG-001 is the case this changed: a 0.79
-model score in a region away from home, but a clean account in region 444 — closed legitimate.
+model score in a region away from home, but a clean account in region 444. That brings it down to
+0.15, and it is closed legitimate once the customer confirms.
 
 **Rare-device shared origin.** When the evidence already leans fraud, the agent checks whether
 the flagged device profile is rare (20 cards ever or fewer) and whether the same

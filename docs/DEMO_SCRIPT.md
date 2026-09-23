@@ -109,9 +109,10 @@ is a confirmation, and it closes the case as legitimate instead of blocking a re
 card. That restraint is scored too."
 
 *(Optional swap if time allows: HHG-001 — model score 0.79 on an in-person purchase in region
-444, away from home region 433, yet closed `CLOSE_NO_FRAUD` / auto with no question asked: the
-courtroom's defence shows 6 earlier transactions on the same underlying account, none in any
-closed case, which caps the probability at 0.15. "It blocks nothing it shouldn't.")*
+444, away from home region 433: the courtroom's defence shows 6 earlier transactions on the same
+underlying account, none in any closed case, which caps the probability at 0.15. It still asks the
+customer before closing `CLOSE_NO_FRAUD` / auto. "It blocks nothing it shouldn't, and it doesn't
+clear anyone on a hunch.")*
 
 ---
 

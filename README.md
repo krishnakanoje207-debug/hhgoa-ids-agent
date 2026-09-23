@@ -139,8 +139,9 @@ it, or the evidence gate returns no decisive question.
   A clean account (≥5 earlier txns at least 7 days before the flag, none in any closed case) caps
   p at 0.15 unless card testing, structuring or a ring fired — 0.17% of in-person txns on such accounts were fraud (n=18,055). An earlier txn of the
   account in a confirmed case is prosecution evidence and floors p at 0.9 when the bank risk score
-  is ≥0.5 (97.2% fraud, n=431). This is what turned HHG-001 legitimate: a clean account in
-  region 444.
+  is ≥0.5 (97.2% fraud, n=431). This is what lowered HHG-001 to 0.15: a clean account in
+  region 444. A low probability alone does not clear a case (see *Accuracy*), so HHG-001 still
+  verifies with the customer before `CLOSE_NO_FRAUD`.
 - **Rare-device shared origin (R6).** A rare device profile (≤20 cards ever) plus the same
   purchaser/recipient email pair on ≥2 other cards, from 7 days before the flag up to opening,
   adds those cards as connected cards, with `FILE_REPORT` and `MONITOR_CONNECTED_CARDS`. It only
@@ -313,7 +314,7 @@ Agent output on the 20 benchmark cases (`cases/HHG-*.json`, all 20 valid under `
 <!-- RESULTS:BEGIN -->
 | Case | Trigger | Verdict | p | Pattern | #txns | Exposure | SAR | #req | Final actions (route) |
 |---|---|---|---|---|---|---|---|---|---|
-| HHG-001 | risk_score | legitimate | 0.15 | none | 0 | $0.00 | N | 0 | CLOSE_NO_FRAUD (auto) |
+| HHG-001 | risk_score | legitimate | 0.10 | none | 0 | $0.00 | N | 1 | CREATE_CASE (auto), CLOSE_NO_FRAUD (auto) |
 | HHG-002 | risk_score | fraud | 0.95 | card_not_present_fraud | 1 | $292.36 | N | 0 | BLOCK_CARD (L1), CREATE_CASE (auto) |
 | HHG-003 | customer_report | fraud | 0.90 | out_of_region_use | 2 | $165.93 | N | 2 | BLOCK_CARD (L1), CREATE_CASE (auto) |
 | HHG-004 | customer_report | legitimate | 0.10 | none | 0 | $0.00 | N | 1 | CREATE_CASE (auto), CLOSE_NO_FRAUD (auto) |
@@ -334,7 +335,7 @@ Agent output on the 20 benchmark cases (`cases/HHG-*.json`, all 20 valid under `
 | HHG-019 | risk_score | fraud | 0.86 | card_not_present_new_device | 1 | $99.92 | Y | 0 | BLOCK_CARD (L1), CREATE_CASE (auto), FILE_REPORT (L2), MONITOR_CONNECTED_CARDS (auto) |
 | HHG-020 | risk_score | legitimate | 0.10 | none | 0 | $0.00 | N | 1 | CREATE_CASE (auto), CLOSE_NO_FRAUD (auto) |
 
-20 cases: 10 fraud, 6 legitimate, 4 uncertain; 4 SARs; 13 evidence requests. Per case: tool_calls median 12, total 263; tokens median 6,208.5, total 133,216; latency_s median 21.05, total 497.9.
+20 cases: 10 fraud, 6 legitimate, 4 uncertain; 4 SARs; 14 evidence requests. Per case: tool_calls median 12, total 263; tokens median 6,208.5, total 133,797; latency_s median 21.05, total 515.2.
 <!-- RESULTS:END -->
 
 **Model** (`data_prep/model_report.json`; 40,313 labelled training transactions before
@@ -356,31 +357,49 @@ pattern and episode (`PYTHONPATH=src python scripts/eval_analytics.py --no-fit -
 
 | Measure | Result |
 |---|---|
-| Verdict accuracy where the agent decides (fraud or legitimate) | **93.8%** (762/812); 91.7% class-balanced |
-| Cases decided / left `uncertain` (verify or escalate instead) | 59.0% / 41.0% |
+| Verdict accuracy where the agent decides (fraud or legitimate) | **99.3%** (753/758); 95.8% class-balanced |
+| Fraud wrongly called legitimate | **2** (of 1,258 confirmed fraud) |
+| Cases decided / left `uncertain` (verify or escalate instead) | 55.1% / 44.9% |
 | "Fraud" calls that were confirmed fraud | **99.6%** (751/754) |
 | Cleared (innocent) cases wrongly called fraud | 2.5% (3/118) |
 | Fraud-vs-cleared accuracy at p ≥ 0.5, all 1,376 cases | 85.1%; 82.6% class-balanced |
-| Pattern correct on confirmed fraud (5 documented + undocumented) | **92.8%**; 82.5% of all cases incl. `none` on cleared |
-| Affected transactions: overlap with the analysts' set (Jaccard) | 0.855 (0.886 before the verdict step) |
+| Pattern correct on confirmed fraud (5 documented + undocumented) | **92.8%**; 84.8% of all cases incl. `none` on cleared |
+| Affected transactions: overlap with the analysts' set (Jaccard) | 0.885 |
 | First suspicious transaction correct | 86.1% |
 
 Read these with the base rate in mind: 91% of the holdout is confirmed fraud, so always
 answering "fraud" would score 91.4% raw. That is why the class-balanced figures are listed too.
-The weak side is `legitimate`. Of the 58 cases called legitimate, only 11 were cleared, and
-104 of the 118 cleared cases stay `uncertain`. Under the policy, an uncertain case gets a
-verification request or an escalation, not a block. The table covers the verdict stage. The
+The agent rarely clears a case on its own: 4 September cases were called legitimate, and 113 of
+the 118 cleared cases stay `uncertain`. Under the policy, an uncertain case gets a verification
+request or an escalation, never a block, so a real customer is closed after they confirm. The table covers the verdict stage. The
 full loop (evidence requests, policy engine, MCP) is exercised on the 20 exam cases and by
 `tests/`.
 
-These figures are after one fix found by this evaluation. The "recurring charge" defence (R7)
-used to match any same-amount charges whose gap was near a multiple of 30 days, and a match
-forced a disputed case to `legitimate`. In the history such matches were fraud: 191 confirmed,
-0 cleared in September. It now needs a real monthly series (at least three charges, 25–35 days
-apart), and R7 steers only the actions, as the policy says, not the verdict. Decided accuracy went
-from 86.0% to 93.8% on September and from 89.4% to 93.1% on July–August, which the calibration
-was fitted on. Fraud called legitimate fell from 121 to 47. On the 20 exam cases only two initial
-recommendations changed (HHG-008, HHG-016); every final answer is the same.
+These figures come after two fixes this evaluation found. Both hold on July–August (the fitting
+period) as well as on September, so they are not tuned to the holdout.
+
+1. **Recurring charge (R7).** The defence used to match any same-amount charges whose gap was
+   near a multiple of 30 days, and a match forced a disputed case to `legitimate`. Such matches
+   were fraud every time: 191 confirmed, 0 cleared in September. It now needs a real monthly
+   series (at least three charges, 25–35 days apart), and R7 steers only the actions, as the
+   policy says, not the verdict.
+2. **Clearing a case needs more than a low score.** Among cases the agent called legitimate on
+   its own evidence, most were fraud (July–August: 81 fraud, 71 cleared), and the fraud ones
+   hid behind a trip or a clean score. The one defence the closed cases back is the new phone
+   (96% of the correct clears). So the agent now calls a case legitimate by itself only with that
+   defence and when the customer has no confirmed fraud. Anything else stays `uncertain` and the
+   policy verifies with the customer (R1/§5) before closing.
+
+| Fraud called legitimate | Before | After fix 1 | After fix 2 |
+|---|---|---|---|
+| September (holdout) | 121 | 47 | **2** |
+| July–August | 137 | 81 | **9** |
+
+Decided accuracy went from 86.0% to 99.3% on September and from 89.4% to 98.5% on July–August.
+The price is more verification: 44.9% of September cases are left `uncertain`, up from 35.5%.
+On the 20 exam cases every final verdict is unchanged. Three recommendations changed: HHG-008
+and HHG-016 no longer take a false recurring match into their initial actions, and HHG-001 now
+asks the customer before closing.
 
 **Sentinel** (`python scripts/sentinel.py`, optional, unscored for accuracy): an autonomous sweep
 of Nov–Dec outside the 20 case-pack cards raised 15 alerts (the default `--max` cap), each

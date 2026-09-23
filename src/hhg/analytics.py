@@ -474,7 +474,10 @@ def assess(card_txns, flag_id, opened_at, trigger_type, device_ctx=None, custome
         n_ind = len({e["ref"].split("(")[0] + e["claim"][:12] for e in dfn})
     if p >= cal["fraud_at"] and n_ind >= 2:
         verdict = "fraud"
-    elif p <= cal["legit_at"] and n_ind >= 2:
+    elif p <= cal["legit_at"] and n_ind >= 2 and new_phone_signature and not prior_fraud_cases:
+        # Cleared on the agent's own evidence only in the one archetype the closed cases back (new phone) and
+        # never for a customer with confirmed fraud: elsewhere a low score still hid fraud (Jul-Aug: 72 of 81
+        # such "legitimate" calls), so the case stays uncertain and the policy verifies with the customer.
         verdict = "legitimate"
     else:
         verdict = "uncertain"

@@ -3,7 +3,7 @@
   "case": {
     "status": "closed_legitimate",
     "verdict": "legitimate",
-    "fraud_probability": 0.15,
+    "fraud_probability": 0.1,
     "pattern": "none",
     "pattern_description": "",
     "affected_txn_ids": [],
@@ -13,7 +13,7 @@
     "exposure_usd": 0,
     "evidence": [
       {
-        "claim": "The closed-case classifier scored flagged txn 3514030 at 0.79, based on historical confirmed and cleared cases, independent of the bank risk score 0.61.",
+        "claim": "The closed-case classifier assigned a score of 0.79 to transaction 3514030, utilizing historical confirmed and cleared cases independently of the bank risk score of 0.61.",
         "source": "graph",
         "ref": "model:closed_case_classifier",
         "entity_ids": [
@@ -21,7 +21,7 @@
         ]
       },
       {
-        "claim": "Card-present use in billing region 444.0; the customer's home region is 433.0 (6 earlier txns there)",
+        "claim": "Transaction 3514030 involved card-present usage in billing region 444.0, whereas the customer's home region is 433.0 based on 6 earlier transactions.",
         "source": "graph",
         "ref": "query:region_history(customer_id=C12382)",
         "entity_ids": [
@@ -53,7 +53,7 @@
         ]
       },
       {
-        "claim": "Card-present purchases occurred in billing region 444.0 across 7 different days while 9 transactions simultaneously continued in the home region 433.0, resembling travel activity.",
+        "claim": "Card-present purchases occurred in billing region 444.0 across 7 different days while 9 transactions continued in home region 433.0, indicating travel.",
         "source": "graph",
         "ref": "query:region_history(customer_id=C12382)",
         "entity_ids": [
@@ -66,22 +66,22 @@
         ]
       },
       {
-        "claim": "During the 7 days prior to the alert, 8 cards made their first purchase in billing region 444.0, with 6 linked to cases out of 303 total cards ever billed there.",
+        "claim": "8 cards made their first purchase in billing region 444.0 during the 7 days prior to the alert, with 6 linked to cases out of 303 total cards ever billed there.",
         "source": "graph",
         "ref": "query:region_cluster(region=444.0, window=7d)",
         "entity_ids": [
           "C11201-K1",
-          "C09092-K1",
-          "C00768-K2",
-          "C11965-K1",
-          "C06692-K1",
           "C05289-K2",
           "C12634-K1",
+          "C09092-K1",
+          "C00768-K2",
+          "C06692-K1",
+          "C11965-K1",
           "C09267-K1"
         ]
       },
       {
-        "claim": "During the 7 days prior to the alert, 10 cards made their first purchase in billing region 203.0, with 4 linked to cases out of 394 total cards ever billed there.",
+        "claim": "10 cards made their first purchase in billing region 203.0 during the 7 days prior to the alert, with 4 linked to cases out of 394 total cards ever billed there.",
         "source": "graph",
         "ref": "query:region_cluster(region=203.0, window=7d)",
         "entity_ids": [
@@ -98,7 +98,7 @@
         ]
       },
       {
-        "claim": "During the 7 days prior to the alert, 28 cards made their first purchase in billing region 204.0, with 7 linked to cases out of 2006 total cards ever billed there.",
+        "claim": "28 cards made their first purchase in billing region 204.0 during the 7 days prior to the alert, with 7 linked to cases out of 2006 total cards ever billed there.",
         "source": "graph",
         "ref": "query:region_cluster(region=204.0, window=7d)",
         "entity_ids": [
@@ -106,73 +106,89 @@
           "C10364-K1",
           "C09651-K1",
           "C09343-K1",
+          "C10622-K1",
           "C10238-K1",
           "C00354-K1",
-          "C10622-K1",
           "C07053-K1",
           "C08170-K1",
           "C11168-K1"
         ]
       },
       {
-        "claim": "Nearest historical cases retrieved from memory comprise CASE-HHG-010, CASE-HHG-015, CASE-HHG-017, and CASE-HHG-019.",
+        "claim": "The customer confirmed transaction 3514030 as legitimate, supported by historical account activity and low historical fraud rates for similar in-person patterns.",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": []
+      },
+      {
+        "claim": "Nearest historical cases retrieved from memory are CASE-HHG-010, CASE-HHG-018, CASE-HHG-017, and CASE-HHG-019.",
         "source": "graph",
         "ref": "query:similar_cases",
         "entity_ids": []
       },
       {
-        "claim": "Fraud Policy R3 governing customer confirmation was retrieved as context.",
+        "claim": "Fraud Policy R3 governs customer confirmation resulting in CLOSE_NO_FRAUD.",
         "source": "document",
         "ref": "POLICY-R3",
         "entity_ids": []
       },
       {
-        "claim": "Fraud Policy guidelines on starting risk scores served as the basis for CLOSE_NO_FRAUD.",
+        "claim": "Fraud Policy regarding the initial risk score was retrieved as contextual reference.",
         "source": "document",
         "ref": "POLICY-S0-SCORE",
         "entity_ids": []
       },
       {
-        "claim": "Fraud Policy R7 concerning disputed but legitimate charges was retrieved as context.",
+        "claim": "Fraud Policy R7 regarding disputed but legitimate transactions was retrieved as contextual reference.",
         "source": "document",
         "ref": "POLICY-R7",
         "entity_ids": []
       },
       {
-        "claim": "Fraud Policy definitions for available agent actions were retrieved as context.",
+        "claim": "Typology and regulatory guidance for out-of-region use, card-not-present fraud, card testing, and new device fraud were retrieved.",
         "source": "document",
-        "ref": "POLICY-S1-ACTIONS",
-        "entity_ids": []
-      },
-      {
-        "claim": "Regulatory guidance regarding risk scores, legitimate cases, card-not-present fraud, and card testing was retrieved.",
-        "source": "document",
-        "ref": "README-THINGS-TO-KNOW-01, PATTERN-card_not_present_fraud, PATTERN-card_testing",
+        "ref": "PATTERN-out_of_region_use, PATTERN-card_not_present_fraud, PATTERN-card_testing, PATTERN-card_not_present_new_device",
         "entity_ids": []
       }
     ],
     "similar_prior_cases": [],
-    "summary": "Case HHG-001 was opened following a risk score trigger of 0.61 on transaction 3514030 ($77.07) for customer C12382 on card C12382-K1. Although the closed-case classifier scored the transaction at 0.79 and the customer had four earlier confirmed fraud cases (CC-1066, CC-2964, CC-3587, CC-1673), historical card-present purchase patterns in billing region 444.0 and continuing home region activity indicated a legitimate trip rather than a clone. Graph analysis assigned a fraud probability of 0.15 with a legitimate verdict under pattern none. Per Policy R3 and §0/§6, the final action is CLOSE_NO_FRAUD.",
+    "summary": "Case HHG-001 was opened following a risk score trigger on transaction 3514030 for $77.07 on card C12382-K1 held by customer C12382. Although the closed-case classifier scored the transaction at 0.79 and the customer had prior confirmed fraud cases CC-1066, CC-2964, CC-3587, and CC-1673, historical analysis showed multiple in-person transactions consistent with legitimate travel rather than card cloning. Following policy §3a and R1, evidence was requested and the customer confirmed the transaction as their own. In accordance with policy R3, the final action recommended is CLOSE_NO_FRAUD.",
     "written_to_graph": true,
     "graph_case_id": "CASE-HHG-001"
   },
-  "evidence_requests": [],
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 4,
+      "assumed_response": "Assumed the customer confirms transaction 3514030 as their own, because the evidence leans legitimate (probability 0.15 < 0.50; strongest point: 6 txns on the same underlying account as flagged txn 3514030 (billing region 444.0, account first seen 2016-09-13 = txn date minus D1, within a day), from 2016-10-11 to 2016-11-26 (at least 7 days before the flag), and none of its txns is in any closed case; in the bank's Sep-Oct history 0.17% of in-person txns on such an account were fraud (9.9% even when risk and classifier scores were both >= 0.50))."
+    }
+  ],
   "next_best_actions": {
     "initial": [
       {
-        "action": "CLOSE_NO_FRAUD",
+        "action": "VERIFY_WITH_CUSTOMER",
         "route": "auto",
-        "reason": "§0/§6: evidence supports a legitimate verdict (probability 0.15)"
+        "reason": "R1/§5: probability 0.15 is below 0.85; confirm with the customer before blocking"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "§3a: evidence requested"
       }
     ],
     "final": [
       {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "§3a: evidence was requested"
+      },
+      {
         "action": "CLOSE_NO_FRAUD",
         "route": "auto",
-        "reason": "§0/§6: evidence supports a legitimate verdict (probability 0.15)"
+        "reason": "R3: customer confirmed the transaction; confirmation noted in the case file"
       }
     ],
-    "what_changed": "nothing"
+    "what_changed": "Initial actions included VERIFY_WITH_CUSTOMER and CREATE_CASE under policy R1 and §3a. Upon receiving the customer's confirmation, the final actions updated to include CLOSE_NO_FRAUD per policy R3."
   },
   "sar": {
     "file": false,
@@ -182,8 +198,8 @@
     "total_amount_usd": 0,
     "activity_dates": []
   },
-  "stop_reason": "§6: probability 0.15 is decisive and rests on 2 independent pieces of evidence",
+  "stop_reason": "§6: the verification response settles the question",
   "tool_calls": 11,
-  "tokens": 6411,
-  "latency_s": 22.1
+  "tokens": 6992,
+  "latency_s": 39.4
 }
