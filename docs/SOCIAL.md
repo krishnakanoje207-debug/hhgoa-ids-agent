@@ -9,7 +9,7 @@ back to the graph as memory. Blog: [link] Demo: [link]
 ```
 (244 characters)
 
-## LinkedIn (~150 words)
+## LinkedIn (~230 words)
 
 We spent the hackathon building an agentic fraud investigator on TigerGraph — not a classifier,
 an investigator. Given a trigger (a risk-score alert, a customer report, or an analyst request),
