@@ -446,6 +446,39 @@ does per case).
   `sentinel_cases/` run through the same agent and policy pipeline and pass `hhg.validate`, but
   there is no answer key or human review behind them.
 
+## Future scope
+
+Built in a few days, so some things were cut. `docs/BLOG.md` ("What we'd improve with more
+time") has the reasoning for each.
+
+**Cut for time**
+
+| Area | What exists now | What is missing |
+|---|---|---|
+| Evidence channels | The agent decides when to ask; the console lets an analyst enter the reply | Real SMS/email/OTP; running R4 timers (24 h reply, 72 h monitoring) |
+| Approvals | Role-gated L1/L2 sign-off, append-only local log | Real login (OAuth/RBAC), tamper-evident log, sign-off written to the graph and moving case status |
+| Live operation | "Investigate live" dry run; batch runs for the 20 cases and sentinel | An alert stream feeding the agent, scheduled sentinel sweeps |
+| Graph algorithms | 8 targeted GSQL queries + vector search | Louvain / connected components cross-checked against `device_ring_scan` |
+| Clearing cases | Clears on its own only with the new-phone defence (2 frauds cleared in the Sep holdout) | Device age, contact-detail changes, travel confirmation, merchant ID (not in the dataset), so fewer cases need a customer check (45% today) |
+| Evaluation | Verdict stage on 1,376 held-out closed cases | Action quality against history (closed cases don't record actions) |
+| Knowledge corpus | 68 curated passages | The skipped FATF and wider regulatory sources |
+
+**Next**
+
+- **Learn from outcomes:** write analyst decisions and real replies back to `AgentCase` as
+  labels, re-fit calibration from them, and weigh similar cases by how they ended.
+- **Production path:** event stream → real-time scoring → agent → policy/approval engine →
+  action systems → immutable audit and case memory, with RBAC, four-eyes on L2, secrets
+  management and OpenTelemetry tracing.
+- **Graph intelligence:** community detection, entity resolution across emails, devices and
+  addresses (replacing the derived `card_id`), graph embeddings as features, and scoring inside
+  GSQL.
+- **Analyst workbench:** case queue with SLA timers, sentinel triage, and a shadow mode that
+  measures agreement with live analysts before more actions become `auto`.
+- **The bank's inverted risk score:** find out where and why it is anti-correlated (by product,
+  amount band, channel).
+- **Scale:** paid Savanna tier, concurrent-load testing, and caching for shared neighbourhoods.
+
 ---
 
 See `docs/BLOG.md` for the technical write-up, `docs/DEMO_SCRIPT.md` for the demo video script,

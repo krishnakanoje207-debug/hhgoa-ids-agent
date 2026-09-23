@@ -189,21 +189,76 @@ mid-demo.
 
 ## What we'd improve with more time
 
-**Calibration on more than 20 cases** — the benchmark is small by design, but it means we can't
-locally validate `fraud_probability` calibration against anything except the closed-case
-history, a different distribution from the November–December exam.
+We had a few days, so we cut things. Here is what we left out, why, and what we would build next.
 
-**A richer knowledge corpus.** We chunked 68 passages from a curated subset of the regulatory
-sources the README lists (`knowledge/SOURCES.md` records what we skipped and why — mostly FATF
-documents further afield from card fraud than our time budget justified). A larger corpus would
-sharpen SAR narratives on cases near the edge of a documented pattern.
+### What we cut for time
 
-**Graph algorithms proper.** We chose targeted pattern queries over TigerGraph's graph algorithm
-library for explainability, but a Louvain pass over the device/region/email co-occurrence graph,
-cross-checked against `device_ring_scan`, would be a good sanity check on whether our hand-picked
-"shared origin" heuristics miss rings that never cross a `min_cards` threshold in one window —
-and we'd quantify exactly where the bank's risk score is most wrong (by product code, amount
-band, channel) instead of just flagging that it is.
+**Real evidence channels.** The agent decides *whether* to ask the customer, the cardholder or an
+analyst, but the replies are simulated, as the brief allows. In the console an analyst can type
+in the reply that came back, and the policy engine decides again. Nothing sends an SMS, runs a
+real one-time passcode or waits on an inbox. R4's timers ("no reply within 24 hours", "monitor
+for 72 hours") are recorded as actions. They are not running clocks.
+
+**Real sign-in and a tamper-proof audit trail.** Only a person can approve `L1` and `L2` actions,
+but the console's "signed in as" is a dropdown, not a login. Approvals go to a local
+append-only file, not into TigerGraph. No hash chain protects it, and an approved `BLOCK_CARD`
+does not yet move the case's status in the graph.
+
+**A live pipeline.** "Investigate live" runs the real agent against TigerGraph on demand, as a
+dry run. There is no alert stream feeding it and nothing runs it on a schedule: the 20 cases and
+the sentinel sweep are batch runs.
+
+**Graph algorithms.** We chose targeted GSQL pattern queries over TigerGraph's algorithm library
+because their output can be read and checked in a SAR. We never ran Louvain or connected
+components over the device/region/email co-occurrence graph. That run would show whether our
+"shared origin" and ring rules miss rings that never cross `min_cards` in a single window.
+
+**Better evidence for "legitimate".** This is the biggest gap in accuracy. The agent now almost
+never clears a fraud (2 of 1,258 in the September holdout), but it gets there by asking the
+customer in 45% of cases. The frauds it used to clear look like cleared cases on every feature
+we have. The trip defence especially is unreliable. To clear more cases on the graph alone we
+would need data we did not build: device age, when a phone number, email or address last changed,
+travel confirmations, and a merchant ID. The dataset has none. R7's "same merchant" is
+approximated by product code plus amount.
+
+**Evaluating the whole loop.** We measured the verdict stage on 1,376 held-out closed cases, but
+those cases do not record which actions were taken. The quality of actions and evidence requests
+is therefore checked only by the policy tests and the 20 exam cases, never against history.
+
+**The knowledge corpus.** The corpus has 68 passages from a curated subset of the regulatory
+sources the README lists. `knowledge/SOURCES.md` records what we skipped, mostly FATF documents
+further from card fraud. A larger corpus would sharpen SAR narratives for cases on the edge of a
+documented pattern.
+
+### Future scope
+
+**Learn from outcomes, not just retrieve them.** Every analyst decision and every real customer
+reply is a label. Write them back onto the `AgentCase` vertex, re-fit the calibration from them
+on a schedule, and let `similar_cases` weigh how a similar case *ended* as well as how it looked.
+Today case memory is retrieval. With outcomes it would make the next decision better.
+
+**The production path the brief sketches.** Payment events arrive on a stream, get scored in
+real time, and the agent investigates. The graph supplies context, the policy and approval
+engine decides, action systems execute, and everything lands in an immutable audit log and case
+memory. Around that: OAuth/RBAC for analysts, a four-eyes rule for `L2` actions, a secrets
+manager, and OpenTelemetry traces for every tool call and token.
+
+**Graph intelligence.** Next come community detection, entity resolution that links customers
+across emails, devices and addresses (our derived `card_id` is a stopgap), and graph embeddings
+as model features. Scoring could move into GSQL accumulators so the graph scores at query time
+instead of reading a precomputed `model_score`.
+
+**An analyst workbench.** A case queue with SLA timers, reassignment and workload views. Sentinel
+finds would go into a human triage queue instead of a folder. A shadow mode would run the agent
+beside live analysts and measure how often they agree before it is trusted with more `auto`
+actions.
+
+**Ask why the bank's score is inverted.** On transactions with ground truth the bank's risk score
+has an AUC of about 0.05. That is worth a study of its own, by product code, amount band and
+channel, before anyone trusts either model blindly.
+
+**Scale.** A paid Savanna tier, load tests with many concurrent investigations, and a cache for
+the device and region neighbourhoods that most alerts share.
 
 ---
 

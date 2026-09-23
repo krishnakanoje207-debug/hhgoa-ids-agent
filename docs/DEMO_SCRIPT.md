@@ -1,4 +1,4 @@
-# Demo video script — about 4½ minutes
+# Demo video script — about 4¾ minutes
 
 Screen: Streamlit analyst console (`streamlit run ui/app.py`) plus a terminal panel showing
 live MCP tool calls (or the trace file's `steps` list scrolling, if calls aren't visibly
@@ -145,12 +145,16 @@ description and flags it for review."
 
 ---
 
-## 4:20–4:25 — Close
+## 4:20–4:40 — What's next, and close
 
-**Show:** Overview screen, all 20 cases with status badges.
+**Show:** Overview screen, all 20 cases with status badges. Optionally, cut to the README's
+*Future scope* table.
 
-**Say:** "Twenty cases, one graph, one policy — graph in, decision explained, memory out. Thanks
-for watching."
+**Say:** "What we'd build next: real customer channels instead of simulated replies, a proper
+login and a tamper-proof audit trail for approvals, community detection on the graph, and an
+agent that learns from how cases actually end. Every analyst decision becomes a label that
+sharpens the next investigation. Twenty cases, one graph, one policy. Graph in, decision
+explained, memory out. Thanks for watching."
 
 ---
 
