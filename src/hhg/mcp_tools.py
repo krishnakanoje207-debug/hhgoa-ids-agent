@@ -60,6 +60,7 @@ def _start() -> None:
     loop = asyncio.new_event_loop()
     ready = threading.Event()
     stop = asyncio.Event()
+    (config.ROOT / ".cache").mkdir(exist_ok=True)
     errlog = open(config.ROOT / ".cache" / "mcp_server.log", "a", encoding="utf-8")
     env = {"TG_HOST": config.TG_HOST, "TG_GRAPHNAME": config.TG_GRAPH, "TG_SECRET": config.TG_SECRET,
            "TG_TGCLOUD": os.environ.get("TG_TGCLOUD", "true"), "TG_ALLOWED_TOOLS": ",".join(ALLOWED_TOOLS)}
