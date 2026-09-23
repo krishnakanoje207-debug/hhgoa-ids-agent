@@ -6,6 +6,7 @@
 .kombai/
 _dl/
 dataset/*.csv
+!dataset/case_pack.csv
 data_prep/*
 !data_prep/calibration.json
 !data_prep/model_report.json
