@@ -16,7 +16,7 @@
     "exposure_usd": 165.93,
     "evidence": [
       {
-        "claim": "Closed-case classifier scores flagged txn 3530164 at 0.54, learned from the bank's confirmed/cleared cases, while the bank risk score 0.40 is not used as a verdict [prosecution 0.54, ref: model:closed_case_classifier; ids: 3530164]",
+        "claim": "Closed-case classifier scores flagged txn 3530164 at 0.54 (learned from the bank's confirmed/cleared cases; the bank risk score 0.40 is not used as a verdict)",
         "source": "graph",
         "ref": "model:closed_case_classifier",
         "entity_ids": [
@@ -42,7 +42,7 @@
         ]
       },
       {
-        "claim": "Customer has 5 earlier confirmed fraud cases: CC-3327, CC-2935, CC-2817, CC-4957, CC-3682 [prosecution 0.40, ref: query:customer_cases; ids: CC-3327, CC-2935, CC-2817, CC-4957, CC-3682]",
+        "claim": "Customer has 5 earlier confirmed fraud case(s): CC-3327, CC-2935, CC-2817, CC-4957, CC-3682",
         "source": "graph",
         "ref": "query:customer_cases",
         "entity_ids": [
@@ -67,27 +67,25 @@
         ]
       },
       {
-        "claim": "Disputed $49.00 (W) matches earlier charges of the same amount and product roughly monthly: 3356702, 3360480, 3361189, 3363572",
+        "claim": "Disputed $49.00 (W) matches earlier charges of the same amount and product roughly monthly: 3451863, 3371052",
         "source": "graph",
         "ref": "query:card_history(card_id=C08623-K2, window=60d)",
         "entity_ids": [
           "3530164",
-          "3356702",
-          "3360480",
-          "3361189",
-          "3363572"
+          "3451863",
+          "3371052"
         ]
       },
       {
-        "claim": "30 cards made their first purchase in billing region 330.0 in the 7 days before the alert, with 7 linked to cases out of 1452 cards ever billed there [query:region_cluster(region=330.0, window=7d)]",
+        "claim": "30 card(s) made their first purchase in billing region 330.0 in the 7 days before the alert (7 linked to cases; 1452 cards ever billed there)",
         "source": "graph",
         "ref": "query:region_cluster(region=330.0, window=7d)",
         "entity_ids": [
           "C07648-K1",
           "C08976-K1",
-          "C12455-K1",
           "C13440-K1",
-          "C05519-K1",
+          "C12455-K1",
+          "C03047-K1",
           "C01290-K1",
           "C02250-K1",
           "C05331-K1",
@@ -96,16 +94,16 @@
         ]
       },
       {
-        "claim": "11 cards made their first purchase in billing region 251.0 in the 7 days before the alert, with 2 linked to cases out of 501 cards ever billed there [query:region_cluster(region=251.0, window=7d)]",
+        "claim": "11 card(s) made their first purchase in billing region 251.0 in the 7 days before the alert (2 linked to cases; 501 cards ever billed there)",
         "source": "graph",
         "ref": "query:region_cluster(region=251.0, window=7d)",
         "entity_ids": [
           "C09181-K1",
-          "C00192-K1",
           "C11041-K1",
+          "C00192-K1",
           "C01394-K1",
           "C02250-K1",
-          "C02320-K1",
+          "C00718-K1",
           "C08037-K1",
           "C06783-K1",
           "C11102-K1",
@@ -113,7 +111,7 @@
         ]
       },
       {
-        "claim": "46 cards made their first purchase in billing region 264.0 in the 7 days before the alert, with 6 linked to cases out of 1946 cards ever billed there [query:region_cluster(region=264.0, window=7d)]",
+        "claim": "46 card(s) made their first purchase in billing region 264.0 in the 7 days before the alert (6 linked to cases; 1946 cards ever billed there)",
         "source": "graph",
         "ref": "query:region_cluster(region=264.0, window=7d)",
         "entity_ids": [
@@ -123,14 +121,14 @@
           "C11454-K1",
           "C09827-K1",
           "C06386-K1",
-          "C09789-K1",
           "C13067-K1",
           "C13440-K1",
-          "C12225-K1"
+          "C12225-K1",
+          "C06675-K1"
         ]
       },
       {
-        "claim": "Customer C08623 disputed transaction 3530164 via message: 'I never made this $49.00 purchase. Please check my card.' Refers to 3530164 [trigger: customer_report]",
+        "claim": "Customer C08623 disputed transaction 3530164: \"Customer C08623 message: 'I never made this $49.00 purchase. Please check my card.' Refers to 3530164.\"",
         "source": "customer",
         "ref": "case_pack:trigger_text",
         "entity_ids": [
@@ -139,44 +137,44 @@
         ]
       },
       {
-        "claim": "Assumed the analyst resolves the conflicting evidence as fraud, because the evidence leans towards fraud with a probability of 0.84 exceeding 0.50, driven by the 2 card txns from 2016-12-10 12:12:41 to 2016-12-10 13:01:21 forming one episode totaling $165.93 [evidence_requests type: analyst_info]",
+        "claim": "Assumed the analyst resolves the conflicting evidence as fraud, because the evidence leans towards fraud (probability 0.84 >= 0.50; strongest point: 2 card txns from 2016-12-10 12:12:41 to 2016-12-10 13:01:21 form one episode (grouped by the episode model fitted on closed cases, gaps under 48 h), total $165.93).",
         "source": "external",
         "ref": "evidence_request:1",
         "entity_ids": []
       },
       {
-        "claim": "Assumed the customer denies making transaction 3530164 and the related activity while still holding the card, because the evidence leans towards fraud with a probability of 0.85 exceeding 0.50, driven by the 2 card txns forming an episode totaling $165.93 [evidence_requests type: customer_validation]",
+        "claim": "Assumed the customer denies making transaction 3530164 and the related activity and still holds the card, because the evidence leans towards fraud (probability 0.85 >= 0.50; strongest point: 2 card txns from 2016-12-10 12:12:41 to 2016-12-10 13:01:21 form one episode (grouped by the episode model fitted on closed cases, gaps under 48 h), total $165.93).",
         "source": "customer",
         "ref": "evidence_request:2",
         "entity_ids": []
       },
       {
-        "claim": "Nearest cases in case memory include CASE-HHG-018, CASE-HHG-001, CASE-HHG-017, CASE-SEN-008, CASE-HHG-002, and CASE-HHG-019 [vector search over closed and agent cases]",
+        "claim": "Nearest cases in case memory: CASE-HHG-018 (uncertain, out_of_region_use); CASE-HHG-001 (legitimate, none); CASE-HHG-019 (fraud, card_not_present_new_device); CASE-HHG-017 (uncertain, card_not_present_fraud)",
         "source": "graph",
         "ref": "query:similar_cases",
         "entity_ids": []
       },
       {
-        "claim": "Fraud Policy R2 covers customer denying the transaction as the basis for BLOCK_CARD and CREATE_CASE [POLICY-R2]",
+        "claim": "Fraud Policy R2. Customer denies the transaction: basis for BLOCK_CARD, CREATE_CASE",
         "source": "document",
         "ref": "POLICY-R2",
         "entity_ids": []
       },
       {
-        "claim": "Fraud Policy R3 covers customer confirming the transaction as retrieved context [POLICY-R3]",
+        "claim": "Fraud Policy R3. Customer confirms the transaction: retrieved as context",
         "source": "document",
         "ref": "POLICY-R3",
         "entity_ids": []
       },
       {
-        "claim": "Typology and regulatory guidance retrieved include Out-of-region use, Card-not-present fraud, Card-not-present fraud from a new device, Card testing, and FFIEC Red flags regarding activity inconsistent with the customer [FFIEC-REDFLAGS-03]",
+        "claim": "Typology and regulatory guidance retrieved: Out-of-region use; Card-not-present fraud; Card-not-present fraud from a new device; Card testing; Red flags: activity inconsistent with the customer",
         "source": "document",
         "ref": "PATTERN-out_of_region_use, PATTERN-card_not_present_fraud, PATTERN-card_not_present_new_device, PATTERN-card_testing, FFIEC-REDFLAGS-03",
         "entity_ids": []
       }
     ],
     "similar_prior_cases": [],
-    "summary": "Case HHG-003 was opened following a customer report from customer C08623 regarding an unrecognized $49.00 purchase on card C08623-K2 via transaction 3530164. Graph analysis flagged out_of_region_use with a fraud probability of 0.90 and a verdict of fraud, identifying 2 affected transactions totaling $165.93. Initial actions recommended verification, case creation, a warning, and analyst escalation under R7 and R8 due to conflicting prosecution and defence evidence. Following analyst and customer validation responses settling the question under §6, the final actions recommended BLOCK_CARD routed L1 and CREATE_CASE under Policy R2 because the customer denied the transaction.",
+    "summary": "Case HHG-003 was opened on 2016-12-10 after customer C08623 reported an unrecognized $49.00 purchase on card C08623-K2, referencing transaction 3530164. Graph analysis determined a fraud verdict with a probability of 0.90 under the out_of_region_use pattern, identifying an exposure of $165.93 across 2 affected transactions (3530056 and 3530164). Following customer validation and analyst review where the customer denied the transaction, the final actions recommended are BLOCK_CARD routed to L1 (as exposure is under $2,500 per §2) and CREATE_CASE under Policy R2.",
     "written_to_graph": true,
     "graph_case_id": "CASE-HHG-003"
   },
@@ -227,7 +225,7 @@
         "reason": "R2: customer denied the transaction; §3a: customer disputed a charge"
       }
     ],
-    "what_changed": "Initial actions recommended verification and escalation due to conflicting evidence, but after the customer validation response denied the transaction, the final actions updated to recommend BLOCK_CARD and CREATE_CASE under Policy R2."
+    "what_changed": "Initial actions focused on customer verification and warning due to conflicting prosecution and defence evidence, but following the customer validation response denying the transaction, the final actions changed to recommending BLOCK_CARD and CREATE_CASE under Policy R2."
   },
   "sar": {
     "file": false,
@@ -239,6 +237,6 @@
   },
   "stop_reason": "§6: the verification response settles the question",
   "tool_calls": 13,
-  "tokens": 8289,
-  "latency_s": 23.9
+  "tokens": 7394,
+  "latency_s": 27.9
 }

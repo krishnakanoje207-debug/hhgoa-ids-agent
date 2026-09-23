@@ -320,7 +320,7 @@ Agent output on the 20 benchmark cases (`cases/HHG-*.json`, all 20 valid under `
 | HHG-005 | risk_score | legitimate | 0.10 | none | 0 | $0.00 | N | 1 | CREATE_CASE (auto), CLOSE_NO_FRAUD (auto) |
 | HHG-006 | customer_report | fraud | 0.90 | undocumented | 4 | $1,906.07 | Y | 0 | BLOCK_CARD (L1), CREATE_CASE (auto), FILE_REPORT (L2) |
 | HHG-007 | risk_score | fraud | 0.98 | account_takeover | 3 | $265.85 | N | 0 | BLOCK_CARD (L1), CREATE_CASE (auto) |
-| HHG-008 | customer_report | fraud | 0.99 | card_not_present_new_device | 3 | $166.97 | N | 1 | BLOCK_CARD (L1), CREATE_CASE (auto) |
+| HHG-008 | customer_report | fraud | 0.99 | card_not_present_new_device | 3 | $166.97 | N | 0 | BLOCK_CARD (L1), CREATE_CASE (auto) |
 | HHG-009 | customer_report | fraud | 0.99 | card_not_present_fraud | 1 | $30.02 | N | 1 | BLOCK_CARD (L1), CREATE_CASE (auto) |
 | HHG-010 | risk_score | legitimate | 0.09 | none | 0 | $0.00 | N | 1 | CREATE_CASE (auto), CLOSE_NO_FRAUD (auto) |
 | HHG-011 | customer_report | fraud | 0.86 | card_not_present_new_device | 2 | $230.00 | Y | 0 | BLOCK_CARD (L1), CREATE_CASE (auto), FILE_REPORT (L2), MONITOR_CONNECTED_CARDS (auto) |
@@ -328,13 +328,13 @@ Agent output on the 20 benchmark cases (`cases/HHG-*.json`, all 20 valid under `
 | HHG-013 | risk_score | uncertain | 0.38 | card_not_present_new_device | 1 | $35.66 | N | 1 | VERIFY_WITH_CUSTOMER (auto), CREATE_CASE (auto), ESCALATE_TO_ANALYST (auto) |
 | HHG-014 | analyst_request | fraud | 0.90 | undocumented | 2 | $187.33 | Y | 0 | BLOCK_CARD (L1), CREATE_CASE (auto), FILE_REPORT (L2), MONITOR_CONNECTED_CARDS (auto), ESCALATE_TO_ANALYST (auto) |
 | HHG-015 | risk_score | legitimate | 0.04 | none | 0 | $0.00 | N | 1 | CREATE_CASE (auto), CLOSE_NO_FRAUD (auto) |
-| HHG-016 | customer_report | fraud | 0.90 | card_not_present_new_device | 1 | $59.67 | N | 2 | BLOCK_CARD (L1), CREATE_CASE (auto) |
+| HHG-016 | customer_report | fraud | 0.90 | card_not_present_new_device | 1 | $59.67 | N | 1 | BLOCK_CARD (L1), CREATE_CASE (auto) |
 | HHG-017 | risk_score | uncertain | 0.60 | card_not_present_fraud | 1 | $100.09 | N | 1 | VERIFY_WITH_CUSTOMER (auto), CREATE_CASE (auto) |
 | HHG-018 | customer_report | uncertain | 0.67 | out_of_region_use | 1 | $39.08 | N | 1 | VERIFY_WITH_CUSTOMER (auto), CREATE_CASE (auto), WARN_CUSTOMER (auto), ESCALATE_TO_ANALYST (auto) |
 | HHG-019 | risk_score | fraud | 0.86 | card_not_present_new_device | 1 | $99.92 | Y | 0 | BLOCK_CARD (L1), CREATE_CASE (auto), FILE_REPORT (L2), MONITOR_CONNECTED_CARDS (auto) |
 | HHG-020 | risk_score | legitimate | 0.10 | none | 0 | $0.00 | N | 1 | CREATE_CASE (auto), CLOSE_NO_FRAUD (auto) |
 
-20 cases: 10 fraud, 6 legitimate, 4 uncertain; 4 SARs; 15 evidence requests. Per case: tool_calls median 12, total 263; tokens median 6,362, total 135,160; latency_s median 20.4, total 472.8.
+20 cases: 10 fraud, 6 legitimate, 4 uncertain; 4 SARs; 13 evidence requests. Per case: tool_calls median 12, total 263; tokens median 6,208.5, total 133,216; latency_s median 21.05, total 497.9.
 <!-- RESULTS:END -->
 
 **Model** (`data_prep/model_report.json`; 40,313 labelled training transactions before
@@ -356,22 +356,31 @@ pattern and episode (`PYTHONPATH=src python scripts/eval_analytics.py --no-fit -
 
 | Measure | Result |
 |---|---|
-| Verdict accuracy where the agent decides (fraud or legitimate) | **86.0%** (764/888); 85.3% class-balanced |
-| Cases decided / left `uncertain` (verify or escalate instead) | 64.5% / 35.5% |
+| Verdict accuracy where the agent decides (fraud or legitimate) | **93.8%** (762/812); 91.7% class-balanced |
+| Cases decided / left `uncertain` (verify or escalate instead) | 59.0% / 41.0% |
 | "Fraud" calls that were confirmed fraud | **99.6%** (751/754) |
 | Cleared (innocent) cases wrongly called fraud | 2.5% (3/118) |
 | Fraud-vs-cleared accuracy at p ≥ 0.5, all 1,376 cases | 85.1%; 82.6% class-balanced |
-| Pattern correct on confirmed fraud (5 documented + undocumented) | **92.8%** |
-| Affected transactions: overlap with the analysts' set (Jaccard) | 0.886 |
+| Pattern correct on confirmed fraud (5 documented + undocumented) | **92.8%**; 82.5% of all cases incl. `none` on cleared |
+| Affected transactions: overlap with the analysts' set (Jaccard) | 0.855 (0.886 before the verdict step) |
 | First suspicious transaction correct | 86.1% |
 
 Read these with the base rate in mind: 91% of the holdout is confirmed fraud, so always
 answering "fraud" would score 91.4% raw. That is why the class-balanced figures are listed too.
-The weak side is `legitimate`. Of the 134 cases called legitimate, only 13 were cleared, and
-102 of the 118 cleared cases stay `uncertain`. Under the policy, an uncertain case gets a
+The weak side is `legitimate`. Of the 58 cases called legitimate, only 11 were cleared, and
+104 of the 118 cleared cases stay `uncertain`. Under the policy, an uncertain case gets a
 verification request or an escalation, not a block. The table covers the verdict stage. The
 full loop (evidence requests, policy engine, MCP) is exercised on the 20 exam cases and by
 `tests/`.
+
+These figures are after one fix found by this evaluation. The "recurring charge" defence (R7)
+used to match any same-amount charges whose gap was near a multiple of 30 days, and a match
+forced a disputed case to `legitimate`. In the history such matches were fraud: 191 confirmed,
+0 cleared in September. It now needs a real monthly series (at least three charges, 25–35 days
+apart), and R7 steers only the actions, as the policy says, not the verdict. Decided accuracy went
+from 86.0% to 93.8% on September and from 89.4% to 93.1% on July–August, which the calibration
+was fitted on. Fraud called legitimate fell from 121 to 47. On the 20 exam cases only two initial
+recommendations changed (HHG-008, HHG-016); every final answer is the same.
 
 **Sentinel** (`python scripts/sentinel.py`, optional, unscored for accuracy): an autonomous sweep
 of Nov–Dec outside the 20 case-pack cards raised 15 alerts (the default `--max` cap), each

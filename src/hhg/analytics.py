@@ -131,14 +131,19 @@ def _structuring(txns, fi):
 
 
 def _recurring(txns, fi):
-    """Earlier txns with the same product and amount within 2%, spaced roughly monthly (25-35 days)."""
+    """R7 "same merchant, same amount, monthly": the flagged txn ends a series of at least 3 charges with
+    the same product and amount within 2%, each 25-35 days after the one before. Returns the earlier ids."""
     f = txns[fi]
     same = [r for r in txns[:fi] if r["product"] == f["product"] and f["amount"]
             and abs(r["amount"] - f["amount"]) <= 0.02 * abs(f["amount"])]
-    hits = [r for r in same if any(25 <= (_h(r["_t"], s["_t"]) / 24) % 30.4 <= 35 or
-                                   (_h(r["_t"], s["_t"]) / 24) % 30.4 <= 5 and _h(r["_t"], s["_t"]) > 24 * 20
-                                   for s in same + [f] if s is not r and s["_t"] > r["_t"])]
-    return [r["id"] for r in hits]
+    chain, last = [], f
+    while True:
+        prev = [r for r in same if 25 <= _h(r["_t"], last["_t"]) / 24 <= 35]
+        if not prev:
+            break
+        last = max(prev, key=lambda r: r["_t"])
+        chain.append(last["id"])
+    return chain if len(chain) >= 2 else []
 
 
 def _ring(device_ctx, own_ids):
@@ -473,8 +478,6 @@ def assess(card_txns, flag_id, opened_at, trigger_type, device_ctx=None, custome
         verdict = "legitimate"
     else:
         verdict = "uncertain"
-    if recurring and trigger_type == "customer_report" and p < cal["fraud_at"]:
-        verdict = "legitimate" if p <= 0.5 else "uncertain"
 
     # R6 shared origin on a rare device: only when the card's own evidence already leans fraud, and after the
     # verdict, so it never changes probability, verdict or the independent-evidence count

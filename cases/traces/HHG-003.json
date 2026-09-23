@@ -32,7 +32,7 @@
         "t_to": "2016-12-10 15:01:21"
       },
       "summary": "329 txns on C08623-K2",
-      "ms": 4875
+      "ms": 5797
     },
     {
       "step": 2,
@@ -43,7 +43,7 @@
         "customer_id": "C08623"
       },
       "summary": "2 card(s), 7 case(s)",
-      "ms": 508
+      "ms": 1927
     },
     {
       "step": 2,
@@ -56,7 +56,7 @@
         "t_to": "2016-12-10 15:01:21"
       },
       "summary": "30 card(s) new to region 330.0 in the window",
-      "ms": 1342
+      "ms": 448
     },
     {
       "step": 2,
@@ -68,18 +68,18 @@
           {
             "tool": "region_cluster",
             "arg": "251.0",
-            "why": "Check region 251.0 which appeared in recent transactions to see if it correlates with other fraudulent activity."
+            "why": "Check billing region 251.0 where recent transactions occurred to identify potential regional fraud clusters."
           },
           {
             "tool": "region_cluster",
             "arg": "264.0",
-            "why": "Check region 264.0 which also appeared in recent transactions for potential fraud patterns."
+            "why": "Check billing region 264.0 where recent transactions occurred to check for overlapping fraudulent card activity."
           }
         ],
         "catalogue": 6
       },
-      "summary": "The customer has many recent in_person transactions across various billing regions (e.g., 251.0 and 264.0) with a history of fraud cases, making it useful to check new cards in these regions.",
-      "ms": 1929
+      "summary": "The flagged transaction shows multiple recent in_person purchases across various billing regions with a history of confirmed fraud cases. Checking additional frequent billing regions from the recent transactions will help determine if the card is part of a broader geographic fraud pattern.",
+      "ms": 1923
     },
     {
       "step": 2,
@@ -92,7 +92,7 @@
         "t_to": "2016-12-10 15:01:21"
       },
       "summary": "11 card(s) new to region 251.0 in the window",
-      "ms": 270
+      "ms": 358
     },
     {
       "step": 2,
@@ -105,7 +105,7 @@
         "t_to": "2016-12-10 15:01:21"
       },
       "summary": "46 card(s) new to region 264.0 in the window",
-      "ms": 1365
+      "ms": 1078
     },
     {
       "step": 3,
@@ -115,7 +115,7 @@
         "device_ctx": null
       },
       "summary": "pattern out_of_region_use (card-present use in region 330.0, home region is 299.0); 2 episode txn(s), exposure $165.93; 4 prosecution / 2 defence items",
-      "ms": 4
+      "ms": 3
     },
     {
       "step": 4,
@@ -174,8 +174,8 @@
         ],
         "calls": 3
       },
-      "summary": "6 similar case(s), 7 passage(s)",
-      "ms": 4942
+      "summary": "4 similar case(s), 7 passage(s)",
+      "ms": 7683
     },
     {
       "step": 7,
@@ -185,7 +185,7 @@
         "fallback": []
       },
       "summary": "LLM text validated",
-      "ms": 5313
+      "ms": 4173
     },
     {
       "step": 8,
@@ -197,7 +197,7 @@
         "edges": 10
       },
       "summary": "wrote CASE-HHG-003",
-      "ms": 3366
+      "ms": 4443
     }
   ],
   "findings": {
@@ -275,14 +275,12 @@
         "ref": "query:region_history(customer_id=C08623)"
       },
       {
-        "claim": "Disputed $49.00 (W) matches earlier charges of the same amount and product roughly monthly: 3356702, 3360480, 3361189, 3363572",
+        "claim": "Disputed $49.00 (W) matches earlier charges of the same amount and product roughly monthly: 3451863, 3371052",
         "score": 0.8,
         "entity_ids": [
           "3530164",
-          "3356702",
-          "3360480",
-          "3361189",
-          "3363572"
+          "3451863",
+          "3371052"
         ],
         "ref": "query:card_history(card_id=C08623-K2, window=60d)"
       }
@@ -371,21 +369,21 @@
         "flag": "normal"
       },
       {
-        "id": "C12455-K1",
-        "type": "Card",
-        "label": "C12455-K1",
-        "flag": "normal"
-      },
-      {
         "id": "C13440-K1",
         "type": "Card",
         "label": "C13440-K1",
         "flag": "normal"
       },
       {
-        "id": "C05519-K1",
+        "id": "C12455-K1",
         "type": "Card",
-        "label": "C05519-K1",
+        "label": "C12455-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C03047-K1",
+        "type": "Card",
+        "label": "C03047-K1",
         "flag": "normal"
       },
       {
@@ -431,15 +429,15 @@
         "flag": "normal"
       },
       {
-        "id": "C00192-K1",
-        "type": "Card",
-        "label": "C00192-K1",
-        "flag": "normal"
-      },
-      {
         "id": "C11041-K1",
         "type": "Card",
         "label": "C11041-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C00192-K1",
+        "type": "Card",
+        "label": "C00192-K1",
         "flag": "normal"
       },
       {
@@ -449,9 +447,9 @@
         "flag": "normal"
       },
       {
-        "id": "C02320-K1",
+        "id": "C00718-K1",
         "type": "Card",
-        "label": "C02320-K1",
+        "label": "C00718-K1",
         "flag": "normal"
       },
       {
@@ -521,12 +519,6 @@
         "flag": "normal"
       },
       {
-        "id": "C09789-K1",
-        "type": "Card",
-        "label": "C09789-K1",
-        "flag": "normal"
-      },
-      {
         "id": "C13067-K1",
         "type": "Card",
         "label": "C13067-K1",
@@ -536,6 +528,12 @@
         "id": "C12225-K1",
         "type": "Card",
         "label": "C12225-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C06675-K1",
+        "type": "Card",
+        "label": "C06675-K1",
         "flag": "normal"
       },
       {
@@ -593,28 +591,16 @@
         "flag": "cleared"
       },
       {
-        "id": "CASE-HHG-017",
-        "type": "AgentCase",
-        "label": "CASE-HHG-017",
-        "flag": "normal"
-      },
-      {
-        "id": "CASE-SEN-008",
-        "type": "AgentCase",
-        "label": "CASE-SEN-008",
-        "flag": "suspicious"
-      },
-      {
-        "id": "CASE-HHG-002",
-        "type": "AgentCase",
-        "label": "CASE-HHG-002",
-        "flag": "suspicious"
-      },
-      {
         "id": "CASE-HHG-019",
         "type": "AgentCase",
         "label": "CASE-HHG-019",
         "flag": "suspicious"
+      },
+      {
+        "id": "CASE-HHG-017",
+        "type": "AgentCase",
+        "label": "CASE-HHG-017",
+        "flag": "normal"
       }
     ],
     "edges": [
@@ -659,17 +645,17 @@
         "type": "BILLED_IN"
       },
       {
-        "src": "C12455-K1",
-        "dst": "region 330.0",
-        "type": "BILLED_IN"
-      },
-      {
         "src": "C13440-K1",
         "dst": "region 330.0",
         "type": "BILLED_IN"
       },
       {
-        "src": "C05519-K1",
+        "src": "C12455-K1",
+        "dst": "region 330.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C03047-K1",
         "dst": "region 330.0",
         "type": "BILLED_IN"
       },
@@ -704,12 +690,12 @@
         "type": "BILLED_IN"
       },
       {
-        "src": "C00192-K1",
+        "src": "C11041-K1",
         "dst": "region 251.0",
         "type": "BILLED_IN"
       },
       {
-        "src": "C11041-K1",
+        "src": "C00192-K1",
         "dst": "region 251.0",
         "type": "BILLED_IN"
       },
@@ -724,7 +710,7 @@
         "type": "BILLED_IN"
       },
       {
-        "src": "C02320-K1",
+        "src": "C00718-K1",
         "dst": "region 251.0",
         "type": "BILLED_IN"
       },
@@ -779,11 +765,6 @@
         "type": "BILLED_IN"
       },
       {
-        "src": "C09789-K1",
-        "dst": "region 264.0",
-        "type": "BILLED_IN"
-      },
-      {
         "src": "C13067-K1",
         "dst": "region 264.0",
         "type": "BILLED_IN"
@@ -795,6 +776,11 @@
       },
       {
         "src": "C12225-K1",
+        "dst": "region 264.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C06675-K1",
         "dst": "region 264.0",
         "type": "BILLED_IN"
       },
@@ -845,25 +831,15 @@
       },
       {
         "src": "CASE-HHG-003",
-        "dst": "CASE-HHG-017",
-        "type": "SIMILAR_TO"
-      },
-      {
-        "src": "CASE-HHG-003",
-        "dst": "CASE-SEN-008",
-        "type": "SIMILAR_TO"
-      },
-      {
-        "src": "CASE-HHG-003",
-        "dst": "CASE-HHG-002",
-        "type": "SIMILAR_TO"
-      },
-      {
-        "src": "CASE-HHG-003",
         "dst": "CASE-HHG-019",
+        "type": "SIMILAR_TO"
+      },
+      {
+        "src": "CASE-HHG-003",
+        "dst": "CASE-HHG-017",
         "type": "SIMILAR_TO"
       }
     ]
   },
-  "rag_context": "CASE\nHHG-003 opened 2016-12-10 15:01:21 by customer_report trigger: \"Customer C08623 message: 'I never made this $49.00 purchase. Please check my card.' Refers to 3530164.\"\nFlagged txn 3530164 on card C08623-K2 (customer C08623).\nGraph analysis: pattern out_of_region_use (card-present use in region 330.0, home region is 299.0); fraud probability 0.90; verdict fraud; 2 affected txns, first 3530056, exposure $165.93.\n\nGRAPH EVIDENCE\n- 30 card(s) made their first purchase in billing region 330.0 in the 7 days before the alert (7 linked to cases; 1452 cards ever billed there) (query:region_cluster(region=330.0, window=7d))\n- 11 card(s) made their first purchase in billing region 251.0 in the 7 days before the alert (2 linked to cases; 501 cards ever billed there) (query:region_cluster(region=251.0, window=7d))\n- 46 card(s) made their first purchase in billing region 264.0 in the 7 days before the alert (6 linked to cases; 1946 cards ever billed there) (query:region_cluster(region=264.0, window=7d))\n- Customer C08623 cards: C08623-K2, C08623-K1; prior cases on them: CC-3327 (confirmed_fraud, account_takeover), CC-2935 (confirmed_fraud, out_of_region_use), CC-1589 (cleared, none), CC-2817 (confirmed_fraud, out_of_region_use), CC-4957 (confirmed_fraud, out_of_region_use), CC-3682 (confirmed_fraud, out_of_region_use) (query:customer_cases)\n- [prosecution 0.54] Closed-case classifier scores flagged txn 3530164 at 0.54 (learned from the bank's confirmed/cleared cases; the bank risk score 0.40 is not used as a verdict) (ref: model:closed_case_classifier; ids: 3530164)\n- [prosecution 0.70] 2 card txns from 2016-12-10 12:12:41 to 2016-12-10 13:01:21 form one episode (grouped by the episode model fitted on closed cases, gaps under 48 h), total $165.93 (ref: query:card_history(card_id=C08623-K2, window=60d); ids: 3530056, 3530164)\n- [prosecution 0.60] Card-present use in billing region 330.0; the customer's home region is 299.0 (18 earlier txns there) (ref: query:region_history(customer_id=C08623); ids: 3530056, 3530164)\n- [prosecution 0.40] Customer has 5 earlier confirmed fraud case(s): CC-3327, CC-2935, CC-2817, CC-4957, CC-3682 (ref: query:customer_cases; ids: CC-3327, CC-2935, CC-2817, CC-4957, CC-3682)\n- [defence 0.70] Card-present purchases in region 330.0 on 14 different days while 35 txns continued in home region 299.0: looks like a trip, not a clone (ref: query:region_history(customer_id=C08623); ids: 3380116, 3380157, 3395017, 3397283, 3399119, 3402877)\n- [defence 0.80] Disputed $49.00 (W) matches earlier charges of the same amount and product roughly monthly: 3356702, 3360480, 3361189, 3363572 (ref: query:card_history(card_id=C08623-K2, window=60d); ids: 3530164, 3356702, 3360480, 3361189, 3363572)\n\nSIMILAR PAST CASES (vector search over closed and agent cases; same pattern first)\n- [CASE-HHG-018] AgentCase uncertain, pattern out_of_region_use, distance 0.110: Customer [other id] reported an unrecognized charge of $39.08 on card [other id] via transaction 3491361, which occurred in billing region 126.0 while their home region is 325.0. Graph analysis flagged out_of_region_use with a fraud probability of 0.67 and an uncertain verdict due to conflicting ...\n- [CASE-HHG-001] AgentCase legitimate, pattern none, distance 0.136: Case HHG-001 was initiated for transaction 3514030 on card [other id] held by customer [other id], following a bank risk score trigger of 0.61. Graph analysis determined a fraud probability of 0.15 and assigned a legitimate verdict, as the activity is consistent with a trip ...\n- [CASE-HHG-017] AgentCase uncertain, pattern card_not_present_fraud, distance 0.147: Case HHG-017 was opened following a risk score trigger of 0.57 on online transaction 3450629 for $100.09 on card [other id] (customer [other id]). Graph analysis assessed a fraud probability of 0.60 with an uncertain verdict under the card-not-present fraud pattern. Following Policy R1 for ...\n- [CASE-SEN-008] AgentCase fraud, pattern undocumented, distance 0.148: Case SEN-008 was opened following a Sentinel sweep on card [other id] for four online purchases totaling $1,926.93 made within a 24-minute window on 2016-11-21. Each transaction was kept just under the $500 threshold, matching an undocumented structuring pattern. Graph analysis assessed a fraud probability ...\n- [CASE-HHG-002] AgentCase fraud, pattern card_not_present_fraud, distance 0.151: Case HHG-002 was opened on 2016-11-22 23:27:07 due to a risk score trigger on transaction 3478782 for $292.36 on card [other id] (customer [other id]). Graph analysis classified the event as card_not_present_fraud with a fraud probability of 0.95 and a verdict of fraud. The case ...\n- [CASE-HHG-019] AgentCase fraud, pattern card_not_present_new_device, distance 0.152: Case HHG-019 was opened following a risk score trigger on online transaction 3503878 for $99.92 on card [other id] (customer [other id]). Graph analysis assessed a fraud probability of 0.86 under the card-not-present fraud from a new device pattern, identifying risk factors including a closed-case ...\n\nPOLICY & GUIDANCE\n- [POLICY-R2] R2. Customer denies the transaction: R2. Customer denies the transaction. Recommend BLOCK_CARD and CREATE_CASE. Add FILE_REPORT if exposure exceeds $1,000 or the case connects to a shared device profile or another card's fraud. Related actions (§1): BLOCK_CARD -- block this card and reissue (high customer impact; route L1 if exposure is $2,500 or less, otherwise L2). CREATE_CASE -- open an internal fraud case with the evidence attached and write it to the graph (route auto). ...\n- [PATTERN-out_of_region_use] Out-of-region use: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 4. Out-of-region use. Card-present purchases in a billing region the cardholder has no history in, while their normal activity continues at home. Several days of purchases in one new region is a trip, ...\n- [PATTERN-card_not_present_fraud] Card-not-present fraud: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 2. Card-not-present fraud. The number is used online without the card. Amounts and products that don't fit the cardholder's history, often in a burst of two to four within 48 hours. On its ...\n- [POLICY-R3] R3. Customer confirms the transaction: R3. Customer confirms the transaction. Recommend CLOSE_NO_FRAUD. Note the confirmation in the case file. Compare R2, where the customer instead denies the transaction and the agent recommends BLOCK_CARD and CREATE_CASE. Related action (§1): CLOSE_NO_FRAUD -- close the alert as legitimate (no customer impact, route auto). Per the Answer Format notes, for a legitimate verdict affected_txn_ids is empty, exposure_usd is 0, and sar.file is false.\n- [PATTERN-card_not_present_new_device] Card-not-present fraud from a new device: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 3. Card-not-present fraud from a new device. Same as above, with the identity record marking the device as New for this account, sometimes behind a proxy. Stronger than pattern 2, still not proof: ...\n- [PATTERN-card_testing] Card testing: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 1. Card testing. A stolen card number is checked before use: three or more tiny online authorizations, often under $5, then a larger purchase. Confirmed by the sequence itself. Policy R5.\n- [FFIEC-REDFLAGS-03] Red flags: activity inconsistent with the customer: \"Under FFIEC Appendix F's \"\"Other Unusual or Suspicious Customer Activity\"\" list\n\nINSTRUCTIONS\nUse only the facts above. Cite the ids in square brackets and the txn/card/device ids shown; never invent an id, amount or date. Past cases are memory, not this customer's activity: their ids are not connected cards. The bank risk score is not a verdict. Actions come from the policy engine: explain them, do not change them."
+  "rag_context": "CASE\nHHG-003 opened 2016-12-10 15:01:21 by customer_report trigger: \"Customer C08623 message: 'I never made this $49.00 purchase. Please check my card.' Refers to 3530164.\"\nFlagged txn 3530164 on card C08623-K2 (customer C08623).\nGraph analysis: pattern out_of_region_use (card-present use in region 330.0, home region is 299.0); fraud probability 0.90; verdict fraud; 2 affected txns, first 3530056, exposure $165.93.\n\nGRAPH EVIDENCE\n- 30 card(s) made their first purchase in billing region 330.0 in the 7 days before the alert (7 linked to cases; 1452 cards ever billed there) (query:region_cluster(region=330.0, window=7d))\n- 11 card(s) made their first purchase in billing region 251.0 in the 7 days before the alert (2 linked to cases; 501 cards ever billed there) (query:region_cluster(region=251.0, window=7d))\n- 46 card(s) made their first purchase in billing region 264.0 in the 7 days before the alert (6 linked to cases; 1946 cards ever billed there) (query:region_cluster(region=264.0, window=7d))\n- Customer C08623 cards: C08623-K2, C08623-K1; prior cases on them: CC-3327 (confirmed_fraud, account_takeover), CC-2935 (confirmed_fraud, out_of_region_use), CC-1589 (cleared, none), CC-2817 (confirmed_fraud, out_of_region_use), CC-4957 (confirmed_fraud, out_of_region_use), CC-3682 (confirmed_fraud, out_of_region_use) (query:customer_cases)\n- [prosecution 0.54] Closed-case classifier scores flagged txn 3530164 at 0.54 (learned from the bank's confirmed/cleared cases; the bank risk score 0.40 is not used as a verdict) (ref: model:closed_case_classifier; ids: 3530164)\n- [prosecution 0.70] 2 card txns from 2016-12-10 12:12:41 to 2016-12-10 13:01:21 form one episode (grouped by the episode model fitted on closed cases, gaps under 48 h), total $165.93 (ref: query:card_history(card_id=C08623-K2, window=60d); ids: 3530056, 3530164)\n- [prosecution 0.60] Card-present use in billing region 330.0; the customer's home region is 299.0 (18 earlier txns there) (ref: query:region_history(customer_id=C08623); ids: 3530056, 3530164)\n- [prosecution 0.40] Customer has 5 earlier confirmed fraud case(s): CC-3327, CC-2935, CC-2817, CC-4957, CC-3682 (ref: query:customer_cases; ids: CC-3327, CC-2935, CC-2817, CC-4957, CC-3682)\n- [defence 0.70] Card-present purchases in region 330.0 on 14 different days while 35 txns continued in home region 299.0: looks like a trip, not a clone (ref: query:region_history(customer_id=C08623); ids: 3380116, 3380157, 3395017, 3397283, 3399119, 3402877)\n- [defence 0.80] Disputed $49.00 (W) matches earlier charges of the same amount and product roughly monthly: 3451863, 3371052 (ref: query:card_history(card_id=C08623-K2, window=60d); ids: 3530164, 3451863, 3371052)\n\nSIMILAR PAST CASES (vector search over closed and agent cases; same pattern first)\n- [CASE-HHG-018] AgentCase uncertain, pattern out_of_region_use, distance 0.095: Customer [other id] reported an unrecognized $39.08 purchase on card [other id], referencing transaction 3491361. Graph analysis indicates an out-of-region use pattern with a fraud probability of 0.67, featuring card-present use in billing region 126.0 while the customer's home region is 325.0. Although prosecution evidence ...\n- [CASE-HHG-001] AgentCase legitimate, pattern none, distance 0.117: Case HHG-001 was opened following a risk score trigger of 0.61 on transaction 3514030 ($77.07) for customer [other id] on card [other id]. Although the closed-case classifier scored the transaction at 0.79 and the customer had four earlier confirmed fraud cases (CC-1066, CC-2964, CC-3587, CC-1673), ...\n- [CASE-HHG-019] AgentCase fraud, pattern card_not_present_new_device, distance 0.141: Case HHG-019 was opened following a risk score trigger on online transaction 3503878 for $99.92 on card [other id] (customer [other id]). Graph analysis assessed a fraud probability of 0.86 with a fraud verdict under the card-not-present fraud from a new device pattern. Recommended actions ...\n- [CASE-HHG-017] AgentCase uncertain, pattern card_not_present_fraud, distance 0.147: Case HHG-017 was opened following a risk score trigger of 0.57 on online transaction 3450629 for $100.09 on card [other id] (customer [other id]). Graph analysis assessed a fraud probability of 0.60 with an uncertain verdict under the card-not-present fraud pattern. Following Policy R1 for ...\n\nPOLICY & GUIDANCE\n- [POLICY-R2] R2. Customer denies the transaction: R2. Customer denies the transaction. Recommend BLOCK_CARD and CREATE_CASE. Add FILE_REPORT if exposure exceeds $1,000 or the case connects to a shared device profile or another card's fraud. Related actions (§1): BLOCK_CARD -- block this card and reissue (high customer impact; route L1 if exposure is $2,500 or less, otherwise L2). CREATE_CASE -- open an internal fraud case with the evidence attached and write it to the graph (route auto). ...\n- [PATTERN-out_of_region_use] Out-of-region use: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 4. Out-of-region use. Card-present purchases in a billing region the cardholder has no history in, while their normal activity continues at home. Several days of purchases in one new region is a trip, ...\n- [PATTERN-card_not_present_fraud] Card-not-present fraud: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 2. Card-not-present fraud. The number is used online without the card. Amounts and products that don't fit the cardholder's history, often in a burst of two to four within 48 hours. On its ...\n- [POLICY-R3] R3. Customer confirms the transaction: R3. Customer confirms the transaction. Recommend CLOSE_NO_FRAUD. Note the confirmation in the case file. Compare R2, where the customer instead denies the transaction and the agent recommends BLOCK_CARD and CREATE_CASE. Related action (§1): CLOSE_NO_FRAUD -- close the alert as legitimate (no customer impact, route auto). Per the Answer Format notes, for a legitimate verdict affected_txn_ids is empty, exposure_usd is 0, and sar.file is false.\n- [PATTERN-card_not_present_new_device] Card-not-present fraud from a new device: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 3. Card-not-present fraud from a new device. Same as above, with the identity record marking the device as New for this account, sometimes behind a proxy. Stronger than pattern 2, still not proof: ...\n- [PATTERN-card_testing] Card testing: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 1. Card testing. A stolen card number is checked before use: three or more tiny online authorizations, often under $5, then a larger purchase. Confirmed by the sequence itself. Policy R5.\n- [FFIEC-REDFLAGS-03] Red flags: activity inconsistent with the customer: \"Under FFIEC Appendix F's \"\"Other Unusual or Suspicious Customer Activity\"\" list\n\nINSTRUCTIONS\nUse only the facts above. Cite the ids in square brackets and the txn/card/device ids shown; never invent an id, amount or date. Past cases are memory, not this customer's activity: their ids are not connected cards. The bank risk score is not a verdict. Actions come from the policy engine: explain them, do not change them."
 }

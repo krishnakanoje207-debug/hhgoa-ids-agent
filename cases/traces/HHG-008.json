@@ -32,7 +32,7 @@
         "t_to": "2016-12-20 03:08:56"
       },
       "summary": "331 txns on C13171-K2",
-      "ms": 4360
+      "ms": 7201
     },
     {
       "step": 2,
@@ -43,7 +43,7 @@
         "customer_id": "C13171"
       },
       "summary": "2 card(s), 20 case(s)",
-      "ms": 895
+      "ms": 1533
     },
     {
       "step": 2,
@@ -56,7 +56,7 @@
         "t_to": "2016-12-20 03:08:56"
       },
       "summary": "129 card(s) used it in the window, 175 ever",
-      "ms": 2246
+      "ms": 3501
     },
     {
       "step": 2,
@@ -67,14 +67,14 @@
         "choices": [
           {
             "tool": "device_neighbors",
-            "arg": " |  | mobile safari 11.0 | ",
-            "why": "Check other cards associated with the mobile safari device used recently by the customer."
+            "arg": "SM-G900M Build/LRX21T |  | chrome 66.0 for android | ",
+            "why": "The card has recent transactions using the SM-G900M device profile, which should be checked for shared fraudulent card links."
           }
         ],
         "catalogue": 7
       },
-      "summary": "The customer used multiple different devices recently, including a mobile safari device. Checking device neighbors for this secondary device can help identify if a broader fraud ring or compromised device is involved.",
-      "ms": 2134
+      "summary": "Checking additional device profiles used by the card helps identify wider fraud rings or syndicates sharing devices.",
+      "ms": 2485
     },
     {
       "step": 2,
@@ -82,12 +82,12 @@
       "tool": "tigergraph__run_installed_query",
       "args": {
         "query": "device_neighbors",
-        "device_id": " |  | mobile safari 11.0 | ",
+        "device_id": "SM-G900M Build/LRX21T |  | chrome 66.0 for android | ",
         "t_from": "2016-11-20 03:08:56",
         "t_to": "2016-12-20 03:08:56"
       },
-      "summary": "154 card(s) used it in the window, 609 ever",
-      "ms": 6289
+      "summary": "5 card(s) used it in the window, 7 ever",
+      "ms": 363
     },
     {
       "step": 3,
@@ -96,8 +96,8 @@
       "args": {
         "device_ctx": " |  | chrome 66.0 | "
       },
-      "summary": "pattern card_not_present_new_device (online episode with a device marked New for this account); 3 episode txn(s), exposure $166.97; 4 prosecution / 2 defence items",
-      "ms": 4
+      "summary": "pattern card_not_present_new_device (online episode with a device marked New for this account); 3 episode txn(s), exposure $166.97; 4 prosecution / 1 defence items",
+      "ms": 3
     },
     {
       "step": 4,
@@ -107,18 +107,15 @@
         "fraud_probability": 0.99,
         "verdict": "fraud"
       },
-      "summary": "probability 0.99, verdict fraud, 4 independent evidence, single_signal=False, conflicts=False; initial: VERIFY_WITH_CUSTOMER, CREATE_CASE, WARN_CUSTOMER",
+      "summary": "probability 0.99, verdict fraud, 4 independent evidence, single_signal=False, conflicts=False; initial: BLOCK_CARD, CREATE_CASE",
       "ms": 0
     },
     {
       "step": 5,
-      "name": "Request more evidence",
+      "name": "Evidence gate",
       "tool": null,
-      "args": {
-        "type": "customer_validation",
-        "assumed_response": "deny"
-      },
-      "summary": "§3b/§5: VERIFY_WITH_CUSTOMER is recommended and the customer_validation response changes the actions (deny -> BLOCK_CARD, CREATE_CASE; confirm -> CREATE_CASE, WARN_CUSTOMER, CLOSE_NO_FRAUD; no_reply -> DECLINE_TRANSACTION, MONITOR_CARD, CREATE_CASE) Assumed 'deny': probability 0.99 -> 0.99",
+      "args": {},
+      "summary": "no response to any warranted request changes the actions: stop",
       "ms": 0
     },
     {
@@ -145,8 +142,8 @@
         ],
         "calls": 3
       },
-      "summary": "4 similar case(s), 7 passage(s)",
-      "ms": 4888
+      "summary": "5 similar case(s), 7 passage(s)",
+      "ms": 7916
     },
     {
       "step": 7,
@@ -156,7 +153,7 @@
         "fallback": []
       },
       "summary": "LLM text validated",
-      "ms": 4726
+      "ms": 3949
     },
     {
       "step": 8,
@@ -168,7 +165,7 @@
         "edges": 11
       },
       "summary": "wrote CASE-HHG-008",
-      "ms": 3853
+      "ms": 4555
     }
   ],
   "findings": {
@@ -184,7 +181,7 @@
     "cleared_purchase_over_100": false,
     "shared_origin": null,
     "connects_to_other_fraud": false,
-    "recurring_match": true,
+    "recurring_match": false,
     "customer_cards_confirmed_fraud": 1,
     "credentials_compromised": false,
     "customer_response": null,
@@ -219,13 +216,13 @@
         "ref": "query:card_history(card_id=C13171-K2, window=60d)"
       },
       {
-        "claim": "Customer has 18 earlier confirmed fraud case(s): CC-3728, CC-5010, CC-1715, CC-3422, CC-2244",
+        "claim": "Customer has 18 earlier confirmed fraud case(s): CC-3728, CC-5010, CC-1715, CC-2716, CC-2244",
         "score": 0.4,
         "entity_ids": [
           "CC-3728",
           "CC-5010",
           "CC-1715",
-          "CC-3422",
+          "CC-2716",
           "CC-2244"
         ],
         "ref": "query:customer_cases"
@@ -237,16 +234,6 @@
         "score": 0.5,
         "entity_ids": [
           "3558054"
-        ],
-        "ref": "query:card_history(card_id=C13171-K2, window=60d)"
-      },
-      {
-        "claim": "Disputed $55.68 (C) matches earlier charges of the same amount and product roughly monthly: 3421195, 3469864",
-        "score": 0.8,
-        "entity_ids": [
-          "3558054",
-          "3421195",
-          "3469864"
         ],
         "ref": "query:card_history(card_id=C13171-K2, window=60d)"
       }
@@ -267,27 +254,7 @@
       "ring": 0.0
     }
   },
-  "evidence_gate": {
-    "type": "customer_validation",
-    "why": "§3b/§5: VERIFY_WITH_CUSTOMER is recommended and the customer_validation response changes the actions (deny -> BLOCK_CARD, CREATE_CASE; confirm -> CREATE_CASE, WARN_CUSTOMER, CLOSE_NO_FRAUD; no_reply -> DECLINE_TRANSACTION, MONITOR_CARD, CREATE_CASE)",
-    "outcomes": {
-      "deny": [
-        "BLOCK_CARD",
-        "CREATE_CASE"
-      ],
-      "confirm": [
-        "CREATE_CASE",
-        "WARN_CUSTOMER",
-        "CLOSE_NO_FRAUD"
-      ],
-      "no_reply": [
-        "DECLINE_TRANSACTION",
-        "MONITOR_CARD",
-        "CREATE_CASE"
-      ]
-    },
-    "assumed_response": "deny"
-  },
+  "evidence_gate": null,
   "graph": {
     "nodes": [
       {
@@ -381,111 +348,15 @@
         "flag": "normal"
       },
       {
-        "id": "C07347-K1",
-        "type": "Card",
-        "label": "C07347-K1",
-        "flag": "normal"
-      },
-      {
-        "id": "C08682-K1",
-        "type": "Card",
-        "label": "C08682-K1",
-        "flag": "normal"
-      },
-      {
         "id": "C11891-K1",
         "type": "Card",
         "label": "C11891-K1",
         "flag": "normal"
       },
       {
-        "id": "C11873-K2",
+        "id": "C00259-K1",
         "type": "Card",
-        "label": "C11873-K2",
-        "flag": "normal"
-      },
-      {
-        "id": "C02897-K1",
-        "type": "Card",
-        "label": "C02897-K1",
-        "flag": "normal"
-      },
-      {
-        "id": "C04154-K1",
-        "type": "Card",
-        "label": "C04154-K1",
-        "flag": "normal"
-      },
-      {
-        "id": "C09588-K1",
-        "type": "Card",
-        "label": "C09588-K1",
-        "flag": "normal"
-      },
-      {
-        "id": " |  | mobile safari 11.0 | ",
-        "type": "DeviceProfile",
-        "label": " |  | mobile safari 11.0 | ",
-        "flag": "normal"
-      },
-      {
-        "id": "C07204-K1",
-        "type": "Card",
-        "label": "C07204-K1",
-        "flag": "normal"
-      },
-      {
-        "id": "C09365-K2",
-        "type": "Card",
-        "label": "C09365-K2",
-        "flag": "normal"
-      },
-      {
-        "id": "C01138-K2",
-        "type": "Card",
-        "label": "C01138-K2",
-        "flag": "normal"
-      },
-      {
-        "id": "C10224-K1",
-        "type": "Card",
-        "label": "C10224-K1",
-        "flag": "normal"
-      },
-      {
-        "id": "C00978-K1",
-        "type": "Card",
-        "label": "C00978-K1",
-        "flag": "normal"
-      },
-      {
-        "id": "C01864-K1",
-        "type": "Card",
-        "label": "C01864-K1",
-        "flag": "normal"
-      },
-      {
-        "id": "C11881-K1",
-        "type": "Card",
-        "label": "C11881-K1",
-        "flag": "normal"
-      },
-      {
-        "id": "C02652-K1",
-        "type": "Card",
-        "label": "C02652-K1",
-        "flag": "normal"
-      },
-      {
-        "id": "C04703-K1",
-        "type": "Card",
-        "label": "C04703-K1",
-        "flag": "normal"
-      },
-      {
-        "id": "C03164-K1",
-        "type": "Card",
-        "label": "C03164-K1",
+        "label": "C00259-K1",
         "flag": "normal"
       },
       {
@@ -495,21 +366,57 @@
         "flag": "normal"
       },
       {
-        "id": "C07638-K1",
-        "type": "Card",
-        "label": "C07638-K1",
-        "flag": "normal"
-      },
-      {
         "id": "C05423-K1",
         "type": "Card",
         "label": "C05423-K1",
         "flag": "normal"
       },
       {
-        "id": "C11007-K1",
+        "id": "C07686-K1",
         "type": "Card",
-        "label": "C11007-K1",
+        "label": "C07686-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C12392-K1",
+        "type": "Card",
+        "label": "C12392-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C07347-K1",
+        "type": "Card",
+        "label": "C07347-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "SM-G900M Build/LRX21T |  | chrome 66.0 for android | ",
+        "type": "DeviceProfile",
+        "label": "SM-G900M Build/LRX21T |  | chrome 66.0 for android | ",
+        "flag": "normal"
+      },
+      {
+        "id": "C09378-K1",
+        "type": "Card",
+        "label": "C09378-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C05031-K2",
+        "type": "Card",
+        "label": "C05031-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C11923-K2",
+        "type": "Card",
+        "label": "C11923-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C00405-K1",
+        "type": "Card",
+        "label": "C00405-K1",
         "flag": "normal"
       },
       {
@@ -525,21 +432,21 @@
         "flag": "suspicious"
       },
       {
-        "id": "CC-4819",
-        "type": "ClosedCase",
-        "label": "CC-4819",
-        "flag": "cleared"
-      },
-      {
         "id": "CC-1715",
         "type": "ClosedCase",
         "label": "CC-1715",
         "flag": "suspicious"
       },
       {
-        "id": "CC-3422",
+        "id": "CC-4819",
         "type": "ClosedCase",
-        "label": "CC-3422",
+        "label": "CC-4819",
+        "flag": "cleared"
+      },
+      {
+        "id": "CC-2716",
+        "type": "ClosedCase",
+        "label": "CC-2716",
         "flag": "suspicious"
       },
       {
@@ -561,9 +468,9 @@
         "flag": "suspicious"
       },
       {
-        "id": "CC-2716",
+        "id": "CC-3422",
         "type": "ClosedCase",
-        "label": "CC-2716",
+        "label": "CC-3422",
         "flag": "suspicious"
       },
       {
@@ -579,15 +486,15 @@
         "flag": "suspicious"
       },
       {
-        "id": "CC-2454",
-        "type": "ClosedCase",
-        "label": "CC-2454",
-        "flag": "suspicious"
-      },
-      {
         "id": "CC-3566",
         "type": "ClosedCase",
         "label": "CC-3566",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CC-0056",
+        "type": "ClosedCase",
+        "label": "CC-0056",
         "flag": "suspicious"
       },
       {
@@ -603,15 +510,15 @@
         "flag": "suspicious"
       },
       {
-        "id": "CC-0056",
-        "type": "ClosedCase",
-        "label": "CC-0056",
-        "flag": "suspicious"
-      },
-      {
         "id": "CC-1925",
         "type": "ClosedCase",
         "label": "CC-1925",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CC-2454",
+        "type": "ClosedCase",
+        "label": "CC-2454",
         "flag": "suspicious"
       },
       {
@@ -655,6 +562,12 @@
         "type": "AgentCase",
         "label": "CASE-HHG-017",
         "flag": "normal"
+      },
+      {
+        "id": "CASE-HHG-005",
+        "type": "AgentCase",
+        "label": "CASE-HHG-005",
+        "flag": "cleared"
       }
     ],
     "edges": [
@@ -739,113 +652,63 @@
         "type": "FROM_DEVICE"
       },
       {
-        "src": "C07347-K1",
-        "dst": " |  | chrome 66.0 | ",
-        "type": "FROM_DEVICE"
-      },
-      {
-        "src": "C08682-K1",
-        "dst": " |  | chrome 66.0 | ",
-        "type": "FROM_DEVICE"
-      },
-      {
         "src": "C11891-K1",
         "dst": " |  | chrome 66.0 | ",
         "type": "FROM_DEVICE"
       },
       {
-        "src": "C11873-K2",
+        "src": "C00259-K1",
         "dst": " |  | chrome 66.0 | ",
-        "type": "FROM_DEVICE"
-      },
-      {
-        "src": "C02897-K1",
-        "dst": " |  | chrome 66.0 | ",
-        "type": "FROM_DEVICE"
-      },
-      {
-        "src": "C04154-K1",
-        "dst": " |  | chrome 66.0 | ",
-        "type": "FROM_DEVICE"
-      },
-      {
-        "src": "C09588-K1",
-        "dst": " |  | chrome 66.0 | ",
-        "type": "FROM_DEVICE"
-      },
-      {
-        "src": "C07204-K1",
-        "dst": " |  | mobile safari 11.0 | ",
-        "type": "FROM_DEVICE"
-      },
-      {
-        "src": "C09365-K2",
-        "dst": " |  | mobile safari 11.0 | ",
-        "type": "FROM_DEVICE"
-      },
-      {
-        "src": "C04597-K2",
-        "dst": " |  | mobile safari 11.0 | ",
-        "type": "FROM_DEVICE"
-      },
-      {
-        "src": "C01138-K2",
-        "dst": " |  | mobile safari 11.0 | ",
-        "type": "FROM_DEVICE"
-      },
-      {
-        "src": "C10224-K1",
-        "dst": " |  | mobile safari 11.0 | ",
-        "type": "FROM_DEVICE"
-      },
-      {
-        "src": "C00978-K1",
-        "dst": " |  | mobile safari 11.0 | ",
-        "type": "FROM_DEVICE"
-      },
-      {
-        "src": "C01864-K1",
-        "dst": " |  | mobile safari 11.0 | ",
-        "type": "FROM_DEVICE"
-      },
-      {
-        "src": "C11881-K1",
-        "dst": " |  | mobile safari 11.0 | ",
-        "type": "FROM_DEVICE"
-      },
-      {
-        "src": "C02652-K1",
-        "dst": " |  | mobile safari 11.0 | ",
-        "type": "FROM_DEVICE"
-      },
-      {
-        "src": "C04703-K1",
-        "dst": " |  | mobile safari 11.0 | ",
-        "type": "FROM_DEVICE"
-      },
-      {
-        "src": "C03164-K1",
-        "dst": " |  | mobile safari 11.0 | ",
         "type": "FROM_DEVICE"
       },
       {
         "src": "C06464-K1",
-        "dst": " |  | mobile safari 11.0 | ",
-        "type": "FROM_DEVICE"
-      },
-      {
-        "src": "C07638-K1",
-        "dst": " |  | mobile safari 11.0 | ",
+        "dst": " |  | chrome 66.0 | ",
         "type": "FROM_DEVICE"
       },
       {
         "src": "C05423-K1",
-        "dst": " |  | mobile safari 11.0 | ",
+        "dst": " |  | chrome 66.0 | ",
         "type": "FROM_DEVICE"
       },
       {
-        "src": "C11007-K1",
-        "dst": " |  | mobile safari 11.0 | ",
+        "src": "C07686-K1",
+        "dst": " |  | chrome 66.0 | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C12392-K1",
+        "dst": " |  | chrome 66.0 | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C07347-K1",
+        "dst": " |  | chrome 66.0 | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C09378-K1",
+        "dst": "SM-G900M Build/LRX21T |  | chrome 66.0 for android | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C13171-K2",
+        "dst": "SM-G900M Build/LRX21T |  | chrome 66.0 for android | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C05031-K2",
+        "dst": "SM-G900M Build/LRX21T |  | chrome 66.0 for android | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C11923-K2",
+        "dst": "SM-G900M Build/LRX21T |  | chrome 66.0 for android | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C00405-K1",
+        "dst": "SM-G900M Build/LRX21T |  | chrome 66.0 for android | ",
         "type": "FROM_DEVICE"
       },
       {
@@ -859,17 +722,17 @@
         "type": "ON_CARD"
       },
       {
-        "src": "CC-4819",
-        "dst": "C13171-K2",
-        "type": "ON_CARD"
-      },
-      {
         "src": "CC-1715",
         "dst": "C13171-K2",
         "type": "ON_CARD"
       },
       {
-        "src": "CC-3422",
+        "src": "CC-4819",
+        "dst": "C13171-K2",
+        "type": "ON_CARD"
+      },
+      {
+        "src": "CC-2716",
         "dst": "C13171-K2",
         "type": "ON_CARD"
       },
@@ -889,7 +752,7 @@
         "type": "ON_CARD"
       },
       {
-        "src": "CC-2716",
+        "src": "CC-3422",
         "dst": "C13171-K2",
         "type": "ON_CARD"
       },
@@ -904,12 +767,12 @@
         "type": "ON_CARD"
       },
       {
-        "src": "CC-2454",
+        "src": "CC-3566",
         "dst": "C13171-K2",
         "type": "ON_CARD"
       },
       {
-        "src": "CC-3566",
+        "src": "CC-0056",
         "dst": "C13171-K2",
         "type": "ON_CARD"
       },
@@ -924,12 +787,12 @@
         "type": "ON_CARD"
       },
       {
-        "src": "CC-0056",
+        "src": "CC-1925",
         "dst": "C13171-K2",
         "type": "ON_CARD"
       },
       {
-        "src": "CC-1925",
+        "src": "CC-2454",
         "dst": "C13171-K2",
         "type": "ON_CARD"
       },
@@ -967,8 +830,13 @@
         "src": "CASE-HHG-008",
         "dst": "CASE-HHG-017",
         "type": "SIMILAR_TO"
+      },
+      {
+        "src": "CASE-HHG-008",
+        "dst": "CASE-HHG-005",
+        "type": "SIMILAR_TO"
       }
     ]
   },
-  "rag_context": "CASE\nHHG-008 opened 2016-12-20 03:08:56 by customer_report trigger: \"Customer C13171 message: 'I never made this $55.68 purchase. Please check my card.' Refers to 3558054.\"\nFlagged txn 3558054 on card C13171-K2 (customer C13171).\nGraph analysis: pattern card_not_present_new_device (online episode with a device marked New for this account); fraud probability 0.99; verdict fraud; 3 affected txns, first 3557979, exposure $166.97.\n\nGRAPH EVIDENCE\n- Device profile  |  | chrome 66.0 |  was used by 128 other card(s) in the 30 days before the alert (66 as a New device; 175 cards ever); their cases: CASE-HHG-002, CASE-HHG-019, CASE-SEN-003, CASE-SEN-010, CC-0001, CC-0012 (query:device_neighbors(device_id= |  | chrome 66.0 | , window=30d))\n- Device profile  |  | mobile safari 11.0 |  was used by 153 other card(s) in the 30 days before the alert (16 as a New device; 609 cards ever); their cases: CASE-HHG-016, CASE-HHG-019, CASE-SEN-003, CC-0015, CC-0031, CC-0036 (query:device_neighbors(device_id= |  | mobile safari 11.0 | , window=30d))\n- Customer C13171 cards: C13171-K2, C13171-K1; prior cases on them: CC-3728 (confirmed_fraud, card_not_present_fraud), CC-5010 (confirmed_fraud, card_not_present_new_device), CC-4819 (cleared, none), CC-1715 (confirmed_fraud, card_not_present_new_device), CC-3422 (confirmed_fraud, card_not_present_fraud), CC-2244 (confirmed_fraud, card_not_present_new_device), CC-4485 (confirmed_fraud, card_not_present_new_device), CC-4163 (confirmed_fraud, card_not_present_new_device), CC-2716 (confirmed_fraud, card_not_present_new_device), CC-0467 (confirmed_fraud, card_not_present_new_device), CC-2059 (confirmed_fraud, card_not_present_new_device), CC-2454 (confirmed_fraud, card_not_present_fraud), CC-3566 (confirmed_fraud, card_not_present_fraud), CC-0772 (confirmed_fraud, card_not_present_new_device), CC-3928 (confirmed_fraud, card_not_present_new_device), CC-0056 (confirmed_fraud, card_not_present_new_device), CC-1925 (confirmed_fraud, card_not_present_fraud), CC-1293 (confirmed_fraud, card_not_present_fraud), CC-3079 (confirmed_fraud, card_not_present_new_device) (query:customer_cases)\n- [prosecution 1.00] Closed-case classifier scores flagged txn 3558054 at 1.00 (learned from the bank's confirmed/cleared cases; the bank risk score 0.38 is not used as a verdict) (ref: model:closed_case_classifier; ids: 3558054)\n- [prosecution 0.80] 3 card txns from 2016-12-19 21:48:32 to 2016-12-19 22:08:56 form one episode (grouped by the episode model fitted on closed cases, gaps under 48 h), total $166.97 (ref: query:card_history(card_id=C13171-K2, window=60d); ids: 3557979, 3557987, 3558054)\n- [prosecution 0.60] 1 episode txn(s) came from a device marked New for this account ( |  | chrome 66.0 | ) (ref: query:card_history(card_id=C13171-K2, window=60d); ids: 3557987)\n- [prosecution 0.40] Customer has 18 earlier confirmed fraud case(s): CC-3728, CC-5010, CC-1715, CC-3422, CC-2244 (ref: query:customer_cases; ids: CC-3728, CC-5010, CC-1715, CC-3422, CC-2244)\n- [defence 0.50] Flagged device  |  | chrome 66.0 |  was already used on this card before (ref: query:card_history(card_id=C13171-K2, window=60d); ids: 3558054)\n- [defence 0.80] Disputed $55.68 (C) matches earlier charges of the same amount and product roughly monthly: 3421195, 3469864 (ref: query:card_history(card_id=C13171-K2, window=60d); ids: 3558054, 3421195, 3469864)\n\nSIMILAR PAST CASES (vector search over closed and agent cases; same pattern first)\n- [CASE-HHG-016] AgentCase fraud, pattern card_not_present_new_device, distance 0.115: Case HHG-016 was opened for customer [other id] after a dispute on online transaction 3534820 for $59.67 on card [other id]. Graph analysis identified a card_not_present_new_device pattern with a fraud probability of 0.90 due to an online episode utilizing a device marked New for this ...\n- [CASE-HHG-013] AgentCase uncertain, pattern card_not_present_new_device, distance 0.124: Case HHG-013 was opened on 2016-12-09 05:39:29 after a real-time model risk score trigger of 0.76 flagged online transaction 3526826 for $35.66 on card [other id] held by customer [other id]. Graph analysis identified a card_not_present_new_device pattern with an uncertain verdict and a fraud probability ...\n- [CASE-HHG-019] AgentCase fraud, pattern card_not_present_new_device, distance 0.137: Case HHG-019 was opened following a risk score trigger on online transaction 3503878 for $99.92 on card [other id] (customer [other id]). Graph analysis assessed a fraud probability of 0.86 under the card-not-present fraud from a new device pattern, identifying risk factors including a closed-case ...\n- [CASE-HHG-017] AgentCase uncertain, pattern card_not_present_fraud, distance 0.135: Case HHG-017 was opened following a risk score trigger of 0.57 on online transaction 3450629 for $100.09 on card [other id] (customer [other id]). Graph analysis assessed a fraud probability of 0.60 with an uncertain verdict under the card-not-present fraud pattern. Following Policy R1 for ...\n\nPOLICY & GUIDANCE\n- [POLICY-R2] R2. Customer denies the transaction: R2. Customer denies the transaction. Recommend BLOCK_CARD and CREATE_CASE. Add FILE_REPORT if exposure exceeds $1,000 or the case connects to a shared device profile or another card's fraud. Related actions (§1): BLOCK_CARD -- block this card and reissue (high customer impact; route L1 if exposure is $2,500 or less, otherwise L2). CREATE_CASE -- open an internal fraud case with the evidence attached and write it to the graph (route auto). ...\n- [PATTERN-card_not_present_new_device] Card-not-present fraud from a new device: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 3. Card-not-present fraud from a new device. Same as above, with the identity record marking the device as New for this account, sometimes behind a proxy. Stronger than pattern 2, still not proof: ...\n- [PATTERN-card_not_present_fraud] Card-not-present fraud: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 2. Card-not-present fraud. The number is used online without the card. Amounts and products that don't fit the cardholder's history, often in a burst of two to four within 48 hours. On its ...\n- [POLICY-R3] R3. Customer confirms the transaction: R3. Customer confirms the transaction. Recommend CLOSE_NO_FRAUD. Note the confirmation in the case file. Compare R2, where the customer instead denies the transaction and the agent recommends BLOCK_CARD and CREATE_CASE. Related action (§1): CLOSE_NO_FRAUD -- close the alert as legitimate (no customer impact, route auto). Per the Answer Format notes, for a legitimate verdict affected_txn_ids is empty, exposure_usd is 0, and sar.file is false.\n- [POLICY-R7] R7. Disputed but legitimate: R7. Disputed but legitimate. When the customer disputes a charge that matches their own recurring pattern (same merchant, same amount, monthly), recommend CREATE_CASE, VERIFY_WITH_CUSTOMER, and WARN_CUSTOMER. Do not block. Related actions (§1): WARN_CUSTOMER -- send an informational message, such as a recurring-charge reminder (no customer impact, route auto). VERIFY_WITH_CUSTOMER -- ask the cardholder whether they made the transaction; card stays active pending reply (low impact, route auto). CREATE_CASE -- open ...\n- [PATTERN-card_testing] Card testing: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 1. Card testing. A stolen card number is checked before use: three or more tiny online authorizations, often under $5, then a larger purchase. Confirmed by the sequence itself. Policy R5.\n- [POLICY-S1-ACTIONS] Actions the agent may recommend: The Fraud Policy defines a fixed set of action identifiers the agent must use exactly as named. ALLOW_TRANSACTION lets the flagged transaction stand (no customer impact). DECLINE_TRANSACTION declines the flagged authorization only; the card stays active (low impact). MONITOR_CARD keeps the card active and raises monitoring sensitivity for 72 hours (no impact). MONITOR_CONNECTED_CARDS puts other cards linked to the same device profile, region cluster, or ring under monitoring (no impact). ...\n\nINSTRUCTIONS\nUse only the facts above. Cite the ids in square brackets and the txn/card/device ids shown; never invent an id, amount or date. Past cases are memory, not this customer's activity: their ids are not connected cards. The bank risk score is not a verdict. Actions come from the policy engine: explain them, do not change them."
+  "rag_context": "CASE\nHHG-008 opened 2016-12-20 03:08:56 by customer_report trigger: \"Customer C13171 message: 'I never made this $55.68 purchase. Please check my card.' Refers to 3558054.\"\nFlagged txn 3558054 on card C13171-K2 (customer C13171).\nGraph analysis: pattern card_not_present_new_device (online episode with a device marked New for this account); fraud probability 0.99; verdict fraud; 3 affected txns, first 3557979, exposure $166.97.\n\nGRAPH EVIDENCE\n- Device profile  |  | chrome 66.0 |  was used by 128 other card(s) in the 30 days before the alert (66 as a New device; 175 cards ever); their cases: CASE-HHG-002, CASE-HHG-019, CASE-SEN-003, CASE-SEN-010, CC-0001, CC-0012 (query:device_neighbors(device_id= |  | chrome 66.0 | , window=30d))\n- Device profile SM-G900M Build/LRX21T |  | chrome 66.0 for android |  was used by 4 other card(s) in the 30 days before the alert (3 as a New device; 7 cards ever); their cases: CC-0031, CC-0290, CC-0399, CC-1056, CC-1601, CC-1692 (query:device_neighbors(device_id=SM-G900M Build/LRX21T |  | chrome 66.0 for android | , window=30d))\n- Customer C13171 cards: C13171-K2, C13171-K1; prior cases on them: CC-3728 (confirmed_fraud, card_not_present_fraud), CC-5010 (confirmed_fraud, card_not_present_new_device), CC-1715 (confirmed_fraud, card_not_present_new_device), CC-4819 (cleared, none), CC-2716 (confirmed_fraud, card_not_present_new_device), CC-2244 (confirmed_fraud, card_not_present_new_device), CC-4485 (confirmed_fraud, card_not_present_new_device), CC-4163 (confirmed_fraud, card_not_present_new_device), CC-3422 (confirmed_fraud, card_not_present_fraud), CC-0467 (confirmed_fraud, card_not_present_new_device), CC-2059 (confirmed_fraud, card_not_present_new_device), CC-3566 (confirmed_fraud, card_not_present_fraud), CC-0056 (confirmed_fraud, card_not_present_new_device), CC-0772 (confirmed_fraud, card_not_present_new_device), CC-3928 (confirmed_fraud, card_not_present_new_device), CC-1925 (confirmed_fraud, card_not_present_fraud), CC-2454 (confirmed_fraud, card_not_present_fraud), CC-1293 (confirmed_fraud, card_not_present_fraud), CC-3079 (confirmed_fraud, card_not_present_new_device) (query:customer_cases)\n- [prosecution 1.00] Closed-case classifier scores flagged txn 3558054 at 1.00 (learned from the bank's confirmed/cleared cases; the bank risk score 0.38 is not used as a verdict) (ref: model:closed_case_classifier; ids: 3558054)\n- [prosecution 0.80] 3 card txns from 2016-12-19 21:48:32 to 2016-12-19 22:08:56 form one episode (grouped by the episode model fitted on closed cases, gaps under 48 h), total $166.97 (ref: query:card_history(card_id=C13171-K2, window=60d); ids: 3557979, 3557987, 3558054)\n- [prosecution 0.60] 1 episode txn(s) came from a device marked New for this account ( |  | chrome 66.0 | ) (ref: query:card_history(card_id=C13171-K2, window=60d); ids: 3557987)\n- [prosecution 0.40] Customer has 18 earlier confirmed fraud case(s): CC-3728, CC-5010, CC-1715, CC-2716, CC-2244 (ref: query:customer_cases; ids: CC-3728, CC-5010, CC-1715, CC-2716, CC-2244)\n- [defence 0.50] Flagged device  |  | chrome 66.0 |  was already used on this card before (ref: query:card_history(card_id=C13171-K2, window=60d); ids: 3558054)\n\nSIMILAR PAST CASES (vector search over closed and agent cases; same pattern first)\n- [CASE-HHG-016] AgentCase fraud, pattern card_not_present_new_device, distance 0.095: Case HHG-016 was opened on 2016-12-12 01:39:08 following a customer report from customer [other id] stating they never made the $59.67 online transaction 3534820 on card [other id]. Graph analysis identified a card_not_present_new_device pattern with a fraud probability of 0.90 and a fraud verdict. The ...\n- [CASE-HHG-013] AgentCase uncertain, pattern card_not_present_new_device, distance 0.117: Case HHG-013 was opened on 2016-12-09 05:39:29 after a real-time model risk score trigger of 0.76 flagged online transaction 3526826 for $35.66 on card [other id] held by customer [other id]. Graph analysis identified a card_not_present_new_device pattern with an uncertain verdict and a fraud probability ...\n- [CASE-HHG-019] AgentCase fraud, pattern card_not_present_new_device, distance 0.119: Case HHG-019 was opened following a risk score trigger on online transaction 3503878 for $99.92 on card [other id] (customer [other id]). Graph analysis assessed a fraud probability of 0.86 with a fraud verdict under the card-not-present fraud from a new device pattern. Recommended actions ...\n- [CASE-HHG-017] AgentCase uncertain, pattern card_not_present_fraud, distance 0.131: Case HHG-017 was opened following a risk score trigger of 0.57 on online transaction 3450629 for $100.09 on card [other id] (customer [other id]). Graph analysis assessed a fraud probability of 0.60 with an uncertain verdict under the card-not-present fraud pattern. Following Policy R1 for ...\n- [CASE-HHG-005] AgentCase legitimate, pattern none, distance 0.142: Case HHG-005 was opened on 2016-12-08 03:38:37 following a real-time model risk score trigger of 0.54 on online transaction 3523199 for $100.07 on card [other id] held by customer [other id]. Although the transaction originated from a new device (iOS Device | iOS 9.3.5 | ...\n\nPOLICY & GUIDANCE\n- [POLICY-R1] R1. Verify before you block on a weak signal: R1. Verify before you block on a weak signal. If the case rests on a single signal (including a risk score alone) and your assessed fraud probability is below 0.70, recommend VERIFY_WITH_CUSTOMER or STEP_UP_AUTH before any block. Blocking a legitimate customer on one signal is a policy breach. Related actions (§1): VERIFY_WITH_CUSTOMER -- ask the cardholder whether they made the transaction; the card stays active pending reply (low customer impact, ...\n- [PATTERN-card_not_present_new_device] Card-not-present fraud from a new device: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 3. Card-not-present fraud from a new device. Same as above, with the identity record marking the device as New for this account, sometimes behind a proxy. Stronger than pattern 2, still not proof: ...\n- [PATTERN-card_not_present_fraud] Card-not-present fraud: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 2. Card-not-present fraud. The number is used online without the card. Amounts and products that don't fit the cardholder's history, often in a burst of two to four within 48 hours. On its ...\n- [POLICY-R3] R3. Customer confirms the transaction: R3. Customer confirms the transaction. Recommend CLOSE_NO_FRAUD. Note the confirmation in the case file. Compare R2, where the customer instead denies the transaction and the agent recommends BLOCK_CARD and CREATE_CASE. Related action (§1): CLOSE_NO_FRAUD -- close the alert as legitimate (no customer impact, route auto). Per the Answer Format notes, for a legitimate verdict affected_txn_ids is empty, exposure_usd is 0, and sar.file is false.\n- [PATTERN-card_testing] Card testing: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 1. Card testing. A stolen card number is checked before use: three or more tiny online authorizations, often under $5, then a larger purchase. Confirmed by the sequence itself. Policy R5.\n- [POLICY-R7] R7. Disputed but legitimate: R7. Disputed but legitimate. When the customer disputes a charge that matches their own recurring pattern (same merchant, same amount, monthly), recommend CREATE_CASE, VERIFY_WITH_CUSTOMER, and WARN_CUSTOMER. Do not block. Related actions (§1): WARN_CUSTOMER -- send an informational message, such as a recurring-charge reminder (no customer impact, route auto). VERIFY_WITH_CUSTOMER -- ask the cardholder whether they made the transaction; card stays active pending reply (low impact, route auto). CREATE_CASE -- open ...\n- [POLICY-S1-ACTIONS] Actions the agent may recommend: The Fraud Policy defines a fixed set of action identifiers the agent must use exactly as named. ALLOW_TRANSACTION lets the flagged transaction stand (no customer impact). DECLINE_TRANSACTION declines the flagged authorization only; the card stays active (low impact). MONITOR_CARD keeps the card active and raises monitoring sensitivity for 72 hours (no impact). MONITOR_CONNECTED_CARDS puts other cards linked to the same device profile, region cluster, or ring under monitoring (no impact). ...\n\nINSTRUCTIONS\nUse only the facts above. Cite the ids in square brackets and the txn/card/device ids shown; never invent an id, amount or date. Past cases are memory, not this customer's activity: their ids are not connected cards. The bank risk score is not a verdict. Actions come from the policy engine: explain them, do not change them."
 }

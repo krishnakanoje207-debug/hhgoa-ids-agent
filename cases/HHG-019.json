@@ -20,7 +20,7 @@
     "exposure_usd": 99.92,
     "evidence": [
       {
-        "claim": "The closed-case classifier assigned a score of 0.77 to flagged transaction 3503878 based on historical confirmed and cleared cases, independent of the bank risk score of 0.90 [ref: model:closed_case_classifier; ids: 3503878].",
+        "claim": "Closed-case classifier scores flagged transaction 3503878 at 0.77 based on historical cases, while the bank risk score of 0.90 serves as a trigger rather than a verdict [model:closed_case_classifier, 3503878].",
         "source": "graph",
         "ref": "model:closed_case_classifier",
         "entity_ids": [
@@ -36,17 +36,17 @@
         ]
       },
       {
-        "claim": "Customer has 3 earlier confirmed fraud case(s): CC-5026, CC-2011, CC-2860",
+        "claim": "Customer has 3 earlier confirmed fraud case(s): CC-5026, CC-2860, CC-2011",
         "source": "graph",
         "ref": "query:customer_cases",
         "entity_ids": [
           "CC-5026",
-          "CC-2011",
-          "CC-2860"
+          "CC-2860",
+          "CC-2011"
         ]
       },
       {
-        "claim": "Device profile Windows | other | chrome 61.0 | 1280x720 with verizon.net to gmail.com email changes was also used by cards C11309-K1 (txn 3497738 on 2016-11-29 17:45:09) and C06224-K2 (txn 3503988 on 2016-12-01 18:00:57), matching historical patterns with a 48% confirmed fraud rate [ref: query:device_neighbors + query:card_history; ids: C06224-K2, C11309-K1, 3497738, 3503988].",
+        "claim": "Device profile Windows | other | chrome 61.0 | 1280x720 with verizon.net to gmail.com email routing was also used by cards C11309-K1 (transaction 3497738 on 2016-11-29 17:45:09) and C06224-K2 (transaction 3503988 on 2016-12-01 18:00:57), showing a historical 48% confirmation rate [C06224-K2, C11309-K1, 3497738, 3503988].",
         "source": "graph",
         "ref": "query:device_neighbors(device_id=Windows | other | chrome 61.0 | 1280x720) + query:card_history(other cards, 7d)",
         "entity_ids": [
@@ -57,16 +57,7 @@
         ]
       },
       {
-        "claim": "Disputed $99.92 (R) matches earlier charges of the same amount and product roughly monthly: 3419333",
-        "source": "graph",
-        "ref": "query:card_history(card_id=C07987-K2, window=60d)",
-        "entity_ids": [
-          "3503878",
-          "3419333"
-        ]
-      },
-      {
-        "claim": "A total of 23 cards made their first purchase in billing region 264.0 in the 7 days prior to the alert, with 8 linked to cases out of 1,946 cards ever billed there [ref: query:region_cluster(region=264.0, window=7d)].",
+        "claim": "Twenty-three cards made their first purchase in billing region 264.0 in the 7 days before the alert, with 8 linked to cases out of 1946 total cards ever billed there [region_cluster].",
         "source": "graph",
         "ref": "query:region_cluster(region=264.0, window=7d)",
         "entity_ids": [
@@ -83,7 +74,7 @@
         ]
       },
       {
-        "claim": "A total of 3 cards made their first purchase in billing region 384.0 in the 7 days prior to the alert, with 0 linked to cases out of 265 cards ever billed there [ref: query:region_cluster(region=384.0, window=7d)].",
+        "claim": "Three cards made their first purchase in billing region 384.0 in the 7 days before the alert, with 0 linked to cases out of 265 total cards ever billed there [region_cluster].",
         "source": "graph",
         "ref": "query:region_cluster(region=384.0, window=7d)",
         "entity_ids": [
@@ -93,38 +84,44 @@
         ]
       },
       {
-        "claim": "Nearest historical case memory retrieved: CASE-HHG-017, which was classified as uncertain under the card-not-present fraud pattern.",
+        "claim": "Nearest case in memory is CASE-HHG-017 under the card-not-present fraud pattern with an uncertain verdict [CASE-HHG-017].",
         "source": "graph",
         "ref": "query:similar_cases",
         "entity_ids": []
       },
       {
-        "claim": "Fraud Policy R1 establishes conditions for verifying before blocking on a weak signal, which is bypassed here due to multiple independent signals.",
+        "claim": "Fraud Policy R1 establishes requirements for verifying before blocking on weak signals in relation to BLOCK_CARD actions [POLICY-R1].",
         "source": "document",
         "ref": "POLICY-R1",
         "entity_ids": []
       },
       {
-        "claim": "Fraud Policy R6 governs shared origins, serving as the basis for CREATE_CASE, FILE_REPORT, and MONITOR_CONNECTED_CARDS.",
+        "claim": "Fraud Policy R6 addresses shared origin indicators, serving as the basis for CREATE_CASE, FILE_REPORT, and MONITOR_CONNECTED_CARDS [POLICY-R6].",
         "source": "document",
         "ref": "POLICY-R6",
         "entity_ids": []
       },
       {
-        "claim": "Fraud Policy R3 governs customer transaction confirmation and was retrieved as general context.",
+        "claim": "Fraud Policy R3 governs customer transaction confirmation resulting in CLOSE_NO_FRAUD [POLICY-R3].",
         "source": "document",
         "ref": "POLICY-R3",
         "entity_ids": []
       },
       {
-        "claim": "Typology and regulatory guidance retrieved covers card-not-present fraud from a new device, card-not-present fraud, card testing, and account takeover.",
+        "claim": "Fraud Policy regarding the initial risk score clarifies that scores are detection triggers rather than verdicts [POLICY-S0-SCORE].",
         "source": "document",
-        "ref": "PATTERN-card_not_present_new_device, PATTERN-card_not_present_fraud, PATTERN-card_testing, PATTERN-account_takeover",
+        "ref": "POLICY-S0-SCORE",
+        "entity_ids": []
+      },
+      {
+        "claim": "Regulatory guidance and typologies retrieved cover card-not-present fraud from a new device, card-not-present fraud, and card testing [PATTERN-card_not_present_new_device, PATTERN-card_not_present_fraud, PATTERN-card_testing].",
+        "source": "document",
+        "ref": "PATTERN-card_not_present_new_device, PATTERN-card_not_present_fraud, PATTERN-card_testing",
         "entity_ids": []
       }
     ],
     "similar_prior_cases": [],
-    "summary": "Case HHG-019 was opened following a risk score trigger on online transaction 3503878 for $99.92 on card C07987-K2 (customer C07987). Graph analysis assessed a fraud probability of 0.86 under the card-not-present fraud from a new device pattern, identifying risk factors including a closed-case score of 0.77, a new device profile, three prior fraud cases on the customer, and shared device usage across connected cards C06224-K2 and C11309-K1. Because the probability reaches 0.70 across multiple independent signals, policy R1 is not triggered, and recommended actions include blocking the card, creating a case, filing a report, and monitoring connected cards. The case was closed as fraud with an exposure of $99.92.",
+    "summary": "Case HHG-019 was opened following a risk score trigger on online transaction 3503878 for $99.92 on card C07987-K2 (customer C07987). Graph analysis assessed a fraud probability of 0.86 with a fraud verdict under the card-not-present fraud from a new device pattern. Recommended actions include blocking the card via L1, creating a case automatically, filing a report via L2, and monitoring connected cards automatically under policy R6. The case was closed as fraud due to decisive evidence supporting the risk indicators.",
     "written_to_graph": true,
     "graph_case_id": "CASE-HHG-019"
   },
@@ -179,7 +176,7 @@
   "sar": {
     "file": true,
     "reason": "§3a/R6: fraud confirmed or strongly suspected and shared device Windows | other | chrome 61.0 | 1280x720 links cards C06224-K2, C11309-K1",
-    "narrative": "Customer C07987, holding card C07987-K2, was identified in a fraudulent online transaction episode. The suspicious activity involved transaction 3503878 totaling $99.92. The transaction occurred on 2016-12-01. The activity originated online within billing region 264.0. The transaction was executed using device profile Windows | other | chrome 61.0 | 1280x720, which was marked as New for this account. This activity is suspicious due to multiple independent fraud signals, including a closed-case model score of 0.77, a new device profile, and historical fraud cases on the customer account. Connected cards C06224-K2 and C11309-K1 share the same suspicious device profile and ring characteristics. Recommended actions for this case include blocking the card, creating a case, filing a report, and monitoring connected cards.",
+    "narrative": "Customer C07987, holding card C07987-K2, was identified in a fraudulent transaction involving card C07987-K2. Transaction 3503878 was processed for a total amount of $99.92. The activity occurred on 2016-12-01. The transaction was conducted online within billing region 264.0. The fraud was executed using device profile Windows | other | chrome 61.0 | 1280x720, which was marked as new for this account. This activity is suspicious due to the closed-case classifier score, the new device profile matches, and prior confirmed fraud cases on the customer. Connected cards C06224-K2 and C11309-K1 share the same device profile and characteristics. Recommended actions include blocking the card, creating a case, filing a regulatory report, and monitoring connected cards under R6.",
     "subjects": [
       "C07987",
       "C07987-K2",
@@ -195,6 +192,6 @@
   },
   "stop_reason": "§6: probability 0.86 is decisive and rests on 3 independent pieces of evidence",
   "tool_calls": 18,
-  "tokens": 6329,
-  "latency_s": 20.8
+  "tokens": 6022,
+  "latency_s": 27.0
 }

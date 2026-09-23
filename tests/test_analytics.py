@@ -166,5 +166,24 @@ class AccountHistoryTest(unittest.TestCase):
         self.assertLessEqual(a["fraud_probability"], 0.3)
 
 
+class RecurringTest(unittest.TestCase):
+    """R7 needs a monthly series: >= 3 same-amount charges, each 25-35 days after the one before."""
+
+    def recurring(self, stamps):
+        txns = [dict(tx(str(1000001 + i), ts, 49.0), _t=analytics._t(ts)) for i, ts in enumerate(stamps)]
+        return analytics._recurring(txns, len(txns) - 1)
+
+    def test_monthly_series(self):
+        self.assertEqual(self.recurring(["2016-10-01 10:00:00", "2016-10-31 10:00:00", "2016-11-30 10:00:00"]),
+                         ["1000002", "1000001"])
+
+    def test_one_earlier_charge_is_not_a_series(self):
+        self.assertEqual(self.recurring(["2016-10-31 10:00:00", "2016-11-30 10:00:00"]), [])
+
+    def test_repeat_charges_days_apart_are_not_monthly(self):  # repeat fraud on one card
+        self.assertEqual(self.recurring(["2016-09-01 10:00:00", "2016-09-04 10:00:00", "2016-09-06 10:00:00",
+                                         "2016-11-30 10:00:00"]), [])
+
+
 if __name__ == "__main__":
     unittest.main()

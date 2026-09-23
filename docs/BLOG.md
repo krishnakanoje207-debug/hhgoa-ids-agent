@@ -95,10 +95,16 @@ looking for that; it fell out of the validation step, and it's a good demonstrat
 policy treats a risk score as "a reason to look, never a verdict."
 
 We measured the whole verdict stage on 1,376 closed September cases that nothing was fitted on.
-When the agent commits to fraud or legitimate it is right 86.0% of the time (85.3%
-class-balanced), and it commits on 64.5% of cases. The rest stay uncertain and go to
+When the agent commits to fraud or legitimate it is right 93.8% of the time (91.7%
+class-balanced), and it commits on 59% of cases. The rest stay uncertain and go to
 verification. Its fraud calls are right 99.6% of the time, it names the pattern correctly on
 92.8% of confirmed fraud, and only 3 of 118 cleared customers were wrongly called fraud.
+
+The evaluation also caught one of our bugs. Our "recurring charge" defence matched any
+same-amount charges that happened to be about a month apart, and it overrode the verdict to
+legitimate. In the bank's history those matches were fraud every time: repeat charges on a
+stolen card look "recurring". It now needs a real monthly series and only steers the R7 actions.
+Before the fix, decided accuracy was 86.0%.
 
 Two more pieces of evidence come straight from the graph rather than from the model.
 

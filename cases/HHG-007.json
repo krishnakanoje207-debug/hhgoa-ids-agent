@@ -17,7 +17,7 @@
     "exposure_usd": 265.85,
     "evidence": [
       {
-        "claim": "The closed-case classifier assigns a score of 0.96 to flagged transaction 3514948, leveraging historical bank cases independently of the bank risk score 0.87.",
+        "claim": "The closed-case classifier evaluated the flagged transaction 3514948 with a score of 0.96 based on historical confirmed and cleared cases, independent of the bank risk score of 0.87.",
         "source": "graph",
         "ref": "model:closed_case_classifier",
         "entity_ids": [
@@ -25,7 +25,7 @@
         ]
       },
       {
-        "claim": "Three card transactions from 2016-12-02 23:10:43 to 2016-12-05 00:46:14 constitute a single episode with gaps under 48 hours, amounting to a total exposure of $265.85 across transactions 3508487, 3514573, and 3514948.",
+        "claim": "Three card transactions occurring between 2016-12-02 23:10:43 and 2016-12-05 00:46:14 constitute a single fraud episode totaling $265.85, as grouped by the episode model with gaps under 48 hours (ids: 3508487, 3514573, 3514948).",
         "source": "graph",
         "ref": "query:card_history(card_id=C09933-K2, window=60d)",
         "entity_ids": [
@@ -35,7 +35,7 @@
         ]
       },
       {
-        "claim": "The customer has 18 earlier confirmed fraud cases, including CC-4196, CC-5092, CC-2565, CC-0104, and CC-1524.",
+        "claim": "Customer has 18 earlier confirmed fraud case(s): CC-4196, CC-5092, CC-2565, CC-0104, CC-1524",
         "source": "graph",
         "ref": "query:customer_cases",
         "entity_ids": [
@@ -47,7 +47,7 @@
         ]
       },
       {
-        "claim": "Earlier transactions 3402399 and 3408273 on the same underlying account as flagged transaction 3514948 are associated with confirmed fraud case CC-5521, aligning with historical risk patterns where high bank risk scores indicate severe fraud likelihood.",
+        "claim": "Earlier transactions 3402399 and 3408273 on the same underlying account as flagged transaction 3514948 are associated with confirmed fraud case CC-5521, aligning with historical bank statistics showing high fraud rates for such accounts.",
         "source": "graph",
         "ref": "query:customer_cases + get_neighbors(ClosedCase-INVOLVES-Txn)",
         "entity_ids": [
@@ -57,16 +57,7 @@
         ]
       },
       {
-        "claim": "The disputed transaction of $111.92 for product W matches previous recurring charges of the same amount and product approximately monthly, such as transaction 3424567.",
-        "source": "graph",
-        "ref": "query:card_history(card_id=C09933-K2, window=60d)",
-        "entity_ids": [
-          "3514948",
-          "3424567"
-        ]
-      },
-      {
-        "claim": "The flagged purchase occurred within the customer's home billing region 264.0.",
+        "claim": "The flagged purchase was made within the customer's home billing region 264.0.",
         "source": "graph",
         "ref": "query:card_history(card_id=C09933-K2, window=60d)",
         "entity_ids": [
@@ -74,7 +65,7 @@
         ]
       },
       {
-        "claim": "Data indicates 18 cards made their first purchase in billing region 264.0 in the 7 days preceding the alert, with 4 linked to cases out of 1946 total cards billed.",
+        "claim": "A regional cluster query showed that 18 cards made their first purchase in billing region 264.0 in the 7 days prior to the alert, with 4 linked to cases out of 1946 total cards ever billed there.",
         "source": "graph",
         "ref": "query:region_cluster(region=264.0, window=7d)",
         "entity_ids": [
@@ -83,44 +74,44 @@
           "C07267-K1",
           "C06084-K2",
           "C09751-K1",
+          "C06883-K1",
+          "C11621-K1",
           "C11057-K1",
-          "C06726-K1",
           "C09605-K1",
-          "C03384-K2",
-          "C07154-K1"
+          "C03384-K2"
         ]
       },
       {
-        "claim": "Data indicates 21 cards made their first purchase in billing region 441.0 in the 7 days preceding the alert, with 6 linked to cases out of 1155 total cards billed.",
+        "claim": "A regional cluster query showed that 21 cards made their first purchase in billing region 441.0 in the 7 days prior to the alert, with 6 linked to cases out of 1155 total cards ever billed there.",
         "source": "graph",
         "ref": "query:region_cluster(region=441.0, window=7d)",
         "entity_ids": [
-          "C07612-K2",
-          "C06401-K1",
-          "C04557-K1",
-          "C11392-K1",
           "C12226-K2",
           "C09344-K1",
           "C03999-K1",
           "C09471-K2",
           "C07948-K1",
-          "C04915-K1"
+          "C04915-K1",
+          "C11493-K1",
+          "C03182-K1",
+          "C05402-K1",
+          "C12913-K1"
         ]
       },
       {
-        "claim": "Nearest historical cases in memory comprise CASE-HHG-001, CASE-HHG-002, CASE-SEN-011, and CASE-HHG-018.",
+        "claim": "Similar past cases retrieved from memory include CASE-HHG-001, CASE-HHG-019, CASE-HHG-002, CASE-HHG-017, and CASE-HHG-018.",
         "source": "graph",
         "ref": "query:similar_cases",
         "entity_ids": []
       },
       {
-        "claim": "Fraud Policy R1 establishes guidelines for verifying weak signals prior to blocking.",
+        "claim": "Fraud Policy R1 provides guidelines regarding verification before blocking on a weak signal.",
         "source": "document",
         "ref": "POLICY-R1",
         "entity_ids": []
       },
       {
-        "claim": "Fraud Policy regarding the initial risk score as a starting point rather than a definitive verdict.",
+        "claim": "Fraud Policy regarding the initial risk score explains its role as a starting trigger rather than a verdict.",
         "source": "document",
         "ref": "POLICY-S0-SCORE",
         "entity_ids": []
@@ -132,14 +123,20 @@
         "entity_ids": []
       },
       {
-        "claim": "Retrieved typology and regulatory guidance covering account takeover, card-not-present fraud, risk scores, and card testing.",
+        "claim": "Fraud Policy regarding exposure defines how total transaction amounts are summed for an episode.",
         "source": "document",
-        "ref": "PATTERN-account_takeover, PATTERN-card_not_present_fraud, README-THINGS-TO-KNOW-01, PATTERN-card_testing",
+        "ref": "POLICY-S4-EXPOSURE",
+        "entity_ids": []
+      },
+      {
+        "claim": "Typology and regulatory guidance documents were retrieved covering account takeover, card-not-present fraud, and out-of-region use patterns.",
+        "source": "document",
+        "ref": "PATTERN-account_takeover, PATTERN-card_not_present_fraud, PATTERN-out_of_region_use",
         "entity_ids": []
       }
     ],
     "similar_prior_cases": [],
-    "summary": "Case HHG-007 was initiated for customer C09933 on card C09933-K2 following a risk score trigger of 0.87 on transaction 3514948. Graph analysis established a fraud probability of 0.98 and a verdict of fraud under the account_takeover pattern. The investigation identified a fraudulent episode comprising 3 transactions totaling $265.85 between 2016-12-02 and 2016-12-05. Based on robust multi-signal evidence, actions include recommending a card block routed through L1 and creating a case automatically.",
+    "summary": "Case HHG-007 was opened after transaction 3514948 on card C09933-K2 triggered a bank risk score of 0.87. Graph analysis confirmed an account takeover pattern with a fraud probability of 0.98 and a total exposure of $265.85 across 3 affected transactions (3508487, 3514573, 3514948). The closed-case classifier scored the flagged transaction at 0.96, and historical context reveals numerous prior confirmed fraud cases for customer C09933. Consequently, the recommended actions are to block the card via L1 and create a fraud case automatically under §3a.",
     "written_to_graph": true,
     "graph_case_id": "CASE-HHG-007"
   },
@@ -181,6 +178,6 @@
   },
   "stop_reason": "§6: probability 0.98 is decisive and rests on 4 independent pieces of evidence",
   "tool_calls": 17,
-  "tokens": 7121,
-  "latency_s": 31.5
+  "tokens": 7292,
+  "latency_s": 33.8
 }

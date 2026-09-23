@@ -32,7 +32,7 @@
         "t_to": "2016-12-05 03:46:14"
       },
       "summary": "848 txns on C09933-K2",
-      "ms": 13364
+      "ms": 12171
     },
     {
       "step": 2,
@@ -43,7 +43,7 @@
         "customer_id": "C09933"
       },
       "summary": "2 card(s), 20 case(s)",
-      "ms": 855
+      "ms": 1869
     },
     {
       "step": 2,
@@ -54,7 +54,7 @@
         "edge_type": "INVOLVES"
       },
       "summary": "9 txn(s) in CC-5521 (confirmed_fraud)",
-      "ms": 321
+      "ms": 457
     },
     {
       "step": 2,
@@ -65,7 +65,7 @@
         "edge_type": "INVOLVES"
       },
       "summary": "3 txn(s) in CC-5092 (confirmed_fraud)",
-      "ms": 314
+      "ms": 401
     },
     {
       "step": 2,
@@ -76,7 +76,7 @@
         "edge_type": "INVOLVES"
       },
       "summary": "4 txn(s) in CC-4787 (confirmed_fraud)",
-      "ms": 321
+      "ms": 439
     },
     {
       "step": 2,
@@ -87,7 +87,7 @@
         "edge_type": "INVOLVES"
       },
       "summary": "1 txn(s) in CC-4597 (confirmed_fraud)",
-      "ms": 330
+      "ms": 351
     },
     {
       "step": 2,
@@ -98,7 +98,7 @@
         "edge_type": "INVOLVES"
       },
       "summary": "3 txn(s) in CC-4455 (confirmed_fraud)",
-      "ms": 308
+      "ms": 357
     },
     {
       "step": 2,
@@ -111,7 +111,7 @@
         "t_to": "2016-12-05 03:46:14"
       },
       "summary": "18 card(s) new to region 264.0 in the window",
-      "ms": 317
+      "ms": 362
     },
     {
       "step": 2,
@@ -123,13 +123,13 @@
           {
             "tool": "region_cluster",
             "arg": "441.0",
-            "why": "Check cards new to billing region 441.0, which appeared in recent transactions, to investigate potential regional fraud clusters."
+            "why": "The transaction history includes an out-of-region billing region 441.0, which should be checked for broader fraud patterns."
           }
         ],
         "catalogue": 7
       },
-      "summary": "The transaction history includes an out-of-region transaction in billing region 441.0, making it useful to inspect cluster activity for that region.",
-      "ms": 2240
+      "summary": "The transaction history shows an unusual billing region (441.0) mixed among the predominant 264.0 region transactions. Checking the cluster for region 441.0 helps determine if this represents a wider fraudulent pattern.",
+      "ms": 1797
     },
     {
       "step": 2,
@@ -142,7 +142,7 @@
         "t_to": "2016-12-05 03:46:14"
       },
       "summary": "21 card(s) new to region 441.0 in the window",
-      "ms": 343
+      "ms": 402
     },
     {
       "step": 3,
@@ -151,7 +151,7 @@
       "args": {
         "device_ctx": null
       },
-      "summary": "pattern account_takeover (card-present fraud inside the home region 264.0); 3 episode txn(s), exposure $265.85; 4 prosecution / 2 defence items",
+      "summary": "pattern account_takeover (card-present fraud inside the home region 264.0); 3 episode txn(s), exposure $265.85; 4 prosecution / 1 defence items",
       "ms": 6
     },
     {
@@ -197,8 +197,8 @@
         ],
         "calls": 3
       },
-      "summary": "4 similar case(s), 7 passage(s)",
-      "ms": 6172
+      "summary": "5 similar case(s), 7 passage(s)",
+      "ms": 7039
     },
     {
       "step": 7,
@@ -208,7 +208,7 @@
         "fallback": []
       },
       "summary": "LLM text validated",
-      "ms": 3283
+      "ms": 3927
     },
     {
       "step": 8,
@@ -220,7 +220,7 @@
         "edges": 11
       },
       "summary": "wrote CASE-HHG-007",
-      "ms": 3271
+      "ms": 4159
     }
   ],
   "findings": {
@@ -286,15 +286,6 @@
       }
     ],
     "defence": [
-      {
-        "claim": "Disputed $111.92 (W) matches earlier charges of the same amount and product roughly monthly: 3424567",
-        "score": 0.8,
-        "entity_ids": [
-          "3514948",
-          "3424567"
-        ],
-        "ref": "query:card_history(card_id=C09933-K2, window=60d)"
-      },
       {
         "claim": "Flagged purchase is in the customer's home region 264.0",
         "score": 0.3,
@@ -396,15 +387,21 @@
         "flag": "normal"
       },
       {
-        "id": "C11057-K1",
+        "id": "C06883-K1",
         "type": "Card",
-        "label": "C11057-K1",
+        "label": "C06883-K1",
         "flag": "normal"
       },
       {
-        "id": "C06726-K1",
+        "id": "C11621-K1",
         "type": "Card",
-        "label": "C06726-K1",
+        "label": "C11621-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C11057-K1",
+        "type": "Card",
+        "label": "C11057-K1",
         "flag": "normal"
       },
       {
@@ -420,39 +417,9 @@
         "flag": "normal"
       },
       {
-        "id": "C07154-K1",
-        "type": "Card",
-        "label": "C07154-K1",
-        "flag": "normal"
-      },
-      {
         "id": "region 441.0",
         "type": "BillingRegion",
         "label": "region 441.0",
-        "flag": "normal"
-      },
-      {
-        "id": "C07612-K2",
-        "type": "Card",
-        "label": "C07612-K2",
-        "flag": "normal"
-      },
-      {
-        "id": "C06401-K1",
-        "type": "Card",
-        "label": "C06401-K1",
-        "flag": "normal"
-      },
-      {
-        "id": "C04557-K1",
-        "type": "Card",
-        "label": "C04557-K1",
-        "flag": "normal"
-      },
-      {
-        "id": "C11392-K1",
-        "type": "Card",
-        "label": "C11392-K1",
         "flag": "normal"
       },
       {
@@ -489,6 +456,30 @@
         "id": "C04915-K1",
         "type": "Card",
         "label": "C04915-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C11493-K1",
+        "type": "Card",
+        "label": "C11493-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C03182-K1",
+        "type": "Card",
+        "label": "C03182-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C05402-K1",
+        "type": "Card",
+        "label": "C05402-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C12913-K1",
+        "type": "Card",
+        "label": "C12913-K1",
         "flag": "normal"
       },
       {
@@ -540,6 +531,12 @@
         "flag": "suspicious"
       },
       {
+        "id": "CC-3821",
+        "type": "ClosedCase",
+        "label": "CC-3821",
+        "flag": "suspicious"
+      },
+      {
         "id": "CC-0657",
         "type": "ClosedCase",
         "label": "CC-0657",
@@ -549,12 +546,6 @@
         "id": "CC-2834",
         "type": "ClosedCase",
         "label": "CC-2834",
-        "flag": "suspicious"
-      },
-      {
-        "id": "CC-3821",
-        "type": "ClosedCase",
-        "label": "CC-3821",
         "flag": "suspicious"
       },
       {
@@ -618,16 +609,22 @@
         "flag": "cleared"
       },
       {
+        "id": "CASE-HHG-019",
+        "type": "AgentCase",
+        "label": "CASE-HHG-019",
+        "flag": "suspicious"
+      },
+      {
         "id": "CASE-HHG-002",
         "type": "AgentCase",
         "label": "CASE-HHG-002",
         "flag": "suspicious"
       },
       {
-        "id": "CASE-SEN-011",
+        "id": "CASE-HHG-017",
         "type": "AgentCase",
-        "label": "CASE-SEN-011",
-        "flag": "suspicious"
+        "label": "CASE-HHG-017",
+        "flag": "normal"
       },
       {
         "id": "CASE-HHG-018",
@@ -703,12 +700,17 @@
         "type": "BILLED_IN"
       },
       {
-        "src": "C11057-K1",
+        "src": "C06883-K1",
         "dst": "region 264.0",
         "type": "BILLED_IN"
       },
       {
-        "src": "C06726-K1",
+        "src": "C11621-K1",
+        "dst": "region 264.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C11057-K1",
         "dst": "region 264.0",
         "type": "BILLED_IN"
       },
@@ -720,31 +722,6 @@
       {
         "src": "C03384-K2",
         "dst": "region 264.0",
-        "type": "BILLED_IN"
-      },
-      {
-        "src": "C07154-K1",
-        "dst": "region 264.0",
-        "type": "BILLED_IN"
-      },
-      {
-        "src": "C07612-K2",
-        "dst": "region 441.0",
-        "type": "BILLED_IN"
-      },
-      {
-        "src": "C06401-K1",
-        "dst": "region 441.0",
-        "type": "BILLED_IN"
-      },
-      {
-        "src": "C04557-K1",
-        "dst": "region 441.0",
-        "type": "BILLED_IN"
-      },
-      {
-        "src": "C11392-K1",
-        "dst": "region 441.0",
         "type": "BILLED_IN"
       },
       {
@@ -774,6 +751,26 @@
       },
       {
         "src": "C04915-K1",
+        "dst": "region 441.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C11493-K1",
+        "dst": "region 441.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C03182-K1",
+        "dst": "region 441.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C05402-K1",
+        "dst": "region 441.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C12913-K1",
         "dst": "region 441.0",
         "type": "BILLED_IN"
       },
@@ -818,17 +815,17 @@
         "type": "ON_CARD"
       },
       {
+        "src": "CC-3821",
+        "dst": "C09933-K2",
+        "type": "ON_CARD"
+      },
+      {
         "src": "CC-0657",
         "dst": "C09933-K2",
         "type": "ON_CARD"
       },
       {
         "src": "CC-2834",
-        "dst": "C09933-K2",
-        "type": "ON_CARD"
-      },
-      {
-        "src": "CC-3821",
         "dst": "C09933-K2",
         "type": "ON_CARD"
       },
@@ -884,12 +881,17 @@
       },
       {
         "src": "CASE-HHG-007",
+        "dst": "CASE-HHG-019",
+        "type": "SIMILAR_TO"
+      },
+      {
+        "src": "CASE-HHG-007",
         "dst": "CASE-HHG-002",
         "type": "SIMILAR_TO"
       },
       {
         "src": "CASE-HHG-007",
-        "dst": "CASE-SEN-011",
+        "dst": "CASE-HHG-017",
         "type": "SIMILAR_TO"
       },
       {
@@ -899,5 +901,5 @@
       }
     ]
   },
-  "rag_context": "CASE\nHHG-007 opened 2016-12-05 03:46:14 by risk_score trigger: \"Real-time model scored transaction 3514948 ($111.92, in billing region 264.0) at 0.87. Review and decide.\"\nFlagged txn 3514948 on card C09933-K2 (customer C09933). Bank risk score 0.87 is a reason to look, not a verdict (§0).\nGraph analysis: pattern account_takeover (card-present fraud inside the home region 264.0); fraud probability 0.98; verdict fraud; 3 affected txns, first 3508487, exposure $265.85.\n\nGRAPH EVIDENCE\n- 18 card(s) made their first purchase in billing region 264.0 in the 7 days before the alert (4 linked to cases; 1946 cards ever billed there) (query:region_cluster(region=264.0, window=7d))\n- 21 card(s) made their first purchase in billing region 441.0 in the 7 days before the alert (6 linked to cases; 1155 cards ever billed there) (query:region_cluster(region=441.0, window=7d))\n- Customer C09933 cards: C09933-K1, C09933-K2; prior cases on them: CC-4196 (confirmed_fraud, out_of_region_use), CC-5092 (confirmed_fraud, out_of_region_use), CC-2565 (confirmed_fraud, out_of_region_use), CC-0104 (confirmed_fraud, out_of_region_use), CC-1524 (confirmed_fraud, account_takeover), CC-1228 (confirmed_fraud, account_takeover), CC-1682 (confirmed_fraud, out_of_region_use), CC-3136 (confirmed_fraud, account_takeover), CC-0657 (cleared, none), CC-2834 (confirmed_fraud, account_takeover), CC-3821 (confirmed_fraud, out_of_region_use), CC-2986 (confirmed_fraud, out_of_region_use), CC-3439 (confirmed_fraud, out_of_region_use), CC-4597 (confirmed_fraud, account_takeover), CC-0765 (confirmed_fraud, out_of_region_use), CC-4455 (confirmed_fraud, account_takeover), CC-4787 (confirmed_fraud, account_takeover), CC-4277 (confirmed_fraud, out_of_region_use), CC-5521 (confirmed_fraud, account_takeover) (query:customer_cases)\n- [prosecution 0.96] Closed-case classifier scores flagged txn 3514948 at 0.96 (learned from the bank's confirmed/cleared cases; the bank risk score 0.87 is not used as a verdict) (ref: model:closed_case_classifier; ids: 3514948)\n- [prosecution 0.80] 3 card txns from 2016-12-02 23:10:43 to 2016-12-05 00:46:14 form one episode (grouped by the episode model fitted on closed cases, gaps under 48 h), total $265.85 (ref: query:card_history(card_id=C09933-K2, window=60d); ids: 3508487, 3514573, 3514948)\n- [prosecution 0.40] Customer has 18 earlier confirmed fraud case(s): CC-4196, CC-5092, CC-2565, CC-0104, CC-1524 (ref: query:customer_cases; ids: CC-4196, CC-5092, CC-2565, CC-0104, CC-1524)\n- [prosecution 0.90] Earlier txn(s) 3402399, 3408273 on the same underlying account as flagged txn 3514948 (billing region 264.0, account first seen 2016-08-21 = txn date minus D1, within a day) are in confirmed fraud case(s) CC-5521; in the bank's Sep-Oct history 66% of in-person (82% online) txns on such an account were fraud, 97% when the bank risk score was >= 0.50 (here 0.87) (ref: query:customer_cases + get_neighbors(ClosedCase-INVOLVES-Txn); ids: CC-5521, 3402399, 3408273)\n- [defence 0.80] Disputed $111.92 (W) matches earlier charges of the same amount and product roughly monthly: 3424567 (ref: query:card_history(card_id=C09933-K2, window=60d); ids: 3514948, 3424567)\n- [defence 0.30] Flagged purchase is in the customer's home region 264.0 (ref: query:card_history(card_id=C09933-K2, window=60d); ids: 3514948)\n\nSIMILAR PAST CASES (vector search over closed and agent cases; same pattern first)\n- [CASE-HHG-001] AgentCase legitimate, pattern none, distance 0.124: Case HHG-001 was initiated for transaction 3514030 on card [other id] held by customer [other id], following a bank risk score trigger of 0.61. Graph analysis determined a fraud probability of 0.15 and assigned a legitimate verdict, as the activity is consistent with a trip ...\n- [CASE-HHG-002] AgentCase fraud, pattern card_not_present_fraud, distance 0.144: Case HHG-002 was opened on 2016-11-22 23:27:07 due to a risk score trigger on transaction 3478782 for $292.36 on card [other id] (customer [other id]). Graph analysis classified the event as card_not_present_fraud with a fraud probability of 0.95 and a verdict of fraud. The case ...\n- [CASE-SEN-011] AgentCase fraud, pattern undocumented, distance 0.148: Case SEN-011 was opened following a Sentinel sweep on 2016-11-21 after card [other id] executed four online purchases totaling $1,860.43 within 24 minutes. Graph analysis confirmed a fraud probability of 0.93 due to structuring tactics keeping amounts just under the $500 threshold. The closed-case classifier ...\n- [CASE-HHG-018] AgentCase uncertain, pattern out_of_region_use, distance 0.150: Customer [other id] reported an unrecognized charge of $39.08 on card [other id] via transaction 3491361, which occurred in billing region 126.0 while their home region is 325.0. Graph analysis flagged out_of_region_use with a fraud probability of 0.67 and an uncertain verdict due to conflicting ...\n\nPOLICY & GUIDANCE\n- [POLICY-R1] R1. Verify before you block on a weak signal: R1. Verify before you block on a weak signal. If the case rests on a single signal (including a risk score alone) and your assessed fraud probability is below 0.70, recommend VERIFY_WITH_CUSTOMER or STEP_UP_AUTH before any block. Blocking a legitimate customer on one signal is a policy breach. Related actions (§1): VERIFY_WITH_CUSTOMER -- ask the cardholder whether they made the transaction; the card stays active pending reply (low customer impact, ...\n- [PATTERN-account_takeover] Account takeover: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 5. Account takeover. Mixed-channel activity inconsistent with the cardholder, often with device and match-flag anomalies, pointing to stolen credentials rather than a stolen number. The README glossary defines an identity record as the ...\n- [POLICY-S0-SCORE] What the agent starts with: the risk score: Every transaction carries a risk_score between 0 and 1 from the bank's detection model. The model is useful and imperfect: many high scores are legitimate, and some fraud scores low. A score is a reason to look, never a verdict. The only confirmed outcomes are in the closed cases. As the README glossary puts it: Risk score -- a number from 0 to 1 the bank's model attached to every ...\n- [POLICY-R3] R3. Customer confirms the transaction: R3. Customer confirms the transaction. Recommend CLOSE_NO_FRAUD. Note the confirmation in the case file. Compare R2, where the customer instead denies the transaction and the agent recommends BLOCK_CARD and CREATE_CASE. Related action (§1): CLOSE_NO_FRAUD -- close the alert as legitimate (no customer impact, route auto). Per the Answer Format notes, for a legitimate verdict affected_txn_ids is empty, exposure_usd is 0, and sar.file is false.\n- [PATTERN-card_not_present_fraud] Card-not-present fraud: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 2. Card-not-present fraud. The number is used online without the card. Amounts and products that don't fit the cardholder's history, often in a burst of two to four within 48 hours. On its ...\n- [README-THINGS-TO-KNOW-01] Risk scores, legitimate cases, and undocumented patterns: \"From the README's \"\"Things to know\"\" section: a risk score is a reason to look -- never a verdict. Half the cases in the case pack are legitimate; many look suspicious\n- [PATTERN-card_testing] Card testing: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 1. Card testing. A stolen card number is checked before use: three or more tiny online authorizations, often under $5, then a larger purchase. Confirmed by the sequence itself. Policy R5.\n\nINSTRUCTIONS\nUse only the facts above. Cite the ids in square brackets and the txn/card/device ids shown; never invent an id, amount or date. Past cases are memory, not this customer's activity: their ids are not connected cards. The bank risk score is not a verdict. Actions come from the policy engine: explain them, do not change them."
+  "rag_context": "CASE\nHHG-007 opened 2016-12-05 03:46:14 by risk_score trigger: \"Real-time model scored transaction 3514948 ($111.92, in billing region 264.0) at 0.87. Review and decide.\"\nFlagged txn 3514948 on card C09933-K2 (customer C09933). Bank risk score 0.87 is a reason to look, not a verdict (§0).\nGraph analysis: pattern account_takeover (card-present fraud inside the home region 264.0); fraud probability 0.98; verdict fraud; 3 affected txns, first 3508487, exposure $265.85.\n\nGRAPH EVIDENCE\n- 18 card(s) made their first purchase in billing region 264.0 in the 7 days before the alert (4 linked to cases; 1946 cards ever billed there) (query:region_cluster(region=264.0, window=7d))\n- 21 card(s) made their first purchase in billing region 441.0 in the 7 days before the alert (6 linked to cases; 1155 cards ever billed there) (query:region_cluster(region=441.0, window=7d))\n- Customer C09933 cards: C09933-K1, C09933-K2; prior cases on them: CC-4196 (confirmed_fraud, out_of_region_use), CC-5092 (confirmed_fraud, out_of_region_use), CC-2565 (confirmed_fraud, out_of_region_use), CC-0104 (confirmed_fraud, out_of_region_use), CC-1524 (confirmed_fraud, account_takeover), CC-1228 (confirmed_fraud, account_takeover), CC-1682 (confirmed_fraud, out_of_region_use), CC-3136 (confirmed_fraud, account_takeover), CC-3821 (confirmed_fraud, out_of_region_use), CC-0657 (cleared, none), CC-2834 (confirmed_fraud, account_takeover), CC-2986 (confirmed_fraud, out_of_region_use), CC-3439 (confirmed_fraud, out_of_region_use), CC-4597 (confirmed_fraud, account_takeover), CC-0765 (confirmed_fraud, out_of_region_use), CC-4455 (confirmed_fraud, account_takeover), CC-4787 (confirmed_fraud, account_takeover), CC-4277 (confirmed_fraud, out_of_region_use), CC-5521 (confirmed_fraud, account_takeover) (query:customer_cases)\n- [prosecution 0.96] Closed-case classifier scores flagged txn 3514948 at 0.96 (learned from the bank's confirmed/cleared cases; the bank risk score 0.87 is not used as a verdict) (ref: model:closed_case_classifier; ids: 3514948)\n- [prosecution 0.80] 3 card txns from 2016-12-02 23:10:43 to 2016-12-05 00:46:14 form one episode (grouped by the episode model fitted on closed cases, gaps under 48 h), total $265.85 (ref: query:card_history(card_id=C09933-K2, window=60d); ids: 3508487, 3514573, 3514948)\n- [prosecution 0.40] Customer has 18 earlier confirmed fraud case(s): CC-4196, CC-5092, CC-2565, CC-0104, CC-1524 (ref: query:customer_cases; ids: CC-4196, CC-5092, CC-2565, CC-0104, CC-1524)\n- [prosecution 0.90] Earlier txn(s) 3402399, 3408273 on the same underlying account as flagged txn 3514948 (billing region 264.0, account first seen 2016-08-21 = txn date minus D1, within a day) are in confirmed fraud case(s) CC-5521; in the bank's Sep-Oct history 66% of in-person (82% online) txns on such an account were fraud, 97% when the bank risk score was >= 0.50 (here 0.87) (ref: query:customer_cases + get_neighbors(ClosedCase-INVOLVES-Txn); ids: CC-5521, 3402399, 3408273)\n- [defence 0.30] Flagged purchase is in the customer's home region 264.0 (ref: query:card_history(card_id=C09933-K2, window=60d); ids: 3514948)\n\nSIMILAR PAST CASES (vector search over closed and agent cases; same pattern first)\n- [CASE-HHG-001] AgentCase legitimate, pattern none, distance 0.108: Case HHG-001 was opened following a risk score trigger of 0.61 on transaction 3514030 ($77.07) for customer [other id] on card [other id]. Although the closed-case classifier scored the transaction at 0.79 and the customer had four earlier confirmed fraud cases (CC-1066, CC-2964, CC-3587, CC-1673), ...\n- [CASE-HHG-019] AgentCase fraud, pattern card_not_present_new_device, distance 0.135: Case HHG-019 was opened following a risk score trigger on online transaction 3503878 for $99.92 on card [other id] (customer [other id]). Graph analysis assessed a fraud probability of 0.86 with a fraud verdict under the card-not-present fraud from a new device pattern. Recommended actions ...\n- [CASE-HHG-002] AgentCase fraud, pattern card_not_present_fraud, distance 0.138: Case HHG-002 was opened on 2016-11-22 23:27:07 due to a risk score trigger on transaction 3478782 for $292.36 on card [other id] (customer [other id]). Graph analysis classified the event as card_not_present_fraud with a fraud probability of 0.95 and a verdict of fraud. The case ...\n- [CASE-HHG-017] AgentCase uncertain, pattern card_not_present_fraud, distance 0.141: Case HHG-017 was opened following a risk score trigger of 0.57 on online transaction 3450629 for $100.09 on card [other id] (customer [other id]). Graph analysis assessed a fraud probability of 0.60 with an uncertain verdict under the card-not-present fraud pattern. Following Policy R1 for ...\n- [CASE-HHG-018] AgentCase uncertain, pattern out_of_region_use, distance 0.141: Customer [other id] reported an unrecognized $39.08 purchase on card [other id], referencing transaction 3491361. Graph analysis indicates an out-of-region use pattern with a fraud probability of 0.67, featuring card-present use in billing region 126.0 while the customer's home region is 325.0. Although prosecution evidence ...\n\nPOLICY & GUIDANCE\n- [POLICY-R1] R1. Verify before you block on a weak signal: R1. Verify before you block on a weak signal. If the case rests on a single signal (including a risk score alone) and your assessed fraud probability is below 0.70, recommend VERIFY_WITH_CUSTOMER or STEP_UP_AUTH before any block. Blocking a legitimate customer on one signal is a policy breach. Related actions (§1): VERIFY_WITH_CUSTOMER -- ask the cardholder whether they made the transaction; the card stays active pending reply (low customer impact, ...\n- [PATTERN-account_takeover] Account takeover: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 5. Account takeover. Mixed-channel activity inconsistent with the cardholder, often with device and match-flag anomalies, pointing to stolen credentials rather than a stolen number. The README glossary defines an identity record as the ...\n- [POLICY-S0-SCORE] What the agent starts with: the risk score: Every transaction carries a risk_score between 0 and 1 from the bank's detection model. The model is useful and imperfect: many high scores are legitimate, and some fraud scores low. A score is a reason to look, never a verdict. The only confirmed outcomes are in the closed cases. As the README glossary puts it: Risk score -- a number from 0 to 1 the bank's model attached to every ...\n- [POLICY-R3] R3. Customer confirms the transaction: R3. Customer confirms the transaction. Recommend CLOSE_NO_FRAUD. Note the confirmation in the case file. Compare R2, where the customer instead denies the transaction and the agent recommends BLOCK_CARD and CREATE_CASE. Related action (§1): CLOSE_NO_FRAUD -- close the alert as legitimate (no customer impact, route auto). Per the Answer Format notes, for a legitimate verdict affected_txn_ids is empty, exposure_usd is 0, and sar.file is false.\n- [PATTERN-card_not_present_fraud] Card-not-present fraud: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 2. Card-not-present fraud. The number is used online without the card. Amounts and products that don't fit the cardholder's history, often in a burst of two to four within 48 hours. On its ...\n- [PATTERN-out_of_region_use] Out-of-region use: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 4. Out-of-region use. Card-present purchases in a billing region the cardholder has no history in, while their normal activity continues at home. Several days of purchases in one new region is a trip, ...\n- [POLICY-S4-EXPOSURE] Exposure: Exposure is the sum of the absolute amounts of every transaction the agent has identified as part of the fraud episode, including the flagged one. Report it in USD. As the glossary states, exposure is the total dollars in the fraud episode identified. Per the Answer Format, exposure_usd is the sum of absolute amounts of affected_txn_ids, and for a legitimate verdict affected_txn_ids is empty and exposure_usd is 0. Exposure also ...\n\nINSTRUCTIONS\nUse only the facts above. Cite the ids in square brackets and the txn/card/device ids shown; never invent an id, amount or date. Past cases are memory, not this customer's activity: their ids are not connected cards. The bank risk score is not a verdict. Actions come from the policy engine: explain them, do not change them."
 }

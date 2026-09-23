@@ -15,7 +15,7 @@
     "exposure_usd": 30.91,
     "evidence": [
       {
-        "claim": "Card-present use in billing region 494.0; the customer's home region is 325.0 (6 earlier txns there)",
+        "claim": "Card-present use in billing region 494.0; the customer's home region is 325.0 (6 earlier transactions there)",
         "source": "graph",
         "ref": "query:region_history(customer_id=C05876)",
         "entity_ids": [
@@ -23,7 +23,7 @@
         ]
       },
       {
-        "claim": "Customer has 1 earlier confirmed fraud case(s): CC-2370",
+        "claim": "Customer has 1 earlier confirmed fraud case: CC-2370",
         "source": "graph",
         "ref": "query:customer_cases",
         "entity_ids": [
@@ -31,7 +31,7 @@
         ]
       },
       {
-        "claim": "Closed-case classifier scores flagged txn 3553342 at 0.11, in line with this card's legitimate history (bank risk score 0.55 is often high on false alarms)",
+        "claim": "Closed-case classifier scores flagged transaction 3553342 at 0.11, consistent with this card's legitimate history (bank risk score 0.55 is frequently high on false alarms)",
         "source": "graph",
         "ref": "model:closed_case_classifier",
         "entity_ids": [
@@ -39,7 +39,7 @@
         ]
       },
       {
-        "claim": "Card-present purchases in region 494.0 on 6 different days while 49 txns continued in home region 325.0: looks like a trip, not a clone",
+        "claim": "Card-present purchases in region 494.0 on 6 different days while 49 transactions continued in home region 325.0: appears to be a trip rather than a clone",
         "source": "graph",
         "ref": "query:region_history(customer_id=C05876)",
         "entity_ids": [
@@ -52,109 +52,103 @@
         ]
       },
       {
-        "claim": "Disputed $30.91 (W) matches earlier charges of the same amount and product roughly monthly: 3380318, 3442424, 3442469, 3456319",
+        "claim": "Disputed $30.91 transaction (W) aligns with earlier charges of the same amount and product approximately monthly: 3477559, 3380318",
         "source": "graph",
         "ref": "query:card_history(card_id=C05876-K2, window=60d)",
         "entity_ids": [
           "3553342",
-          "3380318",
-          "3442424",
-          "3442469",
-          "3456319"
+          "3477559",
+          "3380318"
         ]
       },
       {
-        "claim": "9 cards initiated their first purchase in billing region 494.0 during the 7 days preceding the alert, with 6 linked to cases out of 373 total cards ever billed there (query:region_cluster(region=494.0, window=7d))",
+        "claim": "9 cards made their first purchase in billing region 494.0 in the 7 days prior to the alert (6 linked to cases; 373 cards ever billed there)",
         "source": "graph",
         "ref": "query:region_cluster(region=494.0, window=7d)",
         "entity_ids": [
           "C08190-K2",
+          "C06605-K1",
           "C07614-K2",
           "C08334-K1",
-          "C12826-K1",
-          "C04060-K1",
           "C12742-K1",
           "C06929-K1",
-          "C06605-K1",
-          "C09874-K1"
+          "C09874-K1",
+          "C12826-K1",
+          "C04060-K1"
         ]
       },
       {
-        "claim": "25 cards initiated their first purchase in billing region 330.0 during the 7 days preceding the alert, with 4 linked to cases out of 1452 total cards ever billed there (query:region_cluster(region=330.0, window=7d))",
+        "claim": "7 cards made their first purchase in billing region 476.0 in the 7 days prior to the alert (2 linked to cases; 771 cards ever billed there)",
+        "source": "graph",
+        "ref": "query:region_cluster(region=476.0, window=7d)",
+        "entity_ids": [
+          "C01824-K1",
+          "C01640-K1",
+          "C06221-K1",
+          "C09602-K1",
+          "C01065-K1",
+          "C06294-K1",
+          "C09918-K1"
+        ]
+      },
+      {
+        "claim": "25 cards made their first purchase in billing region 330.0 in the 7 days prior to the alert (5 linked to cases; 1452 cards ever billed there)",
         "source": "graph",
         "ref": "query:region_cluster(region=330.0, window=7d)",
         "entity_ids": [
           "C11909-K1",
-          "C11639-K1",
           "C12565-K1",
+          "C11639-K1",
+          "C11326-K1",
           "C00181-K1",
           "C05755-K1",
           "C06898-K1",
           "C10159-K1",
-          "C00711-K1",
           "C03979-K1",
           "C12440-K1"
         ]
       },
       {
-        "claim": "11 cards initiated their first purchase in billing region 433.0 during the 7 days preceding the alert, with 3 linked to cases out of 723 total cards ever billed there (query:region_cluster(region=433.0, window=7d))",
-        "source": "graph",
-        "ref": "query:region_cluster(region=433.0, window=7d)",
-        "entity_ids": [
-          "C05670-K1",
-          "C03100-K2",
-          "C04167-K1",
-          "C11751-K1",
-          "C04840-K1",
-          "C02241-K1",
-          "C05514-K1",
-          "C00725-K1",
-          "C07730-K1",
-          "C08285-K2"
-        ]
-      },
-      {
-        "claim": "No assumed response for analyst information yet due to balanced evidence (probability 0.40); the case remains open pending review.",
+        "claim": "No response assumed yet: the evidence is balanced (probability 0.40), so the agent does not presume the analyst_info outcome; the case stays open until it arrives.",
         "source": "external",
         "ref": "evidence_request:1",
         "entity_ids": []
       },
       {
-        "claim": "Similar historical cases include CC-3744, CC-5287, CC-4996, CASE-HHG-018, CASE-HHG-003, and CASE-HHG-017.",
+        "claim": "Nearest cases in case memory: CC-3744 (confirmed_fraud, out_of_region_use); CC-5287 (confirmed_fraud, out_of_region_use); CASE-HHG-018 (uncertain, out_of_region_use); CASE-HHG-003 (fraud, out_of_region_use); CASE-HHG-001 (legitimate, none); CASE-HHG-017 (uncertain, card_not_present_fraud)",
         "source": "graph",
         "ref": "query:similar_cases",
         "entity_ids": [
           "CC-3744",
-          "CC-5287",
-          "CC-4996"
+          "CC-5287"
         ]
       },
       {
-        "claim": "Fraud Policy R1 requires verification before blocking on a weak signal.",
+        "claim": "Fraud Policy R1. Verify before you block on a weak signal: basis for VERIFY_WITH_CUSTOMER",
         "source": "document",
         "ref": "POLICY-R1",
         "entity_ids": []
       },
       {
-        "claim": "Fraud Policy R8 requires escalation when there is uncertainty and exposure.",
+        "claim": "Fraud Policy R8. Escalate when uncertain and exposed: basis for ESCALATE_TO_ANALYST",
         "source": "document",
         "ref": "POLICY-R8",
         "entity_ids": []
       },
       {
-        "claim": "Fraud Policy R3 governs customer transaction confirmations.",
+        "claim": "Fraud Policy R3. Customer confirms the transaction: retrieved as context",
         "source": "document",
         "ref": "POLICY-R3",
         "entity_ids": []
       },
       {
-        "claim": "Fraud Policy guidance outlines the function of initial risk scores.",
+        "claim": "Fraud Policy What the agent starts with: the risk score: retrieved as context",
         "source": "document",
         "ref": "POLICY-S0-SCORE",
         "entity_ids": []
       },
       {
-        "claim": "Retrieved typologies and regulatory guidance include out-of-region use, card-not-present fraud, and card testing.",
+        "claim": "Typology and regulatory guidance retrieved: Out-of-region use; Card-not-present fraud; Card testing",
         "source": "document",
         "ref": "PATTERN-out_of_region_use, PATTERN-card_not_present_fraud, PATTERN-card_testing",
         "entity_ids": []
@@ -162,10 +156,9 @@
     ],
     "similar_prior_cases": [
       "CC-3744",
-      "CC-5287",
-      "CC-4996"
+      "CC-5287"
     ],
-    "summary": "Case HHG-012 was opened for transaction 3553342 on card C05876-K2 (customer C05876) with a risk score of 0.55. Graph analysis flagged out_of_region_use with a fraud probability of 0.40 and an uncertain verdict due to conflicting prosecution and defence evidence. Following policy rules R1 and R8, the recommended actions are to verify with the customer, create a case, and escalate to an analyst. Because the evidence is balanced, the case requires human review before a final determination is made.",
+    "summary": "Case HHG-012 was opened following a risk score trigger on transaction 3553342 for $30.91 on card C05876-K2 (customer C05876). Graph analysis identified an out_of_region_use pattern with a fraud probability of 0.40 due to card-present use in billing region 494.0 while the customer's home region is 325.0. Evidence is conflicting, as the customer has an earlier confirmed fraud case CC-2370, but defence evidence indicates card-present purchases in region 494.0 on 6 different days while normal activity continued at home, resembling a trip. Per Policy R1 and R8, the recommended actions are VERIFY_WITH_CUSTOMER, CREATE_CASE, and ESCALATE_TO_ANALYST.",
     "written_to_graph": true,
     "graph_case_id": "CASE-HHG-012"
   },
@@ -223,6 +216,6 @@
   },
   "stop_reason": "§3b/§5: ESCALATE_TO_ANALYST is recommended and the analyst_info response changes the actions (fraud -> BLOCK_CARD, CREATE_CASE; legitimate -> CLOSE_NO_FRAUD)",
   "tool_calls": 15,
-  "tokens": 7082,
-  "latency_s": 21.0
+  "tokens": 6888,
+  "latency_s": 24.9
 }
