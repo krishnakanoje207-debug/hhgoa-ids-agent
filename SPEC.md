@@ -15,6 +15,7 @@ If this file and the README disagree, the README wins.
 src/hhg/config.py      load .env (python-dotenv)
 src/hhg/tg.py          TigerGraph REST client (token via secret, run installed query, upsert) — owner: lead
 src/hhg/policy.py      deterministic Fraud Policy engine (pure functions) — owner: policy agent
+src/hhg/approvals.py   L1/L2 sign-off rules + append-only audit log (audit/approvals.jsonl)
 src/hhg/validate.py    answer-file validator (CLI: python -m hhg.validate cases/) — owner: policy agent
 src/hhg/llm.py         OpenAI-compatible client (Gemini/Groq) + deterministic fallback text — owner: lead
 src/hhg/rag.py         GraphRAG retrieval (TigerGraph vectors + graph evidence -> context block) — owner: lead
@@ -68,6 +69,7 @@ Exactly the README "Answer Format" schema; copy the README example as the templa
   "case_id": "HHG-014",
   "trigger": {"case_id": "...", "opened_at": "...", "trigger_type": "...", "trigger_text": "...", "flagged_txn_id": "...", "card_id": "...", "customer_id": "...", "risk_score": 0.61},
   "steps": [{"step": 1, "name": "Trigger received", "tool": "tigergraph__run_installed_query" , "args": {}, "summary": "one line", "ms": 812}],
+  "findings": {"...": "the Findings object before any evidence request (UI replays replies from it)"},
   "hypotheses": {
     "prosecution": [{"claim": "...", "score": 0.8, "entity_ids": ["..."], "ref": "query:device_neighbors(...)"}],
     "defence":     [{"claim": "...", "score": 0.3, "entity_ids": ["..."], "ref": "query:region_history(...)"}]

@@ -175,5 +175,28 @@ class StopGateTest(unittest.TestCase):
         self.assertEqual(s(customer_response="no_reply"), "open")
 
 
+class ApplyResponseTest(unittest.TestCase):
+    def test_deny_settles_fraud(self):
+        f = policy.apply_response(findings(fraud_probability=0.6, exposure_usd=300.0), "customer_validation", "deny")
+        self.assertEqual((f["verdict"], f["fraud_probability"], f["independent_evidence"]), ("fraud", 0.9, 2))
+        self.assertIn("BLOCK_CARD", names(f))
+
+    def test_confirm_clears(self):
+        f = policy.apply_response(findings(shared_origin=SHARED), "customer_validation", "confirm")
+        self.assertEqual((f["verdict"], f["exposure_usd"], f["shared_origin"]), ("legitimate", 0.0, None))
+        self.assertEqual(names(f), ["CREATE_CASE", "CLOSE_NO_FRAUD"])  # §3a: evidence was requested
+
+    def test_no_reply_changes_nothing_but_the_reply(self):  # R4
+        f0 = findings(exposure_usd=800.0)
+        f = policy.apply_response(f0, "customer_validation", "no_reply")
+        self.assertEqual(f, {**f0, "customer_response": "no_reply"})
+        self.assertIn("MONITOR_CARD", names(f))
+        self.assertIn("ESCALATE_TO_ANALYST", names(f))
+
+    def test_analyst_answer(self):
+        f = policy.apply_response(findings(evidence_conflicts=True), "analyst_info", "fraud")
+        self.assertEqual((f["fraud_probability"], f["evidence_conflicts"]), (0.85, False))
+
+
 if __name__ == "__main__":
     unittest.main()

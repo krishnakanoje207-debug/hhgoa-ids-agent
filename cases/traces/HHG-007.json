@@ -223,6 +223,25 @@
       "ms": 3271
     }
   ],
+  "findings": {
+    "trigger_type": "risk_score",
+    "fraud_probability": 0.984,
+    "verdict": "fraud",
+    "pattern": "account_takeover",
+    "independent_evidence": 4,
+    "single_signal": false,
+    "evidence_conflicts": false,
+    "exposure_usd": 265.85,
+    "card_testing": false,
+    "cleared_purchase_over_100": false,
+    "shared_origin": null,
+    "connects_to_other_fraud": false,
+    "recurring_match": false,
+    "customer_cards_confirmed_fraud": 1,
+    "credentials_compromised": false,
+    "customer_response": null,
+    "step_up_result": null
+  },
   "hypotheses": {
     "prosecution": [
       {

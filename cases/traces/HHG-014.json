@@ -189,6 +189,49 @@
       "ms": 4074
     }
   ],
+  "findings": {
+    "trigger_type": "analyst_request",
+    "fraud_probability": 0.9,
+    "verdict": "fraud",
+    "pattern": "undocumented",
+    "independent_evidence": 3,
+    "single_signal": false,
+    "evidence_conflicts": false,
+    "exposure_usd": 187.33,
+    "card_testing": false,
+    "cleared_purchase_over_100": false,
+    "shared_origin": {
+      "kind": "device",
+      "id": "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080",
+      "card_ids": [
+        "C01289-K1",
+        "C01996-K2",
+        "C02910-K1",
+        "C02975-K1",
+        "C03676-K2",
+        "C04108-K2",
+        "C04274-K1",
+        "C05448-K2",
+        "C06710-K1",
+        "C08168-K1",
+        "C09049-K1",
+        "C09906-K1",
+        "C09975-K1",
+        "C10193-K2",
+        "C10326-K1",
+        "C11082-K1",
+        "C11670-K2",
+        "C12796-K1",
+        "C13291-K1"
+      ]
+    },
+    "connects_to_other_fraud": true,
+    "recurring_match": false,
+    "customer_cards_confirmed_fraud": 0,
+    "credentials_compromised": false,
+    "customer_response": null,
+    "step_up_result": null
+  },
   "hypotheses": {
     "prosecution": [
       {

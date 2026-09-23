@@ -135,6 +135,14 @@ the request and assumes nothing — the case stays open or escalated as `uncerta
 twenty benchmark cases end that way. Outside the band it simulates the reply the evidence points
 to and says so in the answer file.
 
+Those four open cases are where the console earns its keep. Each trace stores the agent's
+findings from before it asked for anything, so an analyst can enter the reply that actually came
+back. If the customer denies, confirms or goes silent, the policy engine re-decides then and
+there: actions, approval routes, case status, whether a SAR is due. The agent may execute only
+the `auto` actions. A card block or a SAR waits for a team lead or fraud manager to approve it
+in the console. Each sign-off is appended to an audit log, together with the evidence replies it
+was based on.
+
 **Case memory that compounds.** Every closed case becomes an `AgentCase` vertex with edges to
 the transactions, cards, devices, closed cases, and documents it relied on, plus its own
 embedding. The next investigation's `similar_cases` query searches both the bank's original

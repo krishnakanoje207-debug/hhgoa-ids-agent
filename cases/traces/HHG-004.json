@@ -171,6 +171,25 @@
       "ms": 3456
     }
   ],
+  "findings": {
+    "trigger_type": "customer_report",
+    "fraud_probability": 0.259,
+    "verdict": "uncertain",
+    "pattern": "card_not_present_new_device",
+    "independent_evidence": 1,
+    "single_signal": true,
+    "evidence_conflicts": false,
+    "exposure_usd": 128.33,
+    "card_testing": false,
+    "cleared_purchase_over_100": false,
+    "shared_origin": null,
+    "connects_to_other_fraud": false,
+    "recurring_match": false,
+    "customer_cards_confirmed_fraud": 1,
+    "credentials_compromised": false,
+    "customer_response": null,
+    "step_up_result": null
+  },
   "hypotheses": {
     "prosecution": [
       {

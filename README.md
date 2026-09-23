@@ -166,6 +166,12 @@ it, or the evidence gate returns no decisive question.
 
   `BLOCK_ALL_CARDS` additionally requires two of the customer's cards showing confirmed fraud
   or confirmed compromised credentials (R10) — never triggered by a single card's evidence.
+- **Human sign-off** (`src/hhg/approvals.py`, console tab *Evidence & approval*). The agent
+  only executes `auto` actions; each `L1`/`L2` action waits for a person. The console's
+  signed-in role decides who may sign: a team lead signs `L1`, a fraud manager signs `L1` and
+  `L2`, and nobody signs `auto`. Every approve/reject is appended to `audit/approvals.jsonl`
+  (git-ignored runtime data) with the time, analyst, role, note and the evidence replies the
+  signed recommendation rests on. Entries are only ever added, never rewritten.
 - **MCP tool allowlist.** `tigergraph-mcp` exposes ~69 tools; the agent's allowlist is
   restricted to what an investigation needs and nothing that can alter schema or delete data:
   the 8 installed queries via `tigergraph__run_installed_query` (vector retrieval included, through
@@ -240,10 +246,17 @@ it, or the evidence gate returns no decisive question.
    (any CSV with `TransactionID` and `TransactionAmt` columns) adds the
    `exposure_usd == sum(affected amounts)` check.
 13. **Run the console** — `streamlit run ui/app.py`: reads `cases/*.json` and
-    `cases/traces/*.json` directly, no other dependency. Shows, per case: header (status,
+    `cases/traces/*.json` directly, with no TigerGraph or LLM call. Shows, per case: header (status,
     verdict, pattern, probability, exposure), investigation timeline, courtroom
     (prosecution/defence hypotheses), evidence list, graph neighbourhood, the evidence-gate
-    flip table, initial-vs-final actions with routes, and the SAR preview.
+    flip table, initial-vs-final actions with routes, and the SAR preview. The *Evidence &
+    approval* tab starts from the agent's findings before it asked for anything
+    (`trace.findings`): pick the reply that came back (customer deny/confirm/no reply,
+    step-up pass/fail, analyst fraud/legitimate) and the policy engine re-decides on the
+    spot — actions, routes, status, SAR, probability. It is preset to the replies the agent
+    assumed, so it opens on the recorded answer (`tests/test_replay.py` checks that for all
+    20 cases). Below it, the `L1`/`L2` actions can be approved or rejected (see *Controls &
+    permissions*).
 
 ## Repo layout
 
@@ -260,6 +273,7 @@ src/hhg/
   mcp_tools.py              the agent's only path to the graph: tigergraph-mcp client + tool allowlist
   analytics.py              card/episode/device/region analytics and calibrated fraud probability
   policy.py                 deterministic Fraud Policy engine (pure functions)
+  approvals.py              L1/L2 sign-off rules + append-only audit log
   validate.py                answer-file validator
   llm.py                     OpenAI-compatible client (Gemini/Groq) + deterministic fallback text,
                              local bge-small embeddings (fastembed)
@@ -270,6 +284,7 @@ scripts/                  train_model.py, prepare_data.py, eval_analytics.py, bu
 cases/                    HHG-0xx.json answer files; cases/traces/ agent trace files
 sentinel_cases/           optional out-of-benchmark finds (device ring, structuring)
 ui/app.py                 Streamlit analyst console
+audit/                    approvals.jsonl, written by the console (git-ignored)
 tests/                    unittest (python -m unittest discover -s tests)
 docs/                     BLOG.md, SOCIAL.md, DEMO_SCRIPT.md
 ```

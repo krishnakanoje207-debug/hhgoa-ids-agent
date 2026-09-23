@@ -1,4 +1,4 @@
-# Demo video script — 4 minutes
+# Demo video script — about 4½ minutes
 
 Screen: Streamlit analyst console (`streamlit run ui/app.py`) plus a terminal panel showing
 live MCP tool calls (or the trace file's `steps` list scrolling, if calls aren't visibly
@@ -115,7 +115,24 @@ closed case, which caps the probability at 0.15. "It blocks nothing it shouldn't
 
 ---
 
-## 3:40–3:55 — Sentinel catch
+## 3:40–4:05 — The reply arrives, a human signs
+
+**Show:** HHG-017 (bank score 0.57 on a $100.09 online purchase; agent probability 0.60).
+*Evidence & approval* tab: the `customer_validation` request is *awaiting reply*, actions
+`VERIFY_WITH_CUSTOMER` and `CREATE_CASE`, status `open`. Click **deny**: actions become
+`BLOCK_CARD` / L1 and `CREATE_CASE`, and the probability moves from 0.60 to 0.90. With the
+sidebar set to *team lead (L1)*, click **Approve** on `BLOCK_CARD`. The audit log row appears.
+(Optionally click **confirm** first to show it close as `CLOSE_NO_FRAUD`.)
+
+**Say:** "This one really is balanced, so the agent didn't guess the customer's answer. It
+asked, and the case stays open. When the reply comes in, the analyst enters it and the same
+policy engine re-decides straight away. A denial means block the card. That's an L1 action, so
+the agent can't do it alone: a team lead approves it, and the approval is logged with the
+evidence it was based on."
+
+---
+
+## 4:05–4:20 — Sentinel catch
 
 **Show:** `sentinel_cases/` folder or a console panel listing an out-of-benchmark find from
 `near_threshold_scan` (the sub-$500 structuring pattern) or `device_ring_scan`.
@@ -127,7 +144,7 @@ description and flags it for review."
 
 ---
 
-## 3:55–4:00 — Close
+## 4:20–4:25 — Close
 
 **Show:** Overview screen, all 20 cases with status badges.
 

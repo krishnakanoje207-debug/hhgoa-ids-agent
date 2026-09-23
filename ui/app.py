@@ -1,21 +1,27 @@
 """HHGOA analyst console: Streamlit UI over case answer files and agent trace files.
 
 Reads cases/*.json (answer files, README "Answer Format") and cases/traces/*.json
-(trace files, SPEC.md "Trace file"). No dependency on any other project module.
+(trace files, SPEC.md "Trace file"). The "Evidence & approval" tab replays evidence replies through the
+policy engine (hhg.policy) and records L1/L2 sign-offs (hhg.approvals); neither touches TigerGraph.
 
 Run:  D:\\hhgoa\\.venv\\Scripts\\streamlit.exe run ui/app.py   (from D:\\hhgoa)
 """
 
 import json
+import sys
 from pathlib import Path
 
 import streamlit as st
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from hhg import approvals, policy  # noqa: E402
 
 st.set_page_config(page_title="HHGOA Fraud Console", layout="wide")
 
 APP_DIR = Path(__file__).resolve().parent
 REAL_CASES_DIR = Path("cases")
 MOCK_CASES_DIR = APP_DIR / "mock" / "cases"
+PENDING = "awaiting reply"
 
 VERDICT_COLOR = {"fraud": "#e5484d", "legitimate": "#30a46c", "uncertain": "#e2a336"}
 STATUS_COLOR = {
@@ -320,6 +326,103 @@ def render_nba(case, trace):
     st.markdown(f'**What changed:** {md(nba.get("what_changed", "—"))}')
 
 
+def recorded_replies(trace):
+    """The replies the agent assumed, in order (None where it left the request pending)."""
+    return [(s["args"]["type"], s["args"].get("assumed_response"))
+            for s in trace.get("steps", []) if s["name"] == "Request more evidence"]
+
+
+def render_evidence_replies(case_id, case, trace):
+    """Replay evidence replies from the agent's pre-evidence findings. Returns (actions, replies)."""
+    st.markdown("#### Evidence replies")
+    f0 = (trace or {}).get("findings")
+    if not f0:
+        st.info("This trace has no findings recorded; rerun the agent on the case to enable replies.")
+        return None, []
+    st.caption("Starts from the agent's findings before it asked for anything. Choose the reply that came back "
+               "and the policy engine re-decides. Preset to the replies the agent assumed.")
+    recorded = recorded_replies(trace)
+    cur, replies = f0, []
+    for i in range(len(policy.EVIDENCE)):
+        gate = policy.evidence_gate(cur)
+        if gate is None:
+            st.caption("No reply to any warranted request would change the actions: the agent stops (§6).")
+            break
+        options = [PENDING] + policy.RESPONSES[gate["type"]]
+        default = recorded[i][1] if i < len(recorded) and recorded[i][0] == gate["type"] else None
+        resp = st.radio(f'{i + 1}. `{gate["type"]}` reply', options, horizontal=True,
+                        index=options.index(default) if default in options else 0,
+                        key=f"reply-{case_id}-{i}-{gate['type']}")
+        st.caption(md(gate["why"]))
+        if resp == PENDING:
+            st.caption("Waiting for this reply: the case stays open with the actions below.")
+            break
+        cur = policy.apply_response(cur, gate["type"], resp)
+        replies.append((gate["type"], resp))
+
+    actions = policy.decide(cur)
+    status = policy.status_for(cur, actions)
+    file_sar, sar_reason = policy.needs_sar(cur, actions)
+    st.markdown(
+        badge(status, STATUS_COLOR.get(status, "#8b8d98"))
+        + badge(cur["verdict"], VERDICT_COLOR.get(cur["verdict"], "#8b8d98"))
+        + badge(f'p {f0["fraud_probability"]:.2f} → {cur["fraud_probability"]:.2f}', "#3e63dd")
+        + badge("SAR" if file_sar else "no SAR", "#e5484d" if file_sar else "#8b8d98"),
+        unsafe_allow_html=True,
+    )
+    st.caption(md(sar_reason))
+    recorded_final = case["next_best_actions"]["final"]
+    if [(a["action"], a["route"]) for a in actions] == [(a["action"], a["route"]) for a in recorded_final]:
+        st.caption("Same actions as the recorded answer.")
+    else:
+        st.caption("Differs from the recorded answer ("
+                   + (", ".join(a["action"] for a in recorded_final) or "none") + ").")
+    return actions, replies
+
+
+def render_approvals(case_id, actions, replies, role, analyst):
+    st.markdown("#### Approvals")
+    st.caption(f"Signed in as {approvals.ROLES[role]} ({role}). Auto actions are executed by the agent; "
+               "L1 and L2 actions wait for a human (§2). Every decision is appended to the audit log.")
+    log = approvals.history(case_id)
+    basis = [list(r) for r in replies]
+    note = st.text_input("Note for the audit log", key=f"note-{case_id}")
+    for i, a in enumerate(actions):
+        left, right = st.columns([3, 2])
+        with left:
+            st.markdown(f'**{a["action"]}** ' + badge(a["route"], ROUTE_COLOR.get(a["route"], "#8b8d98")),
+                        unsafe_allow_html=True)
+            st.caption(md(a["reason"]))
+        with right:
+            if a["route"] == "auto":
+                st.caption("executed by the agent")
+                continue
+            last = next((e for e in reversed(log) if e["action"] == a["action"] and e["responses"] == basis), None)
+            if last:
+                st.markdown(badge(last["decision"], "#30a46c" if last["decision"] == "approved" else "#e5484d")
+                            + f'<span class="small-muted">{last["analyst"]} ({last["role"]}), {last["at"]}</span>',
+                            unsafe_allow_html=True)
+            if not approvals.can_sign(role, a["route"]):
+                st.caption(f'needs a {approvals.ROLES[a["route"]]}')
+                continue
+            b1, b2 = st.columns(2)
+            for col, decision, label in ((b1, "approved", "Approve"), (b2, "rejected", "Reject")):
+                if col.button(label, key=f"{decision}-{case_id}-{i}-{a['action']}"):
+                    approvals.record(case_id, a["action"], a["route"], decision, role, analyst, note, replies)
+                    st.rerun()
+    if log:
+        st.markdown("**Audit log**")
+        st.dataframe([{**e, "responses": "; ".join(f"{t}={r}" for t, r in e["responses"]) or "none"} for e in log],
+                     width='stretch', hide_index=True)
+
+
+def render_decision_desk(case_id, case, trace, role, analyst):
+    actions, replies = render_evidence_replies(case_id, case, trace)
+    st.divider()
+    render_approvals(case_id, actions if actions is not None else case["next_best_actions"]["final"],
+                     replies, role, analyst)
+
+
 def render_sar(case):
     st.markdown("#### Suspicious Activity Report")
     sar = case.get("sar", {})
@@ -352,11 +455,12 @@ def render_summary(case_id, case, trace):
             st.text(trace["rag_context"])
 
 
-def render_case_view(case_id, case, trace):
+def render_case_view(case_id, case, trace, role, analyst):
     render_header(case_id, case, trace)
     st.divider()
     tabs = st.tabs(
-        ["Timeline", "Courtroom", "Evidence", "Graph", "Next best action", "SAR", "Summary"]
+        ["Timeline", "Courtroom", "Evidence", "Graph", "Next best action", "Evidence & approval", "SAR",
+         "Summary"]
     )
     with tabs[0]:
         render_timeline(case, trace)
@@ -369,8 +473,10 @@ def render_case_view(case_id, case, trace):
     with tabs[4]:
         render_nba(case, trace)
     with tabs[5]:
-        render_sar(case)
+        render_decision_desk(case_id, case, trace, role, analyst)
     with tabs[6]:
+        render_sar(case)
+    with tabs[7]:
         render_summary(case_id, case, trace)
 
 
@@ -409,6 +515,9 @@ def main():
     use_mock = st.sidebar.checkbox("Use mock data", value=default_mock)
     base_dir = MOCK_CASES_DIR if use_mock else REAL_CASES_DIR
     cases, traces = load_cases(str(base_dir))
+    role = st.sidebar.selectbox("Signed in as", list(approvals.ROLES),
+                                format_func=lambda r: f"{approvals.ROLES[r]} ({r})")
+    analyst = st.sidebar.text_input("Analyst name", value="analyst")
 
     if not cases:
         st.warning(f"No case files found in `{base_dir}`.")
@@ -428,7 +537,7 @@ def main():
     if choice == "Overview":
         render_overview(cases, traces)
     else:
-        render_case_view(choice, cases[choice], traces.get(choice))
+        render_case_view(choice, cases[choice], traces.get(choice), role, analyst)
 
 
 main()

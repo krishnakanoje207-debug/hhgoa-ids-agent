@@ -196,6 +196,28 @@ def _simulate(f, etype, response):
             "fraud_probability": 0.85 if response == "fraud" else 0.15}
 
 
+def apply_response(f, etype, resp):
+    """Findings after a response to an evidence request arrives (the agent's evidence model; the UI's
+    what-if replays it). A reply settles the question, so probability and verdict move with it."""
+    if resp == "no_reply":  # R4: silence is not evidence either way
+        return {**f, "customer_response": "no_reply"}
+    f, fraud = dict(f), resp in ("deny", "fail", "fraud")
+    p = f["fraud_probability"]
+    if etype == "customer_validation":
+        f["customer_response"] = resp
+    elif etype == "step_up_auth":
+        f["step_up_result"] = resp
+    if etype == "analyst_info":  # same modelling of an analyst answer as _simulate
+        f.update(evidence_conflicts=False, fraud_probability=0.85 if fraud else 0.15)
+    else:
+        f["fraud_probability"] = max(p, 0.9) if fraud else min(p, 0.1)
+    f["verdict"] = "fraud" if fraud else "legitimate"
+    f["independent_evidence"] += 1
+    if not fraud:
+        f.update(pattern="none", exposure_usd=0.0, shared_origin=None, connects_to_other_fraud=False)
+    return f
+
+
 def evidence_gate(f):
     """Decision-flip test. Only evidence the current actions actually request is considered
     (§3b "request more evidence if the policy calls for it"): customer_validation if

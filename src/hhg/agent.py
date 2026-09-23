@@ -219,25 +219,6 @@ def _assumption(etype, resp, p, row, flag_id, top_claim):
     return f"{what}, because {lean.rstrip('.')}."
 
 
-def _apply(f, etype, resp):
-    """Findings after the simulated response (probability moves as documented in the module report)."""
-    f, fraud = dict(f), resp in ("deny", "fail", "fraud")
-    p = f["fraud_probability"]
-    if etype == "customer_validation":
-        f["customer_response"] = resp
-    elif etype == "step_up_auth":
-        f["step_up_result"] = resp
-    if etype == "analyst_info":  # policy's modelling of an analyst answer
-        f.update(evidence_conflicts=False, fraud_probability=0.85 if fraud else 0.15)
-    else:
-        f["fraud_probability"] = max(p, 0.9) if fraud else min(p, 0.1)
-    f["verdict"] = "fraud" if fraud else "legitimate"
-    f["independent_evidence"] += 1
-    if not fraud:
-        f.update(pattern="none", exposure_usd=0.0, shared_origin=None, connects_to_other_fraud=False)
-    return f
-
-
 def _doc_token(doc_id):
     m = re.fullmatch(r"POLICY-R(\d+)", doc_id)
     if m:
@@ -560,7 +541,7 @@ def investigate(case_row, write_graph=True):
         requests.append({"type": gate["type"], "asked_after_step": 4 if not requests else 5,
                          "assumed_response": _assumption(gate["type"], resp, p, row, flag_id, top)})
         gates.append({**gate, "assumed": resp})
-        cur = _apply(cur, gate["type"], resp)
+        cur = policy.apply_response(cur, gate["type"], resp)
         step(5, "Request more evidence", None, {"type": gate["type"], "assumed_response": resp},
              f"{gate['why']} Assumed '{resp}': probability {p:.2f} -> {cur['fraud_probability']:.2f}", t0)
         gate = policy.evidence_gate(cur)
@@ -744,6 +725,7 @@ def investigate(case_row, write_graph=True):
         "trigger": {k: row.get(k) for k in ("case_id", "opened_at", "trigger_type", "trigger_text", "flagged_txn_id",
                                             "card_id", "customer_id", "risk_score")},
         "steps": steps,
+        "findings": f,  # before any evidence request: the UI what-if replays replies from here
         "hypotheses": {"prosecution": a["prosecution"], "defence": a["defence"]},
         "probability": {"initial": f["fraud_probability"], "final": cur["fraud_probability"],
                         "features": a.get("features") or {}},

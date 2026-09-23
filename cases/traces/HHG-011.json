@@ -196,6 +196,32 @@
       "ms": 5371
     }
   ],
+  "findings": {
+    "trigger_type": "customer_report",
+    "fraud_probability": 0.861,
+    "verdict": "fraud",
+    "pattern": "card_not_present_new_device",
+    "independent_evidence": 5,
+    "single_signal": false,
+    "evidence_conflicts": false,
+    "exposure_usd": 230.0,
+    "card_testing": false,
+    "cleared_purchase_over_100": false,
+    "shared_origin": {
+      "kind": "device",
+      "id": "SM-G610F Build/NRD90M |  | chrome 66.0 for android | ",
+      "card_ids": [
+        "C03938-K1",
+        "C05595-K1"
+      ]
+    },
+    "connects_to_other_fraud": false,
+    "recurring_match": false,
+    "customer_cards_confirmed_fraud": 1,
+    "credentials_compromised": false,
+    "customer_response": null,
+    "step_up_result": null
+  },
   "hypotheses": {
     "prosecution": [
       {
