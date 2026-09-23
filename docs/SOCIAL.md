@@ -26,6 +26,11 @@ investigation inherits it.
 One finding along the way: on this bank's own confirmed-vs-cleared cases, its live risk score
 scored worse than random. Worth knowing before you trust a fraud score.
 
+What we'd build next with more time: real customer channels in place of simulated replies,
+proper sign-in and a tamper-proof audit trail for approvals, community detection on the graph,
+and an agent that learns from how cases actually end, so every analyst decision sharpens the
+next investigation.
+
 Built with @TigerGraphDB Savanna, TigerGraph MCP, and GraphRAG over policy, regulatory, and
 case-history text.
 
