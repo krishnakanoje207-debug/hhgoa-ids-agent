@@ -256,7 +256,10 @@ it, or the evidence gate returns no decisive question.
     spot — actions, routes, status, SAR, probability. It is preset to the replies the agent
     assumed, so it opens on the recorded answer (`tests/test_replay.py` checks that for all
     20 cases). Below it, the `L1`/`L2` actions can be approved or rejected (see *Controls &
-    permissions*).
+    permissions*). **Investigate live** runs the real agent on the case's trigger as a dry run:
+    TigerGraph over MCP plus the LLM, nothing written to `cases/` or the graph. It streams each
+    step as it completes and compares the result with the recorded answer. It needs `.env` and a
+    reachable Savanna workspace (about 30 s per case).
 
 ## Repo layout
 
@@ -344,6 +347,31 @@ closed cases opened Jul–Aug; on the September holdout (1,376 cases), re-weight
 the probability reaches decided accuracy 0.853 (on the cases it calls fraud or legitimate; the
 rest stay uncertain) and Brier score 0.1215. The derived `card_id` rule matched 14,975/14,975
 case transactions.
+
+**Accuracy on held-out closed cases.** The 20 exam cases are graded against a key we cannot
+see, so accuracy is measured on the bank's own closed cases opened in September. None of them
+were used to fit anything: 1,376 cases, 1,258 confirmed fraud and 118 cleared. Each is replayed
+through `analytics.assess`, the same function that sets the agent's verdict, probability,
+pattern and episode (`PYTHONPATH=src python scripts/eval_analytics.py --no-fit --no-write`).
+
+| Measure | Result |
+|---|---|
+| Verdict accuracy where the agent decides (fraud or legitimate) | **86.0%** (764/888); 85.3% class-balanced |
+| Cases decided / left `uncertain` (verify or escalate instead) | 64.5% / 35.5% |
+| "Fraud" calls that were confirmed fraud | **99.6%** (751/754) |
+| Cleared (innocent) cases wrongly called fraud | 2.5% (3/118) |
+| Fraud-vs-cleared accuracy at p ≥ 0.5, all 1,376 cases | 85.1%; 82.6% class-balanced |
+| Pattern correct on confirmed fraud (5 documented + undocumented) | **92.8%** |
+| Affected transactions: overlap with the analysts' set (Jaccard) | 0.886 |
+| First suspicious transaction correct | 86.1% |
+
+Read these with the base rate in mind: 91% of the holdout is confirmed fraud, so always
+answering "fraud" would score 91.4% raw. That is why the class-balanced figures are listed too.
+The weak side is `legitimate`. Of the 134 cases called legitimate, only 13 were cleared, and
+102 of the 118 cleared cases stay `uncertain`. Under the policy, an uncertain case gets a
+verification request or an escalation, not a block. The table covers the verdict stage. The
+full loop (evidence requests, policy engine, MCP) is exercised on the 20 exam cases and by
+`tests/`.
 
 **Sentinel** (`python scripts/sentinel.py`, optional, unscored for accuracy): an autonomous sweep
 of Nov–Dec outside the 20 case-pack cards raised 15 alerts (the default `--max` cap), each

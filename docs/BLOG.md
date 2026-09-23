@@ -94,6 +94,12 @@ is anti-correlated with its own analysts' verdicts where those verdicts exist. W
 looking for that; it fell out of the validation step, and it's a good demonstration of why the
 policy treats a risk score as "a reason to look, never a verdict."
 
+We measured the whole verdict stage on 1,376 closed September cases that nothing was fitted on.
+When the agent commits to fraud or legitimate it is right 86.0% of the time (85.3%
+class-balanced), and it commits on 64.5% of cases. The rest stay uncertain and go to
+verification. Its fraud calls are right 99.6% of the time, it names the pattern correctly on
+92.8% of confirmed fraud, and only 3 of 118 cleared customers were wrongly called fraud.
+
 Two more pieces of evidence come straight from the graph rather than from the model.
 
 **Account history, read from the graph.** A "card" in this data mixes several underlying

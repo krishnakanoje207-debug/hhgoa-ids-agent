@@ -375,8 +375,9 @@ def _ui_graph(row, txns, affected, cctx, devs, regions, conn_cards, conn_devs, s
 
 # ---------------------------------------------------------------- the loop
 
-def investigate(case_row, write_graph=True):
-    """Investigate one case-pack row. Returns (answer, trace): README Answer Format / SPEC trace file."""
+def investigate(case_row, write_graph=True, on_step=None):
+    """Investigate one case-pack row. Returns (answer, trace): README Answer Format / SPEC trace file.
+    on_step(step_dict) is called as each step completes (the console streams them)."""
     wall0, calls0, tok0 = time.perf_counter(), mcp_tools.calls, llm.tokens_used
     row = dict(case_row)
     row["flagged_txn_id"] = flag_id = str(row["flagged_txn_id"])
@@ -389,6 +390,8 @@ def investigate(case_row, write_graph=True):
     def step(n, name, tool, args, summary, t0):
         steps.append({"step": n, "name": name, "tool": tool, "args": args, "summary": summary,
                       "ms": round((time.perf_counter() - t0) * 1000)})
+        if on_step:
+            on_step(steps[-1])
 
     def run(name, params, label, summarize):
         t0 = time.perf_counter()
@@ -714,7 +717,7 @@ def investigate(case_row, write_graph=True):
                                                                "edges": len(edges)},
              ("wrote " if answer["case"]["written_to_graph"] else "did not write ") + graph_case_id + note, t0)
     else:
-        step(8, "Update case memory", None, {}, "graph write disabled (--no-write-graph)", time.perf_counter())
+        step(8, "Update case memory", None, {}, "graph write disabled (dry run)", time.perf_counter())
 
     answer["tool_calls"] = mcp_tools.calls - calls0
     answer["tokens"] = llm.tokens_used - tok0

@@ -156,6 +156,9 @@ for watching."
 ### Recording notes
 - Pre-load the console with `cases/` and `cases/traces/` already populated from
   `run_benchmark.py` so no live latency (including Savanna auto-resume) is on camera.
+- Optional live clip: click **Investigate live** on HHG-017 (about 30 s). The steps stream in
+  as the agent queries TigerGraph, and the result is checked against the recorded answer. Wake
+  Savanna first (run it once off camera). If it fails, fall back to the recorded case.
 - Have HHG-014's trace file open in a second monitor/terminal to narrate tool calls precisely
   if the UI doesn't stream them live.
 - Backup cases if a segment needs replacing: HHG-006 (sub-$500 structuring, 4 purchases in 30

@@ -3,6 +3,8 @@
 Reads cases/*.json (answer files, README "Answer Format") and cases/traces/*.json
 (trace files, SPEC.md "Trace file"). The "Evidence & approval" tab replays evidence replies through the
 policy engine (hhg.policy) and records L1/L2 sign-offs (hhg.approvals); neither touches TigerGraph.
+"Investigate live" runs the real agent (hhg.agent: TigerGraph over MCP + LLM) on the case's trigger as a
+dry run, streaming its steps; it needs .env and a reachable Savanna workspace.
 
 Run:  D:\\hhgoa\\.venv\\Scripts\\streamlit.exe run ui/app.py   (from D:\\hhgoa)
 """
@@ -455,8 +457,59 @@ def render_summary(case_id, case, trace):
             st.text(trace["rag_context"])
 
 
+def run_live(case_id, trace):
+    """Run the agent now on this case's trigger. Dry run: nothing written to cases/ or the graph."""
+    try:
+        from hhg import agent  # needs .env (TigerGraph host/secret, LLM keys)
+    except Exception as e:
+        st.error(f"Live agent unavailable: {type(e).__name__}: {e}")
+        return
+    with st.status(f"Investigating {case_id} live…", expanded=True) as box:
+        def on_step(s):
+            tool = f' · `{s["tool"]}`' if s.get("tool") else ""
+            st.markdown(f'**{s["step"]}. {s["name"]}**{tool} · {s["ms"]} ms  \n{md(s["summary"])}')
+
+        try:
+            answer, _ = agent.investigate(trace["trigger"], write_graph=False, on_step=on_step)
+        except Exception as e:
+            box.update(label=f"Live run failed: {type(e).__name__}", state="error")
+            st.caption(md(str(e)[:300]) + " (Savanna may be waking up or blocking this IP; retry in a minute. "
+                       "The recorded case below is unaffected.)")
+            return
+        box.update(label=f"{case_id} investigated live in {answer['latency_s']} s", state="complete", expanded=False)
+    st.session_state[f"live-{case_id}"] = answer
+
+
+def render_live_result(case_id, case):
+    live = st.session_state.get(f"live-{case_id}")
+    if not live:
+        return
+    c = live["case"]
+    st.markdown(
+        "**Live result:** "
+        + badge(c["status"], STATUS_COLOR.get(c["status"], "#8b8d98"))
+        + badge(c["verdict"], VERDICT_COLOR.get(c["verdict"], "#8b8d98"))
+        + badge(c["pattern"], "#5b5bd6")
+        + badge(f'p = {c["fraud_probability"]:.2f}', "#3e63dd")
+        + " " + ", ".join(f'{a["action"]} ({a["route"]})' for a in live["next_best_actions"]["final"]),
+        unsafe_allow_html=True,
+    )
+
+    def key(a):
+        return a["case"]["verdict"], [(x["action"], x["route"]) for x in a["next_best_actions"]["final"]]
+
+    st.caption(("Same verdict and final actions as the recorded answer. " if key(live) == key(case)
+                else "Differs from the recorded answer. ")
+               + f'{live["tool_calls"]} tool calls, {live["tokens"]} tokens. '
+               "Dry run: nothing written to cases/ or the graph.")
+
+
 def render_case_view(case_id, case, trace, role, analyst):
     render_header(case_id, case, trace)
+    if trace and trace.get("trigger"):
+        if st.button("Investigate live", help="Run the agent now against TigerGraph (dry run: nothing is written)"):
+            run_live(case_id, trace)
+        render_live_result(case_id, case)
     st.divider()
     tabs = st.tabs(
         ["Timeline", "Courtroom", "Evidence", "Graph", "Next best action", "Evidence & approval", "SAR",
