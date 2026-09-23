@@ -1,0 +1,553 @@
+{
+  "case_id": "SEN-015",
+  "trigger": {
+    "case_id": "SEN-015",
+    "opened_at": "2016-11-24 19:21:00",
+    "trigger_type": "analyst_request",
+    "trigger_text": "Sentinel sweep (near_threshold_scan): card C10751-K1 made 4 online purchases between $450 and $500 within 21 minutes on 2016-11-24 (transactions 3483817, 3483854, 3483876, 3483895), amounts kept just under a $500 threshold. Review transaction 3483895 and look for related activity.",
+    "flagged_txn_id": "3483895",
+    "card_id": "C10751-K1",
+    "customer_id": "C10751",
+    "risk_score": null
+  },
+  "steps": [
+    {
+      "step": 1,
+      "name": "Trigger received",
+      "tool": null,
+      "args": {
+        "trigger_type": "analyst_request"
+      },
+      "summary": "analyst_request alert on card C10751-K1, flagged txn 3483895",
+      "ms": 0
+    },
+    {
+      "step": 2,
+      "name": "Card history (60 days to opening)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "card_history",
+        "card_id": "C10751-K1",
+        "t_from": "2016-09-25 19:21:00",
+        "t_to": "2016-11-24 19:21:00"
+      },
+      "summary": "11 txns on C10751-K1",
+      "ms": 631
+    },
+    {
+      "step": 2,
+      "name": "Customer cards and prior cases",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "customer_cases",
+        "customer_id": "C10751"
+      },
+      "summary": "1 card(s), 0 case(s)",
+      "ms": 315
+    },
+    {
+      "step": 2,
+      "name": "Device neighbourhood (30 days)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "device_neighbors",
+        "device_id": "Windows | Windows 10 | chrome 63.0 | ",
+        "t_from": "2016-10-25 19:21:00",
+        "t_to": "2016-11-24 19:21:00"
+      },
+      "summary": "1 card(s) used it in the window, 113 ever",
+      "ms": 314
+    },
+    {
+      "step": 2,
+      "name": "Plan optional queries",
+      "tool": "llm",
+      "args": {
+        "source": "llm",
+        "choices": [
+          {
+            "tool": "device_neighbors",
+            "arg": "Windows | Windows 10 | edge 16.0 | 3440x1440",
+            "why": "Checks if the second device profile used in the rapid transaction sequence is linked to other suspicious cards."
+          },
+          {
+            "tool": "device_neighbors",
+            "arg": "Trident/7.0 | Windows 10 | ie 11.0 for desktop | 1920x1080",
+            "why": "Checks if the third device profile used in the rapid transaction sequence is linked to other suspicious cards."
+          }
+        ],
+        "catalogue": 5
+      },
+      "summary": "The transaction sequence used three different devices and multiple billing regions within minutes. Checking device neighbors for the other two distinct devices will help determine if this is part of a coordinated multi-device fraud ring.",
+      "ms": 1580
+    },
+    {
+      "step": 2,
+      "name": "Device neighbourhood (30 days)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "device_neighbors",
+        "device_id": "Windows | Windows 10 | edge 16.0 | 3440x1440",
+        "t_from": "2016-10-25 19:21:00",
+        "t_to": "2016-11-24 19:21:00"
+      },
+      "summary": "1 card(s) used it in the window, 2 ever",
+      "ms": 309
+    },
+    {
+      "step": 2,
+      "name": "Device neighbourhood (30 days)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "device_neighbors",
+        "device_id": "Trident/7.0 | Windows 10 | ie 11.0 for desktop | 1920x1080",
+        "t_from": "2016-10-25 19:21:00",
+        "t_to": "2016-11-24 19:21:00"
+      },
+      "summary": "41 card(s) used it in the window, 253 ever",
+      "ms": 895
+    },
+    {
+      "step": 3,
+      "name": "Gather evidence (card analytics)",
+      "tool": null,
+      "args": {
+        "device_ctx": "Windows | Windows 10 | chrome 63.0 | "
+      },
+      "summary": "pattern undocumented (structuring: several online purchases within an hour, each just under $500); 4 episode txn(s), exposure $1,906.11; 3 prosecution / 1 defence items",
+      "ms": 1
+    },
+    {
+      "step": 4,
+      "name": "Assess uncertainty",
+      "tool": null,
+      "args": {
+        "fraud_probability": 0.9,
+        "verdict": "fraud"
+      },
+      "summary": "probability 0.90, verdict fraud, 3 independent evidence, single_signal=False, conflicts=False; initial: BLOCK_CARD, CREATE_CASE, FILE_REPORT",
+      "ms": 0
+    },
+    {
+      "step": 5,
+      "name": "Evidence gate",
+      "tool": null,
+      "args": {},
+      "summary": "no response to any warranted request changes the actions: stop",
+      "ms": 0
+    },
+    {
+      "step": 6,
+      "name": "Next best actions",
+      "tool": null,
+      "args": {
+        "final": [
+          "BLOCK_CARD",
+          "CREATE_CASE",
+          "FILE_REPORT"
+        ]
+      },
+      "summary": "executed (auto): CREATE_CASE; awaiting approval: BLOCK_CARD (L1), FILE_REPORT (L2)",
+      "ms": 0
+    },
+    {
+      "step": 7,
+      "name": "GraphRAG retrieval",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "queries": [
+          "similar_cases",
+          "search_docs"
+        ],
+        "calls": 3
+      },
+      "summary": "1 similar case(s), 7 passage(s)",
+      "ms": 7415
+    },
+    {
+      "step": 7,
+      "name": "Explain decision",
+      "tool": "llm",
+      "args": {
+        "fallback": []
+      },
+      "summary": "LLM text validated",
+      "ms": 4232
+    },
+    {
+      "step": 8,
+      "name": "Update case memory",
+      "tool": "tigergraph__add_node",
+      "args": {
+        "vertex": "AgentCase",
+        "id": "CASE-SEN-015",
+        "edges": 12
+      },
+      "summary": "wrote CASE-SEN-015",
+      "ms": 3850
+    }
+  ],
+  "hypotheses": {
+    "prosecution": [
+      {
+        "claim": "4 card txns from 2016-11-24 17:00:00 to 2016-11-24 17:21:00 form one episode (grouped by the episode model fitted on closed cases, gaps under 48 h), total $1,906.11",
+        "score": 0.5,
+        "entity_ids": [
+          "3483817",
+          "3483854",
+          "3483876",
+          "3483895"
+        ],
+        "ref": "query:card_history(card_id=C10751-K1, window=60d)"
+      },
+      {
+        "claim": "4 online purchases within 21 minutes, each just under $500 ($464.46, $488.58, $477.85, $475.22): amounts kept under an authorization threshold",
+        "score": 0.9,
+        "entity_ids": [
+          "3483817",
+          "3483854",
+          "3483876",
+          "3483895"
+        ],
+        "ref": "query:card_history(card_id=C10751-K1, window=60d)"
+      },
+      {
+        "claim": "1 episode txn(s) came from a device marked New for this account (Trident/7.0 | Windows 10 | ie 11.0 for desktop | 1920x1080); the flagged device was never seen on this card before",
+        "score": 0.6,
+        "entity_ids": [
+          "3483817"
+        ],
+        "ref": "query:card_history(card_id=C10751-K1, window=60d)"
+      }
+    ],
+    "defence": [
+      {
+        "claim": "Closed-case classifier scores flagged txn 3483895 at 0.07, in line with this card's legitimate history (bank risk score 0.21 is often high on false alarms)",
+        "score": 0.93,
+        "entity_ids": [
+          "3483895"
+        ],
+        "ref": "model:closed_case_classifier"
+      }
+    ]
+  },
+  "probability": {
+    "initial": 0.9,
+    "final": 0.9,
+    "features": {
+      "logit_flag": -2.6589,
+      "logit_ep_max": -1.9615,
+      "logit_ep_mean": -2.6084,
+      "log_ep_n": 1.3863,
+      "trip_signature": 0.0,
+      "new_phone_signature": 0.0,
+      "card_testing": 0.0,
+      "structuring": 1.0,
+      "ring": 0.0
+    }
+  },
+  "evidence_gate": null,
+  "graph": {
+    "nodes": [
+      {
+        "id": "C10751",
+        "type": "Customer",
+        "label": "C10751",
+        "flag": "subject"
+      },
+      {
+        "id": "C10751-K1",
+        "type": "Card",
+        "label": "C10751-K1",
+        "flag": "subject"
+      },
+      {
+        "id": "3483895",
+        "type": "Transaction",
+        "label": "3483895 $475.22",
+        "flag": "suspicious"
+      },
+      {
+        "id": "Windows | Windows 10 | chrome 63.0 | ",
+        "type": "DeviceProfile",
+        "label": "Windows | Windows 10 | chrome 63.0 | ",
+        "flag": "normal"
+      },
+      {
+        "id": "3483817",
+        "type": "Transaction",
+        "label": "3483817 $464.46",
+        "flag": "suspicious"
+      },
+      {
+        "id": "Trident/7.0 | Windows 10 | ie 11.0 for desktop | 1920x1080",
+        "type": "DeviceProfile",
+        "label": "Trident/7.0 | Windows 10 | ie 11.0 for desktop | 1920x1080",
+        "flag": "normal"
+      },
+      {
+        "id": "3483854",
+        "type": "Transaction",
+        "label": "3483854 $488.58",
+        "flag": "suspicious"
+      },
+      {
+        "id": "Windows | Windows 10 | edge 16.0 | 3440x1440",
+        "type": "DeviceProfile",
+        "label": "Windows | Windows 10 | edge 16.0 | 3440x1440",
+        "flag": "normal"
+      },
+      {
+        "id": "3483876",
+        "type": "Transaction",
+        "label": "3483876 $477.85",
+        "flag": "suspicious"
+      },
+      {
+        "id": "C08605-K1",
+        "type": "Card",
+        "label": "C08605-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C01138-K2",
+        "type": "Card",
+        "label": "C01138-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C03080-K2",
+        "type": "Card",
+        "label": "C03080-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C03218-K2",
+        "type": "Card",
+        "label": "C03218-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C03484-K1",
+        "type": "Card",
+        "label": "C03484-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C03169-K1",
+        "type": "Card",
+        "label": "C03169-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C05560-K2",
+        "type": "Card",
+        "label": "C05560-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C08913-K2",
+        "type": "Card",
+        "label": "C08913-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C07196-K2",
+        "type": "Card",
+        "label": "C07196-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C11159-K1",
+        "type": "Card",
+        "label": "C11159-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C02716-K2",
+        "type": "Card",
+        "label": "C02716-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C03089-K1",
+        "type": "Card",
+        "label": "C03089-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C02902-K2",
+        "type": "Card",
+        "label": "C02902-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C03271-K1",
+        "type": "Card",
+        "label": "C03271-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C07212-K2",
+        "type": "Card",
+        "label": "C07212-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "CASE-SEN-015",
+        "type": "AgentCase",
+        "label": "CASE-SEN-015",
+        "flag": "subject"
+      },
+      {
+        "id": "CASE-SEN-008",
+        "type": "AgentCase",
+        "label": "CASE-SEN-008",
+        "flag": "suspicious"
+      }
+    ],
+    "edges": [
+      {
+        "src": "C10751",
+        "dst": "C10751-K1",
+        "type": "OWNS"
+      },
+      {
+        "src": "C10751-K1",
+        "dst": "3483895",
+        "type": "MADE"
+      },
+      {
+        "src": "3483895",
+        "dst": "Windows | Windows 10 | chrome 63.0 | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C10751-K1",
+        "dst": "3483817",
+        "type": "MADE"
+      },
+      {
+        "src": "3483817",
+        "dst": "Trident/7.0 | Windows 10 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C10751-K1",
+        "dst": "3483854",
+        "type": "MADE"
+      },
+      {
+        "src": "3483854",
+        "dst": "Windows | Windows 10 | edge 16.0 | 3440x1440",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C10751-K1",
+        "dst": "3483876",
+        "type": "MADE"
+      },
+      {
+        "src": "3483876",
+        "dst": "Windows | Windows 10 | chrome 63.0 | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C10751-K1",
+        "dst": "Windows | Windows 10 | chrome 63.0 | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C10751-K1",
+        "dst": "Windows | Windows 10 | edge 16.0 | 3440x1440",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C08605-K1",
+        "dst": "Trident/7.0 | Windows 10 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C01138-K2",
+        "dst": "Trident/7.0 | Windows 10 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C03080-K2",
+        "dst": "Trident/7.0 | Windows 10 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C03218-K2",
+        "dst": "Trident/7.0 | Windows 10 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C03484-K1",
+        "dst": "Trident/7.0 | Windows 10 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C03169-K1",
+        "dst": "Trident/7.0 | Windows 10 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C05560-K2",
+        "dst": "Trident/7.0 | Windows 10 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C08913-K2",
+        "dst": "Trident/7.0 | Windows 10 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C07196-K2",
+        "dst": "Trident/7.0 | Windows 10 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C11159-K1",
+        "dst": "Trident/7.0 | Windows 10 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C02716-K2",
+        "dst": "Trident/7.0 | Windows 10 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C03089-K1",
+        "dst": "Trident/7.0 | Windows 10 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C02902-K2",
+        "dst": "Trident/7.0 | Windows 10 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C03271-K1",
+        "dst": "Trident/7.0 | Windows 10 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C07212-K2",
+        "dst": "Trident/7.0 | Windows 10 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "CASE-SEN-015",
+        "dst": "C10751-K1",
+        "type": "ON_CARD"
+      },
+      {
+        "src": "CASE-SEN-015",
+        "dst": "CASE-SEN-008",
+        "type": "SIMILAR_TO"
+      }
+    ]
+  },
+  "rag_context": "CASE\nSEN-015 opened 2016-11-24 19:21:00 by analyst_request trigger: \"Sentinel sweep (near_threshold_scan): card C10751-K1 made 4 online purchases between $450 and $500 within 21 minutes on 2016-11-24 (transactions 3483817, 3483854, 3483876, 3483895), amounts kept just under a $500 threshold. Review transaction 3483895 and look for related activity.\"\nFlagged txn 3483895 on card C10751-K1 (customer C10751).\nGraph analysis: pattern undocumented (structuring: several online purchases within an hour, each just under $500); fraud probability 0.90; verdict fraud; 4 affected txns, first 3483817, exposure $1,906.11.\n\nGRAPH EVIDENCE\n- Device profile Windows | Windows 10 | chrome 63.0 |  was used by 0 other card(s) in the 30 days before the alert (0 as a New device; 113 cards ever) (query:device_neighbors(device_id=Windows | Windows 10 | chrome 63.0 | , window=30d))\n- Device profile Windows | Windows 10 | edge 16.0 | 3440x1440 was used by 0 other card(s) in the 30 days before the alert (0 as a New device; 2 cards ever) (query:device_neighbors(device_id=Windows | Windows 10 | edge 16.0 | 3440x1440, window=30d))\n- Device profile Trident/7.0 | Windows 10 | ie 11.0 for desktop | 1920x1080 was used by 40 other card(s) in the 30 days before the alert (20 as a New device; 253 cards ever); their cases: CASE-HHG-014, CC-0045, CC-0063, CC-0090, CC-0091, CC-0118 (query:device_neighbors(device_id=Trident/7.0 | Windows 10 | ie 11.0 for desktop | 1920x1080, window=30d))\n- Customer C10751 cards: C10751-K1; prior cases on them: none (query:customer_cases)\n- [prosecution 0.50] 4 card txns from 2016-11-24 17:00:00 to 2016-11-24 17:21:00 form one episode (grouped by the episode model fitted on closed cases, gaps under 48 h), total $1,906.11 (ref: query:card_history(card_id=C10751-K1, window=60d); ids: 3483817, 3483854, 3483876, 3483895)\n- [prosecution 0.90] 4 online purchases within 21 minutes, each just under $500 ($464.46, $488.58, $477.85, $475.22): amounts kept under an authorization threshold (ref: query:card_history(card_id=C10751-K1, window=60d); ids: 3483817, 3483854, 3483876, 3483895)\n- [prosecution 0.60] 1 episode txn(s) came from a device marked New for this account (Trident/7.0 | Windows 10 | ie 11.0 for desktop | 1920x1080); the flagged device was never seen on this card before (ref: query:card_history(card_id=C10751-K1, window=60d); ids: 3483817)\n- [defence 0.93] Closed-case classifier scores flagged txn 3483895 at 0.07, in line with this card's legitimate history (bank risk score 0.21 is often high on false alarms) (ref: model:closed_case_classifier; ids: 3483895)\n\nSIMILAR PAST CASES (vector search over closed and agent cases; same pattern first)\n- [CASE-SEN-008] AgentCase fraud, pattern undocumented, distance 0.079: Case SEN-008 was opened on 2016-11-21 following a Sentinel sweep on card [other id] belonging to customer [other id]. The investigation identified four online transactions (3475933, 3475959, 3475998, 3476008) executed within 24 minutes with amounts structured just under the $500 authorization threshold, totaling $1,926.93. With ...\n\nPOLICY & GUIDANCE\n- [POLICY-R1] R1. Verify before you block on a weak signal: R1. Verify before you block on a weak signal. If the case rests on a single signal (including a risk score alone) and your assessed fraud probability is below 0.70, recommend VERIFY_WITH_CUSTOMER or STEP_UP_AUTH before any block. Blocking a legitimate customer on one signal is a policy breach. Related actions (\u00a71): VERIFY_WITH_CUSTOMER -- ask the cardholder whether they made the transaction; the card stays active pending reply (low customer impact, ...\n- [PATTERN-card_not_present_fraud] Card-not-present fraud: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 2. Card-not-present fraud. The number is used online without the card. Amounts and products that don't fit the cardholder's history, often in a burst of two to four within 48 hours. On its ...\n- [PATTERN-card_testing] Card testing: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 1. Card testing. A stolen card number is checked before use: three or more tiny online authorizations, often under $5, then a larger purchase. Confirmed by the sequence itself. Policy R5.\n- [POLICY-R3] R3. Customer confirms the transaction: R3. Customer confirms the transaction. Recommend CLOSE_NO_FRAUD. Note the confirmation in the case file. Compare R2, where the customer instead denies the transaction and the agent recommends BLOCK_CARD and CREATE_CASE. Related action (\u00a71): CLOSE_NO_FRAUD -- close the alert as legitimate (no customer impact, route auto). Per the Answer Format notes, for a legitimate verdict affected_txn_ids is empty, exposure_usd is 0, and sar.file is false.\n- [PATTERN-account_takeover] Account takeover: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 5. Account takeover. Mixed-channel activity inconsistent with the cardholder, often with device and match-flag anomalies, pointing to stolen credentials rather than a stolen number. The README glossary defines an identity record as the ...\n- [POLICY-S1-ACTIONS] Actions the agent may recommend: The Fraud Policy defines a fixed set of action identifiers the agent must use exactly as named. ALLOW_TRANSACTION lets the flagged transaction stand (no customer impact). DECLINE_TRANSACTION declines the flagged authorization only; the card stays active (low impact). MONITOR_CARD keeps the card active and raises monitoring sensitivity for 72 hours (no impact). MONITOR_CONNECTED_CARDS puts other cards linked to the same device profile, region cluster, or ring under monitoring (no impact). ...\n- [POLICY-R5] R5. Card testing: R5. Card testing. Three or more small online authorizations on one card within an hour, followed by a larger purchase: recommend DECLINE_TRANSACTION and STEP_UP_AUTH. If a purchase over $100 has already cleared, recommend BLOCK_CARD. Related actions (\u00a71): DECLINE_TRANSACTION -- decline the flagged authorization only, card stays active (route L1). STEP_UP_AUTH -- require a one-time passcode or app confirmation before further activity (route auto). BLOCK_CARD -- block this card and reissue ...\n\nINSTRUCTIONS\nUse only the facts above. Cite the ids in square brackets and the txn/card/device ids shown; never invent an id, amount or date. Past cases are memory, not this customer's activity: their ids are not connected cards. The bank risk score is not a verdict. Actions come from the policy engine: explain them, do not change them."
+}

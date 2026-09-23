@@ -1,0 +1,440 @@
+{
+  "case_id": "SEN-006",
+  "trigger": {
+    "case_id": "SEN-006",
+    "opened_at": "2016-12-03 15:30:00",
+    "trigger_type": "analyst_request",
+    "trigger_text": "Sentinel sweep (near_threshold_scan): card C05766-K1 made 4 online purchases between $450 and $500 within 30 minutes on 2016-12-03 (transactions 3509629, 3509649, 3509692, 3509706), amounts kept just under a $500 threshold. Review transaction 3509706 and look for related activity.",
+    "flagged_txn_id": "3509706",
+    "card_id": "C05766-K1",
+    "customer_id": "C05766",
+    "risk_score": null
+  },
+  "steps": [
+    {
+      "step": 1,
+      "name": "Trigger received",
+      "tool": null,
+      "args": {
+        "trigger_type": "analyst_request"
+      },
+      "summary": "analyst_request alert on card C05766-K1, flagged txn 3509706",
+      "ms": 0
+    },
+    {
+      "step": 2,
+      "name": "Card history (60 days to opening)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "card_history",
+        "card_id": "C05766-K1",
+        "t_from": "2016-10-04 15:30:00",
+        "t_to": "2016-12-03 15:30:00"
+      },
+      "summary": "24 txns on C05766-K1",
+      "ms": 1240
+    },
+    {
+      "step": 2,
+      "name": "Customer cards and prior cases",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "customer_cases",
+        "customer_id": "C05766"
+      },
+      "summary": "1 card(s), 2 case(s)",
+      "ms": 494
+    },
+    {
+      "step": 2,
+      "name": "Device neighbourhood (30 days)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "device_neighbors",
+        "device_id": "SM-G930R7 | Android 7.0 | chrome 63.0 for android | 1920x1080",
+        "t_from": "2016-11-03 15:30:00",
+        "t_to": "2016-12-03 15:30:00"
+      },
+      "summary": "1 card(s) used it in the window, 1 ever",
+      "ms": 269
+    },
+    {
+      "step": 2,
+      "name": "Plan optional queries",
+      "tool": "llm",
+      "args": {
+        "source": "llm",
+        "choices": [
+          {
+            "tool": "device_neighbors",
+            "arg": "SM-G955U Build/NRD90M | Android 7.0 | chrome 62.0 for android | ",
+            "why": "Check if the second device profile used during the rapid-fire transactions is linked to other cards associated with fraud."
+          }
+        ],
+        "catalogue": 2
+      },
+      "summary": "The recent transactions show two different devices used within minutes of each other during the near-threshold scan. Checking neighbors on the second device (SM-G955U) can reveal if a device ring is exploiting this card.",
+      "ms": 6500
+    },
+    {
+      "step": 2,
+      "name": "Device neighbourhood (30 days)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "device_neighbors",
+        "device_id": "SM-G955U Build/NRD90M | Android 7.0 | chrome 62.0 for android | ",
+        "t_from": "2016-11-03 15:30:00",
+        "t_to": "2016-12-03 15:30:00"
+      },
+      "summary": "1 card(s) used it in the window, 30 ever",
+      "ms": 270
+    },
+    {
+      "step": 3,
+      "name": "Gather evidence (card analytics)",
+      "tool": null,
+      "args": {
+        "device_ctx": "SM-G930R7 | Android 7.0 | chrome 63.0 for android | 1920x1080"
+      },
+      "summary": "pattern undocumented (structuring: several online purchases within an hour, each just under $500); 4 episode txn(s), exposure $1,908.26; 4 prosecution / 1 defence items",
+      "ms": 1
+    },
+    {
+      "step": 4,
+      "name": "Assess uncertainty",
+      "tool": null,
+      "args": {
+        "fraud_probability": 0.9,
+        "verdict": "fraud"
+      },
+      "summary": "probability 0.90, verdict fraud, 4 independent evidence, single_signal=False, conflicts=False; initial: BLOCK_CARD, CREATE_CASE, FILE_REPORT",
+      "ms": 0
+    },
+    {
+      "step": 5,
+      "name": "Evidence gate",
+      "tool": null,
+      "args": {},
+      "summary": "no response to any warranted request changes the actions: stop",
+      "ms": 0
+    },
+    {
+      "step": 6,
+      "name": "Next best actions",
+      "tool": null,
+      "args": {
+        "final": [
+          "BLOCK_CARD",
+          "CREATE_CASE",
+          "FILE_REPORT"
+        ]
+      },
+      "summary": "executed (auto): CREATE_CASE; awaiting approval: BLOCK_CARD (L1), FILE_REPORT (L2)",
+      "ms": 0
+    },
+    {
+      "step": 7,
+      "name": "GraphRAG retrieval",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "queries": [
+          "similar_cases",
+          "search_docs"
+        ],
+        "calls": 3
+      },
+      "summary": "6 similar case(s), 7 passage(s)",
+      "ms": 5254
+    },
+    {
+      "step": 7,
+      "name": "Explain decision",
+      "tool": "llm",
+      "args": {
+        "fallback": [
+          "sar_narrative"
+        ]
+      },
+      "summary": "LLM text validated; template used for: sar_narrative",
+      "ms": 15519
+    },
+    {
+      "step": 8,
+      "name": "Update case memory",
+      "tool": "tigergraph__add_node",
+      "args": {
+        "vertex": "AgentCase",
+        "id": "CASE-SEN-006",
+        "edges": 12
+      },
+      "summary": "wrote CASE-SEN-006",
+      "ms": 4548
+    }
+  ],
+  "hypotheses": {
+    "prosecution": [
+      {
+        "claim": "4 card txns from 2016-12-03 13:00:00 to 2016-12-03 13:30:00 form one episode (grouped by the episode model fitted on closed cases, gaps under 48 h), total $1,908.26",
+        "score": 0.5,
+        "entity_ids": [
+          "3509629",
+          "3509649",
+          "3509692",
+          "3509706"
+        ],
+        "ref": "query:card_history(card_id=C05766-K1, window=60d)"
+      },
+      {
+        "claim": "4 online purchases within 30 minutes, each just under $500 ($469.75, $479.49, $471.57, $487.45): amounts kept under an authorization threshold",
+        "score": 0.9,
+        "entity_ids": [
+          "3509629",
+          "3509649",
+          "3509692",
+          "3509706"
+        ],
+        "ref": "query:card_history(card_id=C05766-K1, window=60d)"
+      },
+      {
+        "claim": "1 episode txn(s) came from a device marked New for this account (SM-G955U Build/NRD90M | Android 7.0 | chrome 62.0 for android | ); the flagged device was never seen on this card before",
+        "score": 0.6,
+        "entity_ids": [
+          "3509649"
+        ],
+        "ref": "query:card_history(card_id=C05766-K1, window=60d)"
+      },
+      {
+        "claim": "Customer has 1 earlier confirmed fraud case(s): CC-4989",
+        "score": 0.4,
+        "entity_ids": [
+          "CC-4989"
+        ],
+        "ref": "query:customer_cases"
+      }
+    ],
+    "defence": [
+      {
+        "claim": "Closed-case classifier scores flagged txn 3509706 at 0.27, in line with this card's legitimate history (bank risk score 0.29 is often high on false alarms)",
+        "score": 0.73,
+        "entity_ids": [
+          "3509706"
+        ],
+        "ref": "model:closed_case_classifier"
+      }
+    ]
+  },
+  "probability": {
+    "initial": 0.9,
+    "final": 0.9,
+    "features": {
+      "logit_flag": -0.9805,
+      "logit_ep_max": -0.7885,
+      "logit_ep_mean": -1.2055,
+      "log_ep_n": 1.3863,
+      "trip_signature": 0.0,
+      "new_phone_signature": 0.0,
+      "card_testing": 0.0,
+      "structuring": 1.0,
+      "ring": 0.0
+    }
+  },
+  "evidence_gate": null,
+  "graph": {
+    "nodes": [
+      {
+        "id": "C05766",
+        "type": "Customer",
+        "label": "C05766",
+        "flag": "subject"
+      },
+      {
+        "id": "C05766-K1",
+        "type": "Card",
+        "label": "C05766-K1",
+        "flag": "subject"
+      },
+      {
+        "id": "3509706",
+        "type": "Transaction",
+        "label": "3509706 $487.45",
+        "flag": "suspicious"
+      },
+      {
+        "id": "SM-G930R7 | Android 7.0 | chrome 63.0 for android | 1920x1080",
+        "type": "DeviceProfile",
+        "label": "SM-G930R7 | Android 7.0 | chrome 63.0 for android | 1920x1080",
+        "flag": "normal"
+      },
+      {
+        "id": "3509629",
+        "type": "Transaction",
+        "label": "3509629 $469.75",
+        "flag": "suspicious"
+      },
+      {
+        "id": "3509649",
+        "type": "Transaction",
+        "label": "3509649 $479.49",
+        "flag": "suspicious"
+      },
+      {
+        "id": "SM-G955U Build/NRD90M | Android 7.0 | chrome 62.0 for android | ",
+        "type": "DeviceProfile",
+        "label": "SM-G955U Build/NRD90M | Android 7.0 | chrome 62.0 for android | ",
+        "flag": "normal"
+      },
+      {
+        "id": "3509692",
+        "type": "Transaction",
+        "label": "3509692 $471.57",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CC-4989",
+        "type": "ClosedCase",
+        "label": "CC-4989",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CASE-SEN-006",
+        "type": "AgentCase",
+        "label": "CASE-SEN-006",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CASE-SEN-011",
+        "type": "AgentCase",
+        "label": "CASE-SEN-011",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CASE-SEN-009",
+        "type": "AgentCase",
+        "label": "CASE-SEN-009",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CASE-SEN-008",
+        "type": "AgentCase",
+        "label": "CASE-SEN-008",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CASE-SEN-013",
+        "type": "AgentCase",
+        "label": "CASE-SEN-013",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CASE-SEN-004",
+        "type": "AgentCase",
+        "label": "CASE-SEN-004",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CASE-SEN-014",
+        "type": "AgentCase",
+        "label": "CASE-SEN-014",
+        "flag": "suspicious"
+      }
+    ],
+    "edges": [
+      {
+        "src": "C05766",
+        "dst": "C05766-K1",
+        "type": "OWNS"
+      },
+      {
+        "src": "C05766-K1",
+        "dst": "3509706",
+        "type": "MADE"
+      },
+      {
+        "src": "3509706",
+        "dst": "SM-G930R7 | Android 7.0 | chrome 63.0 for android | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C05766-K1",
+        "dst": "3509629",
+        "type": "MADE"
+      },
+      {
+        "src": "3509629",
+        "dst": "SM-G930R7 | Android 7.0 | chrome 63.0 for android | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C05766-K1",
+        "dst": "3509649",
+        "type": "MADE"
+      },
+      {
+        "src": "3509649",
+        "dst": "SM-G955U Build/NRD90M | Android 7.0 | chrome 62.0 for android | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C05766-K1",
+        "dst": "3509692",
+        "type": "MADE"
+      },
+      {
+        "src": "3509692",
+        "dst": "SM-G930R7 | Android 7.0 | chrome 63.0 for android | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C05766-K1",
+        "dst": "SM-G930R7 | Android 7.0 | chrome 63.0 for android | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C05766-K1",
+        "dst": "SM-G955U Build/NRD90M | Android 7.0 | chrome 62.0 for android | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "CC-4989",
+        "dst": "C05766-K1",
+        "type": "ON_CARD"
+      },
+      {
+        "src": "CASE-SEN-006",
+        "dst": "C05766-K1",
+        "type": "ON_CARD"
+      },
+      {
+        "src": "CASE-SEN-006",
+        "dst": "CASE-SEN-011",
+        "type": "SIMILAR_TO"
+      },
+      {
+        "src": "CASE-SEN-006",
+        "dst": "CASE-SEN-009",
+        "type": "SIMILAR_TO"
+      },
+      {
+        "src": "CASE-SEN-006",
+        "dst": "CASE-SEN-008",
+        "type": "SIMILAR_TO"
+      },
+      {
+        "src": "CASE-SEN-006",
+        "dst": "CASE-SEN-013",
+        "type": "SIMILAR_TO"
+      },
+      {
+        "src": "CASE-SEN-006",
+        "dst": "CASE-SEN-004",
+        "type": "SIMILAR_TO"
+      },
+      {
+        "src": "CASE-SEN-006",
+        "dst": "CASE-SEN-014",
+        "type": "SIMILAR_TO"
+      }
+    ]
+  },
+  "rag_context": "CASE\nSEN-006 opened 2016-12-03 15:30:00 by analyst_request trigger: \"Sentinel sweep (near_threshold_scan): card C05766-K1 made 4 online purchases between $450 and $500 within 30 minutes on 2016-12-03 (transactions 3509629, 3509649, 3509692, 3509706), amounts kept just under a $500 threshold. Review transaction 3509706 and look for related activity.\"\nFlagged txn 3509706 on card C05766-K1 (customer C05766).\nGraph analysis: pattern undocumented (structuring: several online purchases within an hour, each just under $500); fraud probability 0.90; verdict fraud; 4 affected txns, first 3509629, exposure $1,908.26.\n\nGRAPH EVIDENCE\n- Device profile SM-G930R7 | Android 7.0 | chrome 63.0 for android | 1920x1080 was used by 0 other card(s) in the 30 days before the alert (0 as a New device; 1 cards ever) (query:device_neighbors(device_id=SM-G930R7 | Android 7.0 | chrome 63.0 for android | 1920x1080, window=30d))\n- Device profile SM-G955U Build/NRD90M | Android 7.0 | chrome 62.0 for android |  was used by 0 other card(s) in the 30 days before the alert (0 as a New device; 30 cards ever) (query:device_neighbors(device_id=SM-G955U Build/NRD90M | Android 7.0 | chrome 62.0 for android | , window=30d))\n- Customer C05766 cards: C05766-K1; prior cases on them: CC-4989 (confirmed_fraud, account_takeover), CASE-SEN-006 (agent_fraud, undocumented) (query:customer_cases)\n- [prosecution 0.50] 4 card txns from 2016-12-03 13:00:00 to 2016-12-03 13:30:00 form one episode (grouped by the episode model fitted on closed cases, gaps under 48 h), total $1,908.26 (ref: query:card_history(card_id=C05766-K1, window=60d); ids: 3509629, 3509649, 3509692, 3509706)\n- [prosecution 0.90] 4 online purchases within 30 minutes, each just under $500 ($469.75, $479.49, $471.57, $487.45): amounts kept under an authorization threshold (ref: query:card_history(card_id=C05766-K1, window=60d); ids: 3509629, 3509649, 3509692, 3509706)\n- [prosecution 0.60] 1 episode txn(s) came from a device marked New for this account (SM-G955U Build/NRD90M | Android 7.0 | chrome 62.0 for android | ); the flagged device was never seen on this card before (ref: query:card_history(card_id=C05766-K1, window=60d); ids: 3509649)\n- [prosecution 0.40] Customer has 1 earlier confirmed fraud case(s): CC-4989 (ref: query:customer_cases; ids: CC-4989)\n- [defence 0.73] Closed-case classifier scores flagged txn 3509706 at 0.27, in line with this card's legitimate history (bank risk score 0.29 is often high on false alarms) (ref: model:closed_case_classifier; ids: 3509706)\n\nSIMILAR PAST CASES (vector search over closed and agent cases; same pattern first)\n- [CASE-SEN-011] AgentCase fraud, pattern undocumented, distance 0.079: Case SEN-011 was opened following a Sentinel sweep on 2016-11-21 after card [other id] executed four online purchases totaling $1,860.43 within 24 minutes. Graph analysis confirmed a fraud probability of 0.93 due to structuring tactics keeping amounts just under the $500 threshold. The closed-case classifier ...\n- [CASE-SEN-009] AgentCase fraud, pattern undocumented, distance 0.080: Case SEN-009 was opened following a Sentinel sweep on card [other id] for four online purchases totaling $1,922.43 made within 36 minutes on 2016-11-29. Each transaction amount was kept just under the $500 threshold, matching an undocumented structuring pattern. Graph analysis evaluated the fraud probability ...\n- [CASE-SEN-008] AgentCase fraud, pattern undocumented, distance 0.088: Case SEN-008 was opened following a Sentinel sweep on card [other id] for four online purchases totaling $1,926.93 made within a 24-minute window on 2016-11-21. Each transaction was kept just under the $500 threshold, matching an undocumented structuring pattern. Graph analysis assessed a fraud probability ...\n- [CASE-SEN-013] AgentCase fraud, pattern undocumented, distance 0.100: Case SEN-013 was opened on 2016-11-21 via a Sentinel sweep targeting card [other id] belonging to customer [other id]. The investigation revealed an undocumented pattern of structuring, consisting of 4 online purchases made within 30 minutes on 2016-11-21 with amounts kept just under $500, totaling ...\n- [CASE-SEN-004] AgentCase fraud, pattern undocumented, distance 0.108: Case SEN-004 was initiated by a Sentinel sweep following a card-not-present structuring pattern on card [other id], belonging to customer [other id]. The graph analysis established a fraud probability of 0.90 based on four online purchases executed within 21 minutes, totaling $1,935.29, with amounts kept ...\n- [CASE-SEN-014] AgentCase fraud, pattern undocumented, distance 0.108: Case SEN-014 was opened following a Sentinel sweep on 2016-12-02 regarding card [other id] held by customer [other id]. The investigation flagged four online transactions (3507563, 3507591, 3507626, 3507670) executed between 19:00:00 and 19:30:00 on 2016-12-02, totaling $1,904.86, with amounts deliberately kept just under the ...\n\nPOLICY & GUIDANCE\n- [POLICY-R1] R1. Verify before you block on a weak signal: R1. Verify before you block on a weak signal. If the case rests on a single signal (including a risk score alone) and your assessed fraud probability is below 0.70, recommend VERIFY_WITH_CUSTOMER or STEP_UP_AUTH before any block. Blocking a legitimate customer on one signal is a policy breach. Related actions (\u00a71): VERIFY_WITH_CUSTOMER -- ask the cardholder whether they made the transaction; the card stays active pending reply (low customer impact, ...\n- [PATTERN-card_not_present_fraud] Card-not-present fraud: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 2. Card-not-present fraud. The number is used online without the card. Amounts and products that don't fit the cardholder's history, often in a burst of two to four within 48 hours. On its ...\n- [PATTERN-card_testing] Card testing: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 1. Card testing. A stolen card number is checked before use: three or more tiny online authorizations, often under $5, then a larger purchase. Confirmed by the sequence itself. Policy R5.\n- [POLICY-R3] R3. Customer confirms the transaction: R3. Customer confirms the transaction. Recommend CLOSE_NO_FRAUD. Note the confirmation in the case file. Compare R2, where the customer instead denies the transaction and the agent recommends BLOCK_CARD and CREATE_CASE. Related action (\u00a71): CLOSE_NO_FRAUD -- close the alert as legitimate (no customer impact, route auto). Per the Answer Format notes, for a legitimate verdict affected_txn_ids is empty, exposure_usd is 0, and sar.file is false.\n- [PATTERN-account_takeover] Account takeover: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 5. Account takeover. Mixed-channel activity inconsistent with the cardholder, often with device and match-flag anomalies, pointing to stolen credentials rather than a stolen number. The README glossary defines an identity record as the ...\n- [POLICY-R5] R5. Card testing: R5. Card testing. Three or more small online authorizations on one card within an hour, followed by a larger purchase: recommend DECLINE_TRANSACTION and STEP_UP_AUTH. If a purchase over $100 has already cleared, recommend BLOCK_CARD. Related actions (\u00a71): DECLINE_TRANSACTION -- decline the flagged authorization only, card stays active (route L1). STEP_UP_AUTH -- require a one-time passcode or app confirmation before further activity (route auto). BLOCK_CARD -- block this card and reissue ...\n- [POLICY-S1-ACTIONS] Actions the agent may recommend: The Fraud Policy defines a fixed set of action identifiers the agent must use exactly as named. ALLOW_TRANSACTION lets the flagged transaction stand (no customer impact). DECLINE_TRANSACTION declines the flagged authorization only; the card stays active (low impact). MONITOR_CARD keeps the card active and raises monitoring sensitivity for 72 hours (no impact). MONITOR_CONNECTED_CARDS puts other cards linked to the same device profile, region cluster, or ring under monitoring (no impact). ...\n\nINSTRUCTIONS\nUse only the facts above. Cite the ids in square brackets and the txn/card/device ids shown; never invent an id, amount or date. Past cases are memory, not this customer's activity: their ids are not connected cards. The bank risk score is not a verdict. Actions come from the policy engine: explain them, do not change them."
+}

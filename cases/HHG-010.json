@@ -1,0 +1,178 @@
+{
+  "case_id": "HHG-010",
+  "case": {
+    "status": "closed_legitimate",
+    "verdict": "legitimate",
+    "fraud_probability": 0.09,
+    "pattern": "none",
+    "pattern_description": "",
+    "affected_txn_ids": [],
+    "first_suspicious_txn_id": "",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 0,
+    "evidence": [
+      {
+        "claim": "1 episode txn(s) came from a device marked New for this account (Windows | Windows 10 | edge 16.0 | 1366x768); the flagged device was never seen on this card before",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C10434-K1, window=60d)",
+        "entity_ids": [
+          "3506725"
+        ]
+      },
+      {
+        "claim": "The closed-case classifier scored flagged transaction 3506725 at 0.01, matching the card's legitimate history and indicating that the 0.90 bank risk score was a false alarm.",
+        "source": "graph",
+        "ref": "model:closed_case_classifier",
+        "entity_ids": [
+          "3506725"
+        ]
+      },
+      {
+        "claim": "Device profile Windows | Windows 10 | edge 16.0 | 1366x768 was used by 36 other cards in the 30 days before the alert (17 as a new device; 208 cards ever), associated with cases CASE-HHG-014, CASE-HHG-019, CASE-SEN-012, CC-0023, CC-0036, and CC-0045.",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id=Windows | Windows 10 | edge 16.0 | 1366x768, window=30d)",
+        "entity_ids": [
+          "C05625-K2",
+          "C03169-K1",
+          "C08918-K2",
+          "C11309-K1",
+          "C04269-K1",
+          "C03738-K2",
+          "C11000-K2",
+          "C02231-K1",
+          "C04024-K2",
+          "C09241-K2",
+          "CC-0023",
+          "CC-0036",
+          "CC-0045",
+          "CC-0048",
+          "CC-0063",
+          "CC-0090"
+        ]
+      },
+      {
+        "claim": "Device profile MacOS | Mac OS X 10_13_4 | safari generic | 1440x900 was used by 21 other cards in the 30 days before the alert (16 as a new device; 27 cards ever), associated with cases CASE-HHG-018, CASE-HHG-019, CC-0023, CC-0033, CC-0048, and CC-0063.",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id=MacOS | Mac OS X 10_13_4 | safari generic | 1440x900, window=30d)",
+        "entity_ids": [
+          "C11309-K1",
+          "C08918-K2",
+          "C03218-K2",
+          "C11000-K2",
+          "C03100-K2",
+          "C11677-K2",
+          "C07878-K1",
+          "C03185-K1",
+          "C02354-K2",
+          "C06224-K2",
+          "CC-0023",
+          "CC-0033",
+          "CC-0048",
+          "CC-0063",
+          "CC-0090",
+          "CC-0108"
+        ]
+      },
+      {
+        "claim": "Seven cards made their first purchase in billing region 469.0 in the 7 days before the alert, with 5 linked to cases out of 474 cards ever billed there.",
+        "source": "graph",
+        "ref": "query:region_cluster(region=469.0, window=7d)",
+        "entity_ids": [
+          "C11375-K1",
+          "C12833-K1",
+          "C01782-K2",
+          "C10599-K1",
+          "C08637-K2",
+          "C05782-K2",
+          "C07297-K1"
+        ]
+      },
+      {
+        "claim": "The customer confirmed transaction 3506725 as their own, supported by a fraud probability of 0.09 and closed-case classifier score of 0.01.",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": []
+      },
+      {
+        "claim": "Nearest cases in case memory are CASE-HHG-015 (legitimate, none) and CASE-HHG-017 (uncertain, card_not_present_fraud).",
+        "source": "graph",
+        "ref": "query:similar_cases",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R3 (Customer confirms the transaction) served as the basis for the CLOSE_NO_FRAUD action.",
+        "source": "document",
+        "ref": "POLICY-R3",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy regarding initial risk scores was retrieved as context.",
+        "source": "document",
+        "ref": "POLICY-S0-SCORE",
+        "entity_ids": []
+      },
+      {
+        "claim": "Typology and regulatory guidance retrieved covers Card testing, Card-not-present fraud from a new device, Card-not-present fraud, Risk scores, legitimate cases, and undocumented patterns, and Account takeover.",
+        "source": "document",
+        "ref": "PATTERN-card_testing, PATTERN-card_not_present_new_device, PATTERN-card_not_present_fraud, README-THINGS-TO-KNOW-01, PATTERN-account_takeover",
+        "entity_ids": []
+      }
+    ],
+    "similar_prior_cases": [],
+    "summary": "Case HHG-010 was opened on 2016-12-02 18:18:27 following a real-time model risk score trigger of 0.90 on online transaction 3506725 for $1,000.03 on card C10434-K1 held by customer C10434. Although the transaction originated from a new device (Windows | Windows 10 | edge 16.0 | 1366x768), graph analysis assessed a fraud probability of 0.09 with a legitimate verdict and zero exposure. The closed-case classifier scored transaction 3506725 at 0.01, aligning with the card's legitimate history. Following customer confirmation, the case was closed as legitimate per Policy R3.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-HHG-010"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 4,
+      "assumed_response": "Assumed the customer confirms transaction 3506725 as their own, because the evidence leans legitimate (probability 0.09 < 0.50; strongest point: Closed-case classifier scores flagged txn 3506725 at 0.01, in line with this card's legitimate history (bank risk score 0.90 is often high on false alarms))."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R1: single signal at probability 0.09 < 0.70; verify before any block"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "§3a: evidence requested"
+      },
+      {
+        "action": "ESCALATE_TO_ANALYST",
+        "route": "auto",
+        "reason": "R8: verdict uncertain and exposure $1,000.03 exceeds $500"
+      }
+    ],
+    "final": [
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "§3a: evidence was requested"
+      },
+      {
+        "action": "CLOSE_NO_FRAUD",
+        "route": "auto",
+        "reason": "R3: customer confirmed the transaction; confirmation noted in the case file"
+      }
+    ],
+    "what_changed": "Initial actions included customer verification, case creation, and analyst escalation, but after the customer confirmed the transaction, the final actions removed escalation and closed the case as legitimate under Policy R3."
+  },
+  "sar": {
+    "file": false,
+    "reason": "§3a: no report; activity closed as legitimate (R3)",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0,
+    "activity_dates": []
+  },
+  "stop_reason": "§6: the verification response settles the question",
+  "tool_calls": 11,
+  "tokens": 5066,
+  "latency_s": 16.0
+}

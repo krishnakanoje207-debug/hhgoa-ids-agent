@@ -1,0 +1,501 @@
+{
+  "case_id": "HHG-005",
+  "trigger": {
+    "case_id": "HHG-005",
+    "opened_at": "2016-12-08 03:38:37",
+    "trigger_type": "risk_score",
+    "trigger_text": "Real-time model scored transaction 3523199 ($100.07, online) at 0.54. Review and decide.",
+    "flagged_txn_id": "3523199",
+    "card_id": "C02923-K1",
+    "customer_id": "C02923",
+    "risk_score": 0.54
+  },
+  "steps": [
+    {
+      "step": 1,
+      "name": "Trigger received",
+      "tool": null,
+      "args": {
+        "trigger_type": "risk_score"
+      },
+      "summary": "risk_score alert on card C02923-K1, flagged txn 3523199, bank risk score 0.54 (a reason to look, not a verdict)",
+      "ms": 0
+    },
+    {
+      "step": 2,
+      "name": "Card history (60 days to opening)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "card_history",
+        "card_id": "C02923-K1",
+        "t_from": "2016-10-09 03:38:37",
+        "t_to": "2016-12-08 03:38:37"
+      },
+      "summary": "24 txns on C02923-K1",
+      "ms": 778
+    },
+    {
+      "step": 2,
+      "name": "Customer cards and prior cases",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "customer_cases",
+        "customer_id": "C02923"
+      },
+      "summary": "1 card(s), 4 case(s)",
+      "ms": 520
+    },
+    {
+      "step": 2,
+      "name": "Device neighbourhood (30 days)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "device_neighbors",
+        "device_id": "iOS Device | iOS 9.3.5 | mobile safari 9.0 | 1024x768",
+        "t_from": "2016-11-08 03:38:37",
+        "t_to": "2016-12-08 03:38:37"
+      },
+      "summary": "1 card(s) used it in the window, 112 ever",
+      "ms": 337
+    },
+    {
+      "step": 2,
+      "name": "Plan optional queries",
+      "tool": "llm",
+      "args": {
+        "source": "llm",
+        "choices": [
+          {
+            "tool": "region_cluster",
+            "arg": "330.0",
+            "why": "Check cards new to billing region 330.0 in 7 days to see if the region is linked to the historical account takeover fraud."
+          }
+        ],
+        "catalogue": 1
+      },
+      "summary": "The customer has a history of confirmed account takeover fraud cases, so checking the billing region cluster for other suspicious cards will help determine if this current online transaction is part of a broader local fraud ring.",
+      "ms": 1385
+    },
+    {
+      "step": 2,
+      "name": "Region cluster (7 days)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "region_cluster",
+        "region": "330.0",
+        "t_from": "2016-12-01 03:38:37",
+        "t_to": "2016-12-08 03:38:37"
+      },
+      "summary": "30 card(s) new to region 330.0 in the window",
+      "ms": 1046
+    },
+    {
+      "step": 3,
+      "name": "Gather evidence (card analytics)",
+      "tool": null,
+      "args": {
+        "device_ctx": "iOS Device | iOS 9.3.5 | mobile safari 9.0 | 1024x768"
+      },
+      "summary": "pattern card_not_present_new_device (online episode with a device marked New for this account); 1 episode txn(s), exposure $100.07; 2 prosecution / 1 defence items",
+      "ms": 0
+    },
+    {
+      "step": 4,
+      "name": "Assess uncertainty",
+      "tool": null,
+      "args": {
+        "fraud_probability": 0.155,
+        "verdict": "uncertain"
+      },
+      "summary": "probability 0.15, verdict uncertain, 1 independent evidence, single_signal=True, conflicts=False; initial: VERIFY_WITH_CUSTOMER, CREATE_CASE",
+      "ms": 0
+    },
+    {
+      "step": 5,
+      "name": "Request more evidence",
+      "tool": null,
+      "args": {
+        "type": "customer_validation",
+        "assumed_response": "confirm"
+      },
+      "summary": "§3b/§5: VERIFY_WITH_CUSTOMER is recommended and the customer_validation response changes the actions (deny -> BLOCK_CARD, CREATE_CASE; confirm -> CREATE_CASE, CLOSE_NO_FRAUD; no_reply -> DECLINE_TRANSACTION, MONITOR_CARD, CREATE_CASE) Assumed 'confirm': probability 0.15 -> 0.10",
+      "ms": 0
+    },
+    {
+      "step": 6,
+      "name": "Next best actions",
+      "tool": null,
+      "args": {
+        "final": [
+          "CREATE_CASE",
+          "CLOSE_NO_FRAUD"
+        ]
+      },
+      "summary": "executed (auto): CREATE_CASE, CLOSE_NO_FRAUD; awaiting approval: none",
+      "ms": 0
+    },
+    {
+      "step": 7,
+      "name": "GraphRAG retrieval",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "queries": [
+          "similar_cases",
+          "search_docs"
+        ],
+        "calls": 2
+      },
+      "summary": "4 similar case(s), 7 passage(s)",
+      "ms": 3940
+    },
+    {
+      "step": 7,
+      "name": "Explain decision",
+      "tool": "llm",
+      "args": {
+        "fallback": []
+      },
+      "summary": "LLM text validated",
+      "ms": 3532
+    },
+    {
+      "step": 8,
+      "name": "Update case memory",
+      "tool": "tigergraph__add_node",
+      "args": {
+        "vertex": "AgentCase",
+        "id": "CASE-HHG-005",
+        "edges": 8
+      },
+      "summary": "wrote CASE-HHG-005",
+      "ms": 2918
+    }
+  ],
+  "hypotheses": {
+    "prosecution": [
+      {
+        "claim": "1 episode txn(s) came from a device marked New for this account (iOS Device | iOS 9.3.5 | mobile safari 9.0 | 1024x768); the flagged device was never seen on this card before",
+        "score": 0.6,
+        "entity_ids": [
+          "3523199"
+        ],
+        "ref": "query:card_history(card_id=C02923-K1, window=60d)"
+      },
+      {
+        "claim": "Customer has 3 earlier confirmed fraud case(s): CC-2400, CC-2857, CC-2717",
+        "score": 0.4,
+        "entity_ids": [
+          "CC-2400",
+          "CC-2857",
+          "CC-2717"
+        ],
+        "ref": "query:customer_cases"
+      }
+    ],
+    "defence": [
+      {
+        "claim": "Closed-case classifier scores flagged txn 3523199 at 0.02, in line with this card's legitimate history (bank risk score 0.54 is often high on false alarms)",
+        "score": 0.98,
+        "entity_ids": [
+          "3523199"
+        ],
+        "ref": "model:closed_case_classifier"
+      }
+    ]
+  },
+  "probability": {
+    "initial": 0.155,
+    "final": 0.1,
+    "features": {
+      "logit_flag": -4.0129,
+      "logit_ep_max": -4.0106,
+      "logit_ep_mean": -4.0106,
+      "log_ep_n": 0.0,
+      "trip_signature": 0.0,
+      "new_phone_signature": 0.0,
+      "card_testing": 0.0,
+      "structuring": 0.0,
+      "ring": 0.0
+    }
+  },
+  "evidence_gate": {
+    "type": "customer_validation",
+    "why": "§3b/§5: VERIFY_WITH_CUSTOMER is recommended and the customer_validation response changes the actions (deny -> BLOCK_CARD, CREATE_CASE; confirm -> CREATE_CASE, CLOSE_NO_FRAUD; no_reply -> DECLINE_TRANSACTION, MONITOR_CARD, CREATE_CASE)",
+    "outcomes": {
+      "deny": [
+        "BLOCK_CARD",
+        "CREATE_CASE"
+      ],
+      "confirm": [
+        "CREATE_CASE",
+        "CLOSE_NO_FRAUD"
+      ],
+      "no_reply": [
+        "DECLINE_TRANSACTION",
+        "MONITOR_CARD",
+        "CREATE_CASE"
+      ]
+    },
+    "assumed_response": "confirm"
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "C02923",
+        "type": "Customer",
+        "label": "C02923",
+        "flag": "subject"
+      },
+      {
+        "id": "C02923-K1",
+        "type": "Card",
+        "label": "C02923-K1",
+        "flag": "subject"
+      },
+      {
+        "id": "3523199",
+        "type": "Transaction",
+        "label": "3523199 $100.07",
+        "flag": "cleared"
+      },
+      {
+        "id": "iOS Device | iOS 9.3.5 | mobile safari 9.0 | 1024x768",
+        "type": "DeviceProfile",
+        "label": "iOS Device | iOS 9.3.5 | mobile safari 9.0 | 1024x768",
+        "flag": "normal"
+      },
+      {
+        "id": "region 330.0",
+        "type": "BillingRegion",
+        "label": "region 330.0",
+        "flag": "normal"
+      },
+      {
+        "id": "C07648-K1",
+        "type": "Card",
+        "label": "C07648-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C08976-K1",
+        "type": "Card",
+        "label": "C08976-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C13440-K1",
+        "type": "Card",
+        "label": "C13440-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C07511-K1",
+        "type": "Card",
+        "label": "C07511-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C05278-K1",
+        "type": "Card",
+        "label": "C05278-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C12455-K1",
+        "type": "Card",
+        "label": "C12455-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C03047-K1",
+        "type": "Card",
+        "label": "C03047-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C05519-K1",
+        "type": "Card",
+        "label": "C05519-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C04191-K1",
+        "type": "Card",
+        "label": "C04191-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C02250-K1",
+        "type": "Card",
+        "label": "C02250-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "CC-2400",
+        "type": "ClosedCase",
+        "label": "CC-2400",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CC-2857",
+        "type": "ClosedCase",
+        "label": "CC-2857",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CC-2717",
+        "type": "ClosedCase",
+        "label": "CC-2717",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CASE-HHG-005",
+        "type": "AgentCase",
+        "label": "CASE-HHG-005",
+        "flag": "subject"
+      },
+      {
+        "id": "CASE-HHG-010",
+        "type": "AgentCase",
+        "label": "CASE-HHG-010",
+        "flag": "cleared"
+      },
+      {
+        "id": "CASE-HHG-020",
+        "type": "AgentCase",
+        "label": "CASE-HHG-020",
+        "flag": "cleared"
+      },
+      {
+        "id": "CASE-HHG-015",
+        "type": "AgentCase",
+        "label": "CASE-HHG-015",
+        "flag": "cleared"
+      },
+      {
+        "id": "CASE-HHG-017",
+        "type": "AgentCase",
+        "label": "CASE-HHG-017",
+        "flag": "normal"
+      }
+    ],
+    "edges": [
+      {
+        "src": "C02923",
+        "dst": "C02923-K1",
+        "type": "OWNS"
+      },
+      {
+        "src": "C02923-K1",
+        "dst": "3523199",
+        "type": "MADE"
+      },
+      {
+        "src": "3523199",
+        "dst": "iOS Device | iOS 9.3.5 | mobile safari 9.0 | 1024x768",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "3523199",
+        "dst": "region 330.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C02923-K1",
+        "dst": "iOS Device | iOS 9.3.5 | mobile safari 9.0 | 1024x768",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C07648-K1",
+        "dst": "region 330.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C08976-K1",
+        "dst": "region 330.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C13440-K1",
+        "dst": "region 330.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C07511-K1",
+        "dst": "region 330.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C05278-K1",
+        "dst": "region 330.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C12455-K1",
+        "dst": "region 330.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C03047-K1",
+        "dst": "region 330.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C05519-K1",
+        "dst": "region 330.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C04191-K1",
+        "dst": "region 330.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C02250-K1",
+        "dst": "region 330.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "CC-2400",
+        "dst": "C02923-K1",
+        "type": "ON_CARD"
+      },
+      {
+        "src": "CC-2857",
+        "dst": "C02923-K1",
+        "type": "ON_CARD"
+      },
+      {
+        "src": "CC-2717",
+        "dst": "C02923-K1",
+        "type": "ON_CARD"
+      },
+      {
+        "src": "CASE-HHG-005",
+        "dst": "C02923-K1",
+        "type": "ON_CARD"
+      },
+      {
+        "src": "CASE-HHG-005",
+        "dst": "CASE-HHG-010",
+        "type": "SIMILAR_TO"
+      },
+      {
+        "src": "CASE-HHG-005",
+        "dst": "CASE-HHG-020",
+        "type": "SIMILAR_TO"
+      },
+      {
+        "src": "CASE-HHG-005",
+        "dst": "CASE-HHG-015",
+        "type": "SIMILAR_TO"
+      },
+      {
+        "src": "CASE-HHG-005",
+        "dst": "CASE-HHG-017",
+        "type": "SIMILAR_TO"
+      }
+    ]
+  },
+  "rag_context": "CASE\nHHG-005 opened 2016-12-08 03:38:37 by risk_score trigger: \"Real-time model scored transaction 3523199 ($100.07, online) at 0.54. Review and decide.\"\nFlagged txn 3523199 on card C02923-K1 (customer C02923). Bank risk score 0.54 is a reason to look, not a verdict (§0).\nGraph analysis: pattern none (online episode with a device marked New for this account); fraud probability 0.10; verdict legitimate; 0 affected txns, first none, exposure $0.00.\n\nGRAPH EVIDENCE\n- Device profile iOS Device | iOS 9.3.5 | mobile safari 9.0 | 1024x768 was used by 0 other card(s) in the 30 days before the alert (0 as a New device; 112 cards ever) (query:device_neighbors(device_id=iOS Device | iOS 9.3.5 | mobile safari 9.0 | 1024x768, window=30d))\n- 30 card(s) made their first purchase in billing region 330.0 in the 7 days before the alert (7 linked to cases; 1452 cards ever billed there) (query:region_cluster(region=330.0, window=7d))\n- Customer C02923 cards: C02923-K1; prior cases on them: CC-2400 (confirmed_fraud, account_takeover), CC-2857 (confirmed_fraud, account_takeover), CC-2717 (confirmed_fraud, account_takeover) (query:customer_cases)\n- [prosecution 0.60] 1 episode txn(s) came from a device marked New for this account (iOS Device | iOS 9.3.5 | mobile safari 9.0 | 1024x768); the flagged device was never seen on this card before (ref: query:card_history(card_id=C02923-K1, window=60d); ids: 3523199)\n- [prosecution 0.40] Customer has 3 earlier confirmed fraud case(s): CC-2400, CC-2857, CC-2717 (ref: query:customer_cases; ids: CC-2400, CC-2857, CC-2717)\n- [defence 0.98] Closed-case classifier scores flagged txn 3523199 at 0.02, in line with this card's legitimate history (bank risk score 0.54 is often high on false alarms) (ref: model:closed_case_classifier; ids: 3523199)\n\nSIMILAR PAST CASES (vector search over closed and agent cases; same pattern first)\n- [CASE-HHG-010] AgentCase legitimate, pattern none, distance 0.135: Case HHG-010 was opened on 2016-12-02 18:18:27 following a real-time model risk score trigger of 0.90 on online transaction 3506725 for $1,000.03 on card [other id] held by customer [other id]. Although the transaction originated from a new device (Windows | Windows 10 | edge ...\n- [CASE-HHG-020] AgentCase legitimate, pattern none, distance 0.147: Case HHG-020 was opened following a real-time risk score trigger of 0.52 on online transaction 3509359 for $125.08 on card [other id] held by customer [other id]. Graph analysis assessed a fraud probability of 0.10 with a legitimate verdict under pattern none. Following customer validation ...\n- [CASE-HHG-015] AgentCase legitimate, pattern none, distance 0.148: Case HHG-015 was opened following a risk score trigger of 0.77 on online transaction 3464869 for $599.94 on card [other id] held by customer [other id]. Although the transaction originated from a new device (Trident/7.0 | Windows 8.1 | ie 11.0 for desktop | 1680x1050) ...\n- [CASE-HHG-017] AgentCase uncertain, pattern card_not_present_fraud, distance 0.150: Case HHG-017 was opened following a risk score trigger of 0.57 on online transaction 3450629 for $100.09 on card [other id] (customer [other id]). Graph analysis assessed a fraud probability of 0.60 with an uncertain verdict under the card-not-present fraud pattern. Following Policy R1 for ...\n\nPOLICY & GUIDANCE\n- [POLICY-R3] R3. Customer confirms the transaction: R3. Customer confirms the transaction. Recommend CLOSE_NO_FRAUD. Note the confirmation in the case file. Compare R2, where the customer instead denies the transaction and the agent recommends BLOCK_CARD and CREATE_CASE. Related action (§1): CLOSE_NO_FRAUD -- close the alert as legitimate (no customer impact, route auto). Per the Answer Format notes, for a legitimate verdict affected_txn_ids is empty, exposure_usd is 0, and sar.file is false.\n- [PATTERN-card_not_present_new_device] Card-not-present fraud from a new device: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 3. Card-not-present fraud from a new device. Same as above, with the identity record marking the device as New for this account, sometimes behind a proxy. Stronger than pattern 2, still not proof: ...\n- [PATTERN-card_testing] Card testing: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 1. Card testing. A stolen card number is checked before use: three or more tiny online authorizations, often under $5, then a larger purchase. Confirmed by the sequence itself. Policy R5.\n- [PATTERN-card_not_present_fraud] Card-not-present fraud: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 2. Card-not-present fraud. The number is used online without the card. Amounts and products that don't fit the cardholder's history, often in a burst of two to four within 48 hours. On its ...\n- [PATTERN-account_takeover] Account takeover: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 5. Account takeover. Mixed-channel activity inconsistent with the cardholder, often with device and match-flag anomalies, pointing to stolen credentials rather than a stolen number. The README glossary defines an identity record as the ...\n- [POLICY-R7] R7. Disputed but legitimate: R7. Disputed but legitimate. When the customer disputes a charge that matches their own recurring pattern (same merchant, same amount, monthly), recommend CREATE_CASE, VERIFY_WITH_CUSTOMER, and WARN_CUSTOMER. Do not block. Related actions (§1): WARN_CUSTOMER -- send an informational message, such as a recurring-charge reminder (no customer impact, route auto). VERIFY_WITH_CUSTOMER -- ask the cardholder whether they made the transaction; card stays active pending reply (low impact, route auto). CREATE_CASE -- open ...\n- [POLICY-R5] R5. Card testing: R5. Card testing. Three or more small online authorizations on one card within an hour, followed by a larger purchase: recommend DECLINE_TRANSACTION and STEP_UP_AUTH. If a purchase over $100 has already cleared, recommend BLOCK_CARD. Related actions (§1): DECLINE_TRANSACTION -- decline the flagged authorization only, card stays active (route L1). STEP_UP_AUTH -- require a one-time passcode or app confirmation before further activity (route auto). BLOCK_CARD -- block this card and reissue ...\n\nINSTRUCTIONS\nUse only the facts above. Cite the ids in square brackets and the txn/card/device ids shown; never invent an id, amount or date. Past cases are memory, not this customer's activity: their ids are not connected cards. The bank risk score is not a verdict. Actions come from the policy engine: explain them, do not change them."
+}

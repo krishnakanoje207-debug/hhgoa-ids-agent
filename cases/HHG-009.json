@@ -1,0 +1,177 @@
+{
+  "case_id": "HHG-009",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.99,
+    "pattern": "card_not_present_fraud",
+    "pattern_description": "",
+    "affected_txn_ids": [
+      "3581141"
+    ],
+    "first_suspicious_txn_id": "3581141",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 30.02,
+    "evidence": [
+      {
+        "claim": "The closed-case classifier scored flagged transaction 3581141 at 1.00 based on confirmed and cleared bank cases, while the bank risk score of 0.28 was not used as a verdict.",
+        "source": "graph",
+        "ref": "model:closed_case_classifier",
+        "entity_ids": [
+          "3581141"
+        ]
+      },
+      {
+        "claim": "Device profile Trident/7.0 | Windows 10 | ie 11.0 for desktop | 1366x768 was utilized by 12 other cards in the 30 days prior to the alert, including 7 as a new device and 104 cards historically, associated with cases CASE-HHG-019, CC-0143, CC-0145, CC-0291, CC-0355, and CC-0475.",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id=Trident/7.0 | Windows 10 | ie 11.0 for desktop | 1366x768, window=30d)",
+        "entity_ids": [
+          "C03070-K1",
+          "C00722-K1",
+          "C01755-K2",
+          "C04258-K1",
+          "C06224-K2",
+          "C09823-K1",
+          "C11636-K1",
+          "C06422-K1",
+          "C05517-K1",
+          "C06121-K2",
+          "CC-0143",
+          "CC-0145",
+          "CC-0291",
+          "CC-0355",
+          "CC-0475",
+          "CC-0648"
+        ]
+      },
+      {
+        "claim": "7 cards made their first purchase in billing region 203.0 during the 7 days before the alert, with 2 linked to cases out of 394 cards ever billed there.",
+        "source": "graph",
+        "ref": "query:region_cluster(region=203.0, window=7d)",
+        "entity_ids": [
+          "C10120-K1",
+          "C07096-K2",
+          "C03234-K1",
+          "C02331-K1",
+          "C02558-K1",
+          "C10811-K1",
+          "C09670-K1"
+        ]
+      },
+      {
+        "claim": "Customer C08299 disputed transaction 3581141 with the message: \"Customer C08299 message: 'I never made this $30.02 purchase. Please check my card.' Refers to 3581141.\"",
+        "source": "customer",
+        "ref": "case_pack:trigger_text",
+        "entity_ids": [
+          "3581141",
+          "C08299"
+        ]
+      },
+      {
+        "claim": "It was assumed that the customer denies making transaction 3581141 and related activity while still holding the card, given the fraud probability of 0.99 and the closed-case classifier score of 1.00.",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": []
+      },
+      {
+        "claim": "Nearest cases in memory comprise CC-1393, CC-0865, CC-0281, CC-0483, CC-2147, and CASE-HHG-016.",
+        "source": "graph",
+        "ref": "query:similar_cases",
+        "entity_ids": [
+          "CC-1393",
+          "CC-0865",
+          "CC-0281",
+          "CC-0483",
+          "CC-2147"
+        ]
+      },
+      {
+        "claim": "Fraud Policy R2 covers customer denial, serving as the basis for BLOCK_CARD and CREATE_CASE.",
+        "source": "document",
+        "ref": "POLICY-R2",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R3 covers customer confirmation and was retrieved as context.",
+        "source": "document",
+        "ref": "POLICY-R3",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R7 covers disputed but legitimate charges and was retrieved as context.",
+        "source": "document",
+        "ref": "POLICY-R7",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy actions the agent may recommend were retrieved as context.",
+        "source": "document",
+        "ref": "POLICY-S1-ACTIONS",
+        "entity_ids": []
+      },
+      {
+        "claim": "Typology and regulatory guidance for card-not-present fraud, card-not-present fraud from a new device, and card testing were retrieved.",
+        "source": "document",
+        "ref": "PATTERN-card_not_present_fraud, PATTERN-card_not_present_new_device, PATTERN-card_testing",
+        "entity_ids": []
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-1393",
+      "CC-0865",
+      "CC-0281",
+      "CC-0483",
+      "CC-2147"
+    ],
+    "summary": "Case HHG-009 was opened on 2016-12-28 when customer C08299 reported a fraudulent online transaction 3581141 for $30.02 on card C08299-K1. Graph analysis and the closed-case classifier scored the transaction at 1.00 fraud probability under the card_not_present_fraud pattern. Since the customer denied the transaction, policy R2 recommended blocking the card and creating a case. The final recommended actions are BLOCK_CARD routed to L1 and CREATE_CASE routed automatically.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-HHG-009"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 4,
+      "assumed_response": "Assumed the customer denies making transaction 3581141 and the related activity and still holds the card, because the evidence leans towards fraud (probability 0.99 >= 0.50; strongest point: Closed-case classifier scores flagged txn 3581141 at 1.00 (learned from the bank's confirmed/cleared cases; the bank risk score 0.28 is not used as a verdict))."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R1/§5: probability 0.99 is below 0.85; confirm with the customer before blocking"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "§3a: customer disputed a charge"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: customer denied the transaction; exposure $30.02 is under $2,500 (§2)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "R2: customer denied the transaction; §3a: customer disputed a charge"
+      }
+    ],
+    "what_changed": "The initial actions included VERIFY_WITH_CUSTOMER and CREATE_CASE. After customer validation assumed the customer denied the transaction, the policy engine updated the recommendations to BLOCK_CARD and CREATE_CASE per R2."
+  },
+  "sar": {
+    "file": false,
+    "reason": "§3a: no report; exposure is under $1,000, no shared element or other fraud, pattern not coordinated",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0,
+    "activity_dates": []
+  },
+  "stop_reason": "§6: the verification response settles the question",
+  "tool_calls": 13,
+  "tokens": 4827,
+  "latency_s": 14.7
+}

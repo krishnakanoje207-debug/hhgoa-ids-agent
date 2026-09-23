@@ -1,0 +1,658 @@
+{
+  "case_id": "HHG-006",
+  "trigger": {
+    "case_id": "HHG-006",
+    "opened_at": "2016-11-22 02:30:00",
+    "trigger_type": "customer_report",
+    "trigger_text": "Customer C07297 message: 'I never made this $482.12 purchase. Please check my card.' Refers to 3476682.",
+    "flagged_txn_id": "3476682",
+    "card_id": "C07297-K1",
+    "customer_id": "C07297",
+    "risk_score": null
+  },
+  "steps": [
+    {
+      "step": 1,
+      "name": "Trigger received",
+      "tool": null,
+      "args": {
+        "trigger_type": "customer_report"
+      },
+      "summary": "customer_report alert on card C07297-K1, flagged txn 3476682",
+      "ms": 0
+    },
+    {
+      "step": 2,
+      "name": "Card history (60 days to opening)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "card_history",
+        "card_id": "C07297-K1",
+        "t_from": "2016-09-23 02:30:00",
+        "t_to": "2016-11-22 02:30:00"
+      },
+      "summary": "94 txns on C07297-K1",
+      "ms": 1268
+    },
+    {
+      "step": 2,
+      "name": "Customer cards and prior cases",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "customer_cases",
+        "customer_id": "C07297"
+      },
+      "summary": "1 card(s), 1 case(s)",
+      "ms": 279
+    },
+    {
+      "step": 2,
+      "name": "Device neighbourhood (30 days)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "device_neighbors",
+        "device_id": "Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080",
+        "t_from": "2016-10-23 02:30:00",
+        "t_to": "2016-11-22 02:30:00"
+      },
+      "summary": "79 card(s) used it in the window, 543 ever",
+      "ms": 778
+    },
+    {
+      "step": 2,
+      "name": "Plan optional queries",
+      "tool": "llm",
+      "args": {
+        "source": "llm",
+        "choices": [
+          {
+            "tool": "device_neighbors",
+            "arg": "iOS Device | iOS 11.2.1 | mobile safari 11.0 | 2208x1242",
+            "why": "The customer used a second device profile (iOS) shortly before the disputed transaction, which should be checked for broader fraud links."
+          },
+          {
+            "tool": "region_cluster",
+            "arg": "476.0",
+            "why": "The iOS device activity occurred in billing region 476.0, making it useful to check for regional fraud patterns."
+          }
+        ],
+        "catalogue": 7
+      },
+      "summary": "The recent transactions show usage across two distinct device profiles (Windows/IE and iOS Device) within minutes of each other. Checking the second device and its associated billing region will help determine if an account takeover or broader card-testing ring is involved.",
+      "ms": 1656
+    },
+    {
+      "step": 2,
+      "name": "Device neighbourhood (30 days)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "device_neighbors",
+        "device_id": "iOS Device | iOS 11.2.1 | mobile safari 11.0 | 2208x1242",
+        "t_from": "2016-10-23 02:30:00",
+        "t_to": "2016-11-22 02:30:00"
+      },
+      "summary": "1 card(s) used it in the window, 374 ever",
+      "ms": 261
+    },
+    {
+      "step": 2,
+      "name": "Region cluster (7 days)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "region_cluster",
+        "region": "476.0",
+        "t_from": "2016-11-15 02:30:00",
+        "t_to": "2016-11-22 02:30:00"
+      },
+      "summary": "7 card(s) new to region 476.0 in the window",
+      "ms": 275
+    },
+    {
+      "step": 3,
+      "name": "Gather evidence (card analytics)",
+      "tool": null,
+      "args": {
+        "device_ctx": "Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080"
+      },
+      "summary": "pattern undocumented (structuring: several online purchases within an hour, each just under $500); 4 episode txn(s), exposure $1,906.07; 2 prosecution / 2 defence items",
+      "ms": 2
+    },
+    {
+      "step": 4,
+      "name": "Assess uncertainty",
+      "tool": null,
+      "args": {
+        "fraud_probability": 0.9,
+        "verdict": "fraud"
+      },
+      "summary": "probability 0.90, verdict fraud, 2 independent evidence, single_signal=False, conflicts=False; initial: BLOCK_CARD, CREATE_CASE, FILE_REPORT",
+      "ms": 0
+    },
+    {
+      "step": 5,
+      "name": "Evidence gate",
+      "tool": null,
+      "args": {},
+      "summary": "no response to any warranted request changes the actions: stop",
+      "ms": 0
+    },
+    {
+      "step": 6,
+      "name": "Next best actions",
+      "tool": null,
+      "args": {
+        "final": [
+          "BLOCK_CARD",
+          "CREATE_CASE",
+          "FILE_REPORT"
+        ]
+      },
+      "summary": "executed (auto): CREATE_CASE; awaiting approval: BLOCK_CARD (L1), FILE_REPORT (L2)",
+      "ms": 0
+    },
+    {
+      "step": 7,
+      "name": "GraphRAG retrieval",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "queries": [
+          "similar_cases",
+          "search_docs"
+        ],
+        "calls": 2
+      },
+      "summary": "3 similar case(s), 7 passage(s)",
+      "ms": 6245
+    },
+    {
+      "step": 7,
+      "name": "Explain decision",
+      "tool": "llm",
+      "args": {
+        "fallback": []
+      },
+      "summary": "LLM text validated",
+      "ms": 17783
+    },
+    {
+      "step": 8,
+      "name": "Update case memory",
+      "tool": "tigergraph__add_node",
+      "args": {
+        "vertex": "AgentCase",
+        "id": "CASE-HHG-006",
+        "edges": 12
+      },
+      "summary": "wrote CASE-HHG-006",
+      "ms": 4342
+    }
+  ],
+  "hypotheses": {
+    "prosecution": [
+      {
+        "claim": "4 card txns from 2016-11-21 20:00:00 to 2016-11-21 20:30:00 form one episode (grouped by the episode model fitted on closed cases, gaps under 48 h), total $1,906.07",
+        "score": 0.7,
+        "entity_ids": [
+          "3476602",
+          "3476633",
+          "3476665",
+          "3476682"
+        ],
+        "ref": "query:card_history(card_id=C07297-K1, window=60d)"
+      },
+      {
+        "claim": "4 online purchases within 30 minutes, each just under $500 ($478.95, $456.96, $488.04, $482.12): amounts kept under an authorization threshold",
+        "score": 0.9,
+        "entity_ids": [
+          "3476602",
+          "3476633",
+          "3476665",
+          "3476682"
+        ],
+        "ref": "query:card_history(card_id=C07297-K1, window=60d)"
+      }
+    ],
+    "defence": [
+      {
+        "claim": "Closed-case classifier scores flagged txn 3476682 at 0.35, in line with this card's legitimate history (bank risk score 0.25 is often high on false alarms)",
+        "score": 0.65,
+        "entity_ids": [
+          "3476682"
+        ],
+        "ref": "model:closed_case_classifier"
+      },
+      {
+        "claim": "Device Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080 is New but was then used again on this card (1 txns, all scored low): consistent with the cardholder's new phone",
+        "score": 0.6,
+        "entity_ids": [
+          "3476682",
+          "3476602"
+        ],
+        "ref": "query:card_history(card_id=C07297-K1, window=60d)"
+      }
+    ]
+  },
+  "probability": {
+    "initial": 0.9,
+    "final": 0.9,
+    "features": {
+      "logit_flag": -0.6327,
+      "logit_ep_max": 0.3971,
+      "logit_ep_mean": -0.0913,
+      "log_ep_n": 1.3863,
+      "trip_signature": 0.0,
+      "new_phone_signature": 1.0,
+      "card_testing": 0.0,
+      "structuring": 1.0,
+      "ring": 0.0
+    }
+  },
+  "evidence_gate": null,
+  "graph": {
+    "nodes": [
+      {
+        "id": "C07297",
+        "type": "Customer",
+        "label": "C07297",
+        "flag": "subject"
+      },
+      {
+        "id": "C07297-K1",
+        "type": "Card",
+        "label": "C07297-K1",
+        "flag": "subject"
+      },
+      {
+        "id": "3476682",
+        "type": "Transaction",
+        "label": "3476682 $482.12",
+        "flag": "suspicious"
+      },
+      {
+        "id": "Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080",
+        "type": "DeviceProfile",
+        "label": "Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080",
+        "flag": "normal"
+      },
+      {
+        "id": "3476602",
+        "type": "Transaction",
+        "label": "3476602 $478.95",
+        "flag": "suspicious"
+      },
+      {
+        "id": "3476633",
+        "type": "Transaction",
+        "label": "3476633 $456.96",
+        "flag": "suspicious"
+      },
+      {
+        "id": "iOS Device | iOS 11.2.1 | mobile safari 11.0 | 2208x1242",
+        "type": "DeviceProfile",
+        "label": "iOS Device | iOS 11.2.1 | mobile safari 11.0 | 2208x1242",
+        "flag": "normal"
+      },
+      {
+        "id": "region 476.0",
+        "type": "BillingRegion",
+        "label": "region 476.0",
+        "flag": "normal"
+      },
+      {
+        "id": "3476665",
+        "type": "Transaction",
+        "label": "3476665 $488.04",
+        "flag": "suspicious"
+      },
+      {
+        "id": "C06001-K1",
+        "type": "Card",
+        "label": "C06001-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C10713-K1",
+        "type": "Card",
+        "label": "C10713-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C08918-K2",
+        "type": "Card",
+        "label": "C08918-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C03218-K2",
+        "type": "Card",
+        "label": "C03218-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C10842-K1",
+        "type": "Card",
+        "label": "C10842-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C01982-K2",
+        "type": "Card",
+        "label": "C01982-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C02716-K2",
+        "type": "Card",
+        "label": "C02716-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C10755-K1",
+        "type": "Card",
+        "label": "C10755-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C03040-K2",
+        "type": "Card",
+        "label": "C03040-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C11000-K2",
+        "type": "Card",
+        "label": "C11000-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C11865-K1",
+        "type": "Card",
+        "label": "C11865-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C09602-K1",
+        "type": "Card",
+        "label": "C09602-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C05560-K2",
+        "type": "Card",
+        "label": "C05560-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C09420-K2",
+        "type": "Card",
+        "label": "C09420-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C05146-K1",
+        "type": "Card",
+        "label": "C05146-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C07087-K1",
+        "type": "Card",
+        "label": "C07087-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C07277-K1",
+        "type": "Card",
+        "label": "C07277-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C09249-K1",
+        "type": "Card",
+        "label": "C09249-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C07936-K2",
+        "type": "Card",
+        "label": "C07936-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C01484-K1",
+        "type": "Card",
+        "label": "C01484-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C10419-K1",
+        "type": "Card",
+        "label": "C10419-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C02843-K1",
+        "type": "Card",
+        "label": "C02843-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "CASE-HHG-006",
+        "type": "AgentCase",
+        "label": "CASE-HHG-006",
+        "flag": "subject"
+      },
+      {
+        "id": "CASE-SEN-008",
+        "type": "AgentCase",
+        "label": "CASE-SEN-008",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CASE-SEN-011",
+        "type": "AgentCase",
+        "label": "CASE-SEN-011",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CASE-SEN-013",
+        "type": "AgentCase",
+        "label": "CASE-SEN-013",
+        "flag": "suspicious"
+      }
+    ],
+    "edges": [
+      {
+        "src": "C07297",
+        "dst": "C07297-K1",
+        "type": "OWNS"
+      },
+      {
+        "src": "C07297-K1",
+        "dst": "3476682",
+        "type": "MADE"
+      },
+      {
+        "src": "3476682",
+        "dst": "Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C07297-K1",
+        "dst": "3476602",
+        "type": "MADE"
+      },
+      {
+        "src": "3476602",
+        "dst": "Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C07297-K1",
+        "dst": "3476633",
+        "type": "MADE"
+      },
+      {
+        "src": "3476633",
+        "dst": "iOS Device | iOS 11.2.1 | mobile safari 11.0 | 2208x1242",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "3476633",
+        "dst": "region 476.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C07297-K1",
+        "dst": "3476665",
+        "type": "MADE"
+      },
+      {
+        "src": "3476665",
+        "dst": "iOS Device | iOS 11.2.1 | mobile safari 11.0 | 2208x1242",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "3476665",
+        "dst": "region 476.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C06001-K1",
+        "dst": "Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C10713-K1",
+        "dst": "Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C08918-K2",
+        "dst": "Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C03218-K2",
+        "dst": "Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C10842-K1",
+        "dst": "Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C01982-K2",
+        "dst": "Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C02716-K2",
+        "dst": "Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C10755-K1",
+        "dst": "Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C03040-K2",
+        "dst": "Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C11000-K2",
+        "dst": "Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C11865-K1",
+        "dst": "Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C09602-K1",
+        "dst": "Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C05560-K2",
+        "dst": "Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C09420-K2",
+        "dst": "Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C05146-K1",
+        "dst": "Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C07297-K1",
+        "dst": "iOS Device | iOS 11.2.1 | mobile safari 11.0 | 2208x1242",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C07087-K1",
+        "dst": "region 476.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C07277-K1",
+        "dst": "region 476.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C09249-K1",
+        "dst": "region 476.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C07936-K2",
+        "dst": "region 476.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C01484-K1",
+        "dst": "region 476.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C10419-K1",
+        "dst": "region 476.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C02843-K1",
+        "dst": "region 476.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "CASE-HHG-006",
+        "dst": "C07297-K1",
+        "type": "ON_CARD"
+      },
+      {
+        "src": "CASE-HHG-006",
+        "dst": "CASE-SEN-008",
+        "type": "SIMILAR_TO"
+      },
+      {
+        "src": "CASE-HHG-006",
+        "dst": "CASE-SEN-011",
+        "type": "SIMILAR_TO"
+      },
+      {
+        "src": "CASE-HHG-006",
+        "dst": "CASE-SEN-013",
+        "type": "SIMILAR_TO"
+      }
+    ]
+  },
+  "rag_context": "CASE\nHHG-006 opened 2016-11-22 02:30:00 by customer_report trigger: \"Customer C07297 message: 'I never made this $482.12 purchase. Please check my card.' Refers to 3476682.\"\nFlagged txn 3476682 on card C07297-K1 (customer C07297).\nGraph analysis: pattern undocumented (structuring: several online purchases within an hour, each just under $500); fraud probability 0.90; verdict fraud; 4 affected txns, first 3476602, exposure $1,906.07.\n\nGRAPH EVIDENCE\n- Device profile Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080 was used by 78 other card(s) in the 30 days before the alert (45 as a New device; 543 cards ever); their cases: CC-0005, CC-0018, CC-0019, CC-0033, CC-0041, CC-0045 (query:device_neighbors(device_id=Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080, window=30d))\n- Device profile iOS Device | iOS 11.2.1 | mobile safari 11.0 | 2208x1242 was used by 0 other card(s) in the 30 days before the alert (0 as a New device; 374 cards ever) (query:device_neighbors(device_id=iOS Device | iOS 11.2.1 | mobile safari 11.0 | 2208x1242, window=30d))\n- 7 card(s) made their first purchase in billing region 476.0 in the 7 days before the alert (2 linked to cases; 771 cards ever billed there) (query:region_cluster(region=476.0, window=7d))\n- Customer C07297 cards: C07297-K1; prior cases on them: none (query:customer_cases)\n- [prosecution 0.70] 4 card txns from 2016-11-21 20:00:00 to 2016-11-21 20:30:00 form one episode (grouped by the episode model fitted on closed cases, gaps under 48 h), total $1,906.07 (ref: query:card_history(card_id=C07297-K1, window=60d); ids: 3476602, 3476633, 3476665, 3476682)\n- [prosecution 0.90] 4 online purchases within 30 minutes, each just under $500 ($478.95, $456.96, $488.04, $482.12): amounts kept under an authorization threshold (ref: query:card_history(card_id=C07297-K1, window=60d); ids: 3476602, 3476633, 3476665, 3476682)\n- [defence 0.65] Closed-case classifier scores flagged txn 3476682 at 0.35, in line with this card's legitimate history (bank risk score 0.25 is often high on false alarms) (ref: model:closed_case_classifier; ids: 3476682)\n- [defence 0.60] Device Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080 is New but was then used again on this card (1 txns, all scored low): consistent with the cardholder's new phone (ref: query:card_history(card_id=C07297-K1, window=60d); ids: 3476682, 3476602)\n\nSIMILAR PAST CASES (vector search over closed and agent cases; same pattern first)\n- [CASE-SEN-008] AgentCase fraud, pattern undocumented, distance 0.089: Case SEN-008 was opened following a Sentinel sweep on card [other id] for four online purchases totaling $1,926.93 made within a 24-minute window on 2016-11-21. Each transaction was kept just under the $500 threshold, matching an undocumented structuring pattern. Graph analysis assessed a fraud probability ...\n- [CASE-SEN-011] AgentCase fraud, pattern undocumented, distance 0.094: Case SEN-011 was opened following a Sentinel sweep on 2016-11-21 after card [other id] executed four online purchases totaling $1,860.43 within 24 minutes. Graph analysis confirmed a fraud probability of 0.93 due to structuring tactics keeping amounts just under the $500 threshold. The closed-case classifier ...\n- [CASE-SEN-013] AgentCase fraud, pattern undocumented, distance 0.101: Case SEN-013 was opened on 2016-11-21 via a Sentinel sweep targeting card [other id] belonging to customer [other id]. The investigation revealed an undocumented pattern of structuring, consisting of 4 online purchases made within 30 minutes on 2016-11-21 with amounts kept just under $500, totaling ...\n\nPOLICY & GUIDANCE\n- [POLICY-R1] R1. Verify before you block on a weak signal: R1. Verify before you block on a weak signal. If the case rests on a single signal (including a risk score alone) and your assessed fraud probability is below 0.70, recommend VERIFY_WITH_CUSTOMER or STEP_UP_AUTH before any block. Blocking a legitimate customer on one signal is a policy breach. Related actions (§1): VERIFY_WITH_CUSTOMER -- ask the cardholder whether they made the transaction; the card stays active pending reply (low customer impact, ...\n- [PATTERN-card_not_present_fraud] Card-not-present fraud: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 2. Card-not-present fraud. The number is used online without the card. Amounts and products that don't fit the cardholder's history, often in a burst of two to four within 48 hours. On its ...\n- [PATTERN-card_not_present_new_device] Card-not-present fraud from a new device: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 3. Card-not-present fraud from a new device. Same as above, with the identity record marking the device as New for this account, sometimes behind a proxy. Stronger than pattern 2, still not proof: ...\n- [PATTERN-card_testing] Card testing: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 1. Card testing. A stolen card number is checked before use: three or more tiny online authorizations, often under $5, then a larger purchase. Confirmed by the sequence itself. Policy R5.\n- [POLICY-R3] R3. Customer confirms the transaction: R3. Customer confirms the transaction. Recommend CLOSE_NO_FRAUD. Note the confirmation in the case file. Compare R2, where the customer instead denies the transaction and the agent recommends BLOCK_CARD and CREATE_CASE. Related action (§1): CLOSE_NO_FRAUD -- close the alert as legitimate (no customer impact, route auto). Per the Answer Format notes, for a legitimate verdict affected_txn_ids is empty, exposure_usd is 0, and sar.file is false.\n- [FATF-CYBERFRAUD-04] Red flags: transaction patterns: FATF's Annex A on cyber-enabled fraud risk indicators lists transaction-pattern red flags including: rapid or immediate high- or low-value transactions after an account is opened, inconsistent with the account's stated purpose; rapid cash withdrawals or transfers of large amounts immediately after receiving a funds transfer, effectively emptying the account; frequent, large transactions inconsistent with the account holder's economic profile, such as sudden international transfers or cash withdrawals through payment cards ...\n- [POLICY-R7] R7. Disputed but legitimate: R7. Disputed but legitimate. When the customer disputes a charge that matches their own recurring pattern (same merchant, same amount, monthly), recommend CREATE_CASE, VERIFY_WITH_CUSTOMER, and WARN_CUSTOMER. Do not block. Related actions (§1): WARN_CUSTOMER -- send an informational message, such as a recurring-charge reminder (no customer impact, route auto). VERIFY_WITH_CUSTOMER -- ask the cardholder whether they made the transaction; card stays active pending reply (low impact, route auto). CREATE_CASE -- open ...\n\nINSTRUCTIONS\nUse only the facts above. Cite the ids in square brackets and the txn/card/device ids shown; never invent an id, amount or date. Past cases are memory, not this customer's activity: their ids are not connected cards. The bank risk score is not a verdict. Actions come from the policy engine: explain them, do not change them."
+}

@@ -1,0 +1,176 @@
+{
+  "case_id": "SEN-006",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.9,
+    "pattern": "undocumented",
+    "pattern_description": "The undocumented pattern involves structuring multiple online purchases within a short timeframe, specifically four transactions completed within 30 minutes with amounts kept just under the $500 threshold. It affects customer cardholders executing burst e-commerce transactions to evade authorization limits. This pattern was found via Sentinel sweep and graph analysis linking the rapid succession of sub-$500 amounts.",
+    "affected_txn_ids": [
+      "3509629",
+      "3509649",
+      "3509692",
+      "3509706"
+    ],
+    "first_suspicious_txn_id": "3509629",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 1908.26,
+    "evidence": [
+      {
+        "claim": "4 card txns from 2016-12-03 13:00:00 to 2016-12-03 13:30:00 form one episode (grouped by the episode model fitted on closed cases, gaps under 48 h), total $1,908.26",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C05766-K1, window=60d)",
+        "entity_ids": [
+          "3509629",
+          "3509649",
+          "3509692",
+          "3509706"
+        ]
+      },
+      {
+        "claim": "4 online purchases within 30 minutes, each just under $500 ($469.75, $479.49, $471.57, $487.45): amounts kept under an authorization threshold",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C05766-K1, window=60d)",
+        "entity_ids": [
+          "3509629",
+          "3509649",
+          "3509692",
+          "3509706"
+        ]
+      },
+      {
+        "claim": "1 episode txn(s) came from a device marked New for this account (SM-G955U Build/NRD90M | Android 7.0 | chrome 62.0 for android | ); the flagged device was never seen on this card before",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C05766-K1, window=60d)",
+        "entity_ids": [
+          "3509649"
+        ]
+      },
+      {
+        "claim": "Customer has 1 earlier confirmed fraud case: CC-4989 (ref: query:customer_cases; ids: CC-4989).",
+        "source": "graph",
+        "ref": "query:customer_cases",
+        "entity_ids": [
+          "CC-4989"
+        ]
+      },
+      {
+        "claim": "The closed-case classifier scores flagged txn 3509706 at 0.27, aligning with the card's legitimate history while noting the bank risk score is 0.29 (ref: model:closed_case_classifier; ids: 3509706).",
+        "source": "graph",
+        "ref": "model:closed_case_classifier",
+        "entity_ids": [
+          "3509706"
+        ]
+      },
+      {
+        "claim": "Device profile SM-G930R7 | Android 7.0 | chrome 63.0 for android | 1920x1080 was used by 0 other card(s) in the 30 days before the alert (query:device_neighbors).",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id=SM-G930R7 | Android 7.0 | chrome 63.0 for android | 1920x1080, window=30d)",
+        "entity_ids": []
+      },
+      {
+        "claim": "Device profile SM-G955U Build/NRD90M | Android 7.0 | chrome 62.0 for android | was used by 0 other card(s) in the 30 days before the alert (query:device_neighbors).",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id=SM-G955U Build/NRD90M | Android 7.0 | chrome 62.0 for android | , window=30d)",
+        "entity_ids": []
+      },
+      {
+        "claim": "Nearest cases in case memory: CASE-SEN-011, CASE-SEN-009, CASE-SEN-008, CASE-SEN-013, CASE-SEN-004, CASE-SEN-014.",
+        "source": "graph",
+        "ref": "query:similar_cases",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R1: Verify before you block on a weak signal (basis for BLOCK_CARD evaluation).",
+        "source": "document",
+        "ref": "POLICY-R1",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R3: Customer confirms the transaction (retrieved as context).",
+        "source": "document",
+        "ref": "POLICY-R3",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R5: Card testing (retrieved as context).",
+        "source": "document",
+        "ref": "POLICY-R5",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy Actions the agent may recommend (retrieved as context).",
+        "source": "document",
+        "ref": "POLICY-S1-ACTIONS",
+        "entity_ids": []
+      },
+      {
+        "claim": "Typology and regulatory guidance retrieved: Card-not-present fraud, Card testing, Account takeover.",
+        "source": "document",
+        "ref": "PATTERN-card_not_present_fraud, PATTERN-card_testing, PATTERN-account_takeover",
+        "entity_ids": []
+      }
+    ],
+    "similar_prior_cases": [],
+    "summary": "Case SEN-006 was opened following a Sentinel sweep on card C05766-K1 for four online transactions totaling $1,908.26 executed within 30 minutes on 2016-12-03. Graph analysis confirmed a fraud probability of 0.90 based on an undocumented structuring pattern where each amount was kept just under the $500 threshold. Customer C05766 also has 1 earlier confirmed fraud case CC-4989. The final recommended actions are to block the card, create a case, and file a report.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-SEN-006"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R1 not triggered: 4 independent signals at probability 0.90; exposure $1,908.26 is under $2,500 (\u00a72)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "\u00a73a: fraud probability 0.90 reaches 0.30"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,908.26 exceeds $1,000"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R1 not triggered: 4 independent signals at probability 0.90; exposure $1,908.26 is under $2,500 (\u00a72)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "\u00a73a: fraud probability 0.90 reaches 0.30"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,908.26 exceeds $1,000"
+      }
+    ],
+    "what_changed": "nothing"
+  },
+  "sar": {
+    "file": true,
+    "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,908.26 exceeds $1,000",
+    "narrative": "On 2016-12-03, card C05766-K1 held by customer C05766 was used for 4 transaction(s) totalling $1,908.26 that investigation SEN-006 identified as suspicious. The activity began with transaction 3509629 at 2016-12-03 13:00:00 and includes 3509629, 3509649, 3509692, 3509706. The transactions were made online, billed in region(s) 251.0, from device profile(s) SM-G930R7 | Android 7.0 | chrome 63.0 for android | 1920x1080; SM-G955U Build/NRD90M | Android 7.0 | chrome 62.0 for android | . The activity matches the pattern undocumented: structuring: several online purchases within an hour, each just under $500. It is suspicious because 4 card txns from 2016-12-03 13:00:00 to 2016-12-03 13:30:00 form one episode (grouped by the episode model fitted on closed cases, gaps under 48 h), total $1,908.26; 4 online purchases within 30 minutes, each just under $500 ($469.75, $479.49, $471.57, $487.45): amounts kept under an authorization threshold. No other cardholder's card was linked to this activity by the graph queries run. Recommended actions: BLOCK_CARD, CREATE_CASE, FILE_REPORT; total suspicious amount $1,908.26.",
+    "subjects": [
+      "C05766",
+      "C05766-K1"
+    ],
+    "total_amount_usd": 1908.26,
+    "activity_dates": [
+      "2016-12-03",
+      "2016-12-03"
+    ]
+  },
+  "stop_reason": "\u00a76: probability 0.90 is decisive and rests on 4 independent pieces of evidence",
+  "tool_calls": 12,
+  "tokens": 6765,
+  "latency_s": 34.1
+}

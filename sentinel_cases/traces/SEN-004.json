@@ -1,0 +1,536 @@
+{
+  "case_id": "SEN-004",
+  "trigger": {
+    "case_id": "SEN-004",
+    "opened_at": "2016-11-25 23:21:00",
+    "trigger_type": "analyst_request",
+    "trigger_text": "Sentinel sweep (near_threshold_scan): card C03633-K1 made 4 online purchases between $450 and $500 within 21 minutes on 2016-11-25 (transactions 3487284, 3487318, 3487340, 3487348), amounts kept just under a $500 threshold. Review transaction 3487348 and look for related activity.",
+    "flagged_txn_id": "3487348",
+    "card_id": "C03633-K1",
+    "customer_id": "C03633",
+    "risk_score": null
+  },
+  "steps": [
+    {
+      "step": 1,
+      "name": "Trigger received",
+      "tool": null,
+      "args": {
+        "trigger_type": "analyst_request"
+      },
+      "summary": "analyst_request alert on card C03633-K1, flagged txn 3487348",
+      "ms": 0
+    },
+    {
+      "step": 2,
+      "name": "Card history (60 days to opening)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "card_history",
+        "card_id": "C03633-K1",
+        "t_from": "2016-09-26 23:21:00",
+        "t_to": "2016-11-25 23:21:00"
+      },
+      "summary": "45 txns on C03633-K1",
+      "ms": 866
+    },
+    {
+      "step": 2,
+      "name": "Customer cards and prior cases",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "customer_cases",
+        "customer_id": "C03633"
+      },
+      "summary": "1 card(s), 1 case(s)",
+      "ms": 262
+    },
+    {
+      "step": 2,
+      "name": "Device neighbourhood (30 days)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "device_neighbors",
+        "device_id": "MacOS | Mac OS X 10_8_5 | chrome 49.0 | 1280x800",
+        "t_from": "2016-10-26 23:21:00",
+        "t_to": "2016-11-25 23:21:00"
+      },
+      "summary": "3 card(s) used it in the window, 14 ever",
+      "ms": 249
+    },
+    {
+      "step": 2,
+      "name": "Plan optional queries",
+      "tool": "llm",
+      "args": {
+        "source": "llm",
+        "choices": [
+          {
+            "tool": "region_cluster",
+            "arg": "191.0",
+            "why": "Check for other cards recently appearing in billing region 191.0 to identify a coordinated regional testing pattern."
+          }
+        ],
+        "catalogue": 1
+      },
+      "summary": "The card shows a burst of structuring behavior (four online transactions just under $500 in 21 minutes) from a region (191.0) with prior fraud cases. Checking region-level activity will help determine if this is part of a broader localized testing ring.",
+      "ms": 1413
+    },
+    {
+      "step": 2,
+      "name": "Region cluster (7 days)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "region_cluster",
+        "region": "191.0",
+        "t_from": "2016-11-18 23:21:00",
+        "t_to": "2016-11-25 23:21:00"
+      },
+      "summary": "13 card(s) new to region 191.0 in the window",
+      "ms": 270
+    },
+    {
+      "step": 3,
+      "name": "Gather evidence (card analytics)",
+      "tool": null,
+      "args": {
+        "device_ctx": "MacOS | Mac OS X 10_8_5 | chrome 49.0 | 1280x800"
+      },
+      "summary": "pattern undocumented (structuring: several online purchases within an hour, each just under $500); 4 episode txn(s), exposure $1,935.29; 2 prosecution / 1 defence items",
+      "ms": 1
+    },
+    {
+      "step": 4,
+      "name": "Assess uncertainty",
+      "tool": null,
+      "args": {
+        "fraud_probability": 0.9,
+        "verdict": "fraud"
+      },
+      "summary": "probability 0.90, verdict fraud, 2 independent evidence, single_signal=False, conflicts=False; initial: BLOCK_CARD, CREATE_CASE, FILE_REPORT",
+      "ms": 0
+    },
+    {
+      "step": 5,
+      "name": "Evidence gate",
+      "tool": null,
+      "args": {},
+      "summary": "no response to any warranted request changes the actions: stop",
+      "ms": 0
+    },
+    {
+      "step": 6,
+      "name": "Next best actions",
+      "tool": null,
+      "args": {
+        "final": [
+          "BLOCK_CARD",
+          "CREATE_CASE",
+          "FILE_REPORT"
+        ]
+      },
+      "summary": "executed (auto): CREATE_CASE; awaiting approval: BLOCK_CARD (L1), FILE_REPORT (L2)",
+      "ms": 0
+    },
+    {
+      "step": 7,
+      "name": "GraphRAG retrieval",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "queries": [
+          "similar_cases",
+          "search_docs"
+        ],
+        "calls": 3
+      },
+      "summary": "3 similar case(s), 7 passage(s)",
+      "ms": 9439
+    },
+    {
+      "step": 7,
+      "name": "Explain decision",
+      "tool": "llm",
+      "args": {
+        "fallback": []
+      },
+      "summary": "LLM text validated",
+      "ms": 4094
+    },
+    {
+      "step": 8,
+      "name": "Update case memory",
+      "tool": "tigergraph__add_node",
+      "args": {
+        "vertex": "AgentCase",
+        "id": "CASE-SEN-004",
+        "edges": 12
+      },
+      "summary": "wrote CASE-SEN-004",
+      "ms": 3393
+    }
+  ],
+  "hypotheses": {
+    "prosecution": [
+      {
+        "claim": "4 card txns from 2016-11-25 21:00:00 to 2016-11-25 21:21:00 form one episode (grouped by the episode model fitted on closed cases, gaps under 48 h), total $1,935.29",
+        "score": 0.5,
+        "entity_ids": [
+          "3487284",
+          "3487318",
+          "3487340",
+          "3487348"
+        ],
+        "ref": "query:card_history(card_id=C03633-K1, window=60d)"
+      },
+      {
+        "claim": "4 online purchases within 21 minutes, each just under $500 ($488.31, $489.91, $479.33, $477.74): amounts kept under an authorization threshold",
+        "score": 0.9,
+        "entity_ids": [
+          "3487284",
+          "3487318",
+          "3487340",
+          "3487348"
+        ],
+        "ref": "query:card_history(card_id=C03633-K1, window=60d)"
+      }
+    ],
+    "defence": [
+      {
+        "claim": "Closed-case classifier scores flagged txn 3487348 at 0.16, in line with this card's legitimate history (bank risk score 0.15 is often high on false alarms)",
+        "score": 0.84,
+        "entity_ids": [
+          "3487348"
+        ],
+        "ref": "model:closed_case_classifier"
+      }
+    ]
+  },
+  "probability": {
+    "initial": 0.9,
+    "final": 0.9,
+    "features": {
+      "logit_flag": -1.6734,
+      "logit_ep_max": -1.3776,
+      "logit_ep_mean": -1.7089,
+      "log_ep_n": 1.3863,
+      "trip_signature": 0.0,
+      "new_phone_signature": 0.0,
+      "card_testing": 0.0,
+      "structuring": 1.0,
+      "ring": 0.0
+    }
+  },
+  "evidence_gate": null,
+  "graph": {
+    "nodes": [
+      {
+        "id": "C03633",
+        "type": "Customer",
+        "label": "C03633",
+        "flag": "subject"
+      },
+      {
+        "id": "C03633-K1",
+        "type": "Card",
+        "label": "C03633-K1",
+        "flag": "subject"
+      },
+      {
+        "id": "3487348",
+        "type": "Transaction",
+        "label": "3487348 $477.74",
+        "flag": "suspicious"
+      },
+      {
+        "id": "MacOS | Mac OS X 10_8_5 | chrome 49.0 | 1280x800",
+        "type": "DeviceProfile",
+        "label": "MacOS | Mac OS X 10_8_5 | chrome 49.0 | 1280x800",
+        "flag": "normal"
+      },
+      {
+        "id": "region 191.0",
+        "type": "BillingRegion",
+        "label": "region 191.0",
+        "flag": "normal"
+      },
+      {
+        "id": "3487284",
+        "type": "Transaction",
+        "label": "3487284 $488.31",
+        "flag": "suspicious"
+      },
+      {
+        "id": "3487318",
+        "type": "Transaction",
+        "label": "3487318 $489.91",
+        "flag": "suspicious"
+      },
+      {
+        "id": "3487340",
+        "type": "Transaction",
+        "label": "3487340 $479.33",
+        "flag": "suspicious"
+      },
+      {
+        "id": "C03405-K2",
+        "type": "Card",
+        "label": "C03405-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C04514-K1",
+        "type": "Card",
+        "label": "C04514-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C00452-K2",
+        "type": "Card",
+        "label": "C00452-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C06923-K2",
+        "type": "Card",
+        "label": "C06923-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C03271-K1",
+        "type": "Card",
+        "label": "C03271-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C03231-K2",
+        "type": "Card",
+        "label": "C03231-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C00877-K1",
+        "type": "Card",
+        "label": "C00877-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C09405-K1",
+        "type": "Card",
+        "label": "C09405-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C02848-K1",
+        "type": "Card",
+        "label": "C02848-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C10855-K1",
+        "type": "Card",
+        "label": "C10855-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C09476-K1",
+        "type": "Card",
+        "label": "C09476-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C06446-K1",
+        "type": "Card",
+        "label": "C06446-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "CASE-SEN-005",
+        "type": "AgentCase",
+        "label": "CASE-SEN-005",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CASE-SEN-004",
+        "type": "AgentCase",
+        "label": "CASE-SEN-004",
+        "flag": "subject"
+      },
+      {
+        "id": "CASE-SEN-011",
+        "type": "AgentCase",
+        "label": "CASE-SEN-011",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CASE-SEN-008",
+        "type": "AgentCase",
+        "label": "CASE-SEN-008",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CASE-SEN-013",
+        "type": "AgentCase",
+        "label": "CASE-SEN-013",
+        "flag": "suspicious"
+      }
+    ],
+    "edges": [
+      {
+        "src": "C03633",
+        "dst": "C03633-K1",
+        "type": "OWNS"
+      },
+      {
+        "src": "C03633-K1",
+        "dst": "3487348",
+        "type": "MADE"
+      },
+      {
+        "src": "3487348",
+        "dst": "MacOS | Mac OS X 10_8_5 | chrome 49.0 | 1280x800",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "3487348",
+        "dst": "region 191.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C03633-K1",
+        "dst": "3487284",
+        "type": "MADE"
+      },
+      {
+        "src": "3487284",
+        "dst": "MacOS | Mac OS X 10_8_5 | chrome 49.0 | 1280x800",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "3487284",
+        "dst": "region 191.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C03633-K1",
+        "dst": "3487318",
+        "type": "MADE"
+      },
+      {
+        "src": "3487318",
+        "dst": "MacOS | Mac OS X 10_8_5 | chrome 49.0 | 1280x800",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "3487318",
+        "dst": "region 191.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C03633-K1",
+        "dst": "3487340",
+        "type": "MADE"
+      },
+      {
+        "src": "3487340",
+        "dst": "MacOS | Mac OS X 10_8_5 | chrome 49.0 | 1280x800",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "3487340",
+        "dst": "region 191.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C03633-K1",
+        "dst": "MacOS | Mac OS X 10_8_5 | chrome 49.0 | 1280x800",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C03405-K2",
+        "dst": "MacOS | Mac OS X 10_8_5 | chrome 49.0 | 1280x800",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C04514-K1",
+        "dst": "MacOS | Mac OS X 10_8_5 | chrome 49.0 | 1280x800",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C00452-K2",
+        "dst": "region 191.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C06923-K2",
+        "dst": "region 191.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C03271-K1",
+        "dst": "region 191.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C03231-K2",
+        "dst": "region 191.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C00877-K1",
+        "dst": "region 191.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C09405-K1",
+        "dst": "region 191.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C02848-K1",
+        "dst": "region 191.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C10855-K1",
+        "dst": "region 191.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C09476-K1",
+        "dst": "region 191.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C06446-K1",
+        "dst": "region 191.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "CASE-SEN-005",
+        "dst": "C03633-K1",
+        "type": "ON_CARD"
+      },
+      {
+        "src": "CASE-SEN-004",
+        "dst": "C03633-K1",
+        "type": "ON_CARD"
+      },
+      {
+        "src": "CASE-SEN-004",
+        "dst": "CASE-SEN-011",
+        "type": "SIMILAR_TO"
+      },
+      {
+        "src": "CASE-SEN-004",
+        "dst": "CASE-SEN-008",
+        "type": "SIMILAR_TO"
+      },
+      {
+        "src": "CASE-SEN-004",
+        "dst": "CASE-SEN-013",
+        "type": "SIMILAR_TO"
+      }
+    ]
+  },
+  "rag_context": "CASE\nSEN-004 opened 2016-11-25 23:21:00 by analyst_request trigger: \"Sentinel sweep (near_threshold_scan): card C03633-K1 made 4 online purchases between $450 and $500 within 21 minutes on 2016-11-25 (transactions 3487284, 3487318, 3487340, 3487348), amounts kept just under a $500 threshold. Review transaction 3487348 and look for related activity.\"\nFlagged txn 3487348 on card C03633-K1 (customer C03633).\nGraph analysis: pattern undocumented (structuring: several online purchases within an hour, each just under $500); fraud probability 0.90; verdict fraud; 4 affected txns, first 3487284, exposure $1,935.29.\n\nGRAPH EVIDENCE\n- Device profile MacOS | Mac OS X 10_8_5 | chrome 49.0 | 1280x800 was used by 2 other card(s) in the 30 days before the alert (0 as a New device; 14 cards ever); their cases: CC-0248, CC-1858, CC-3531, CC-3811 (query:device_neighbors(device_id=MacOS | Mac OS X 10_8_5 | chrome 49.0 | 1280x800, window=30d))\n- 13 card(s) made their first purchase in billing region 191.0 in the 7 days before the alert (4 linked to cases; 1033 cards ever billed there) (query:region_cluster(region=191.0, window=7d))\n- Customer C03633 cards: C03633-K1; prior cases on them: CASE-SEN-005 (agent_fraud, undocumented) (query:customer_cases)\n- [prosecution 0.50] 4 card txns from 2016-11-25 21:00:00 to 2016-11-25 21:21:00 form one episode (grouped by the episode model fitted on closed cases, gaps under 48 h), total $1,935.29 (ref: query:card_history(card_id=C03633-K1, window=60d); ids: 3487284, 3487318, 3487340, 3487348)\n- [prosecution 0.90] 4 online purchases within 21 minutes, each just under $500 ($488.31, $489.91, $479.33, $477.74): amounts kept under an authorization threshold (ref: query:card_history(card_id=C03633-K1, window=60d); ids: 3487284, 3487318, 3487340, 3487348)\n- [defence 0.84] Closed-case classifier scores flagged txn 3487348 at 0.16, in line with this card's legitimate history (bank risk score 0.15 is often high on false alarms) (ref: model:closed_case_classifier; ids: 3487348)\n\nSIMILAR PAST CASES (vector search over closed and agent cases; same pattern first)\n- [CASE-SEN-011] AgentCase fraud, pattern undocumented, distance 0.079: Case SEN-011 was opened following a Sentinel sweep on 2016-11-21 after card [other id] executed four online purchases totaling $1,860.43 within 24 minutes. Graph analysis confirmed a fraud probability of 0.93 due to structuring tactics keeping amounts just under the $500 threshold. The closed-case classifier ...\n- [CASE-SEN-008] AgentCase fraud, pattern undocumented, distance 0.089: Case SEN-008 was opened following a Sentinel sweep on card [other id] for four online purchases totaling $1,926.93 made within a 24-minute window on 2016-11-21. Each transaction was kept just under the $500 threshold, matching an undocumented structuring pattern. Graph analysis assessed a fraud probability ...\n- [CASE-SEN-013] AgentCase fraud, pattern undocumented, distance 0.102: Case SEN-013 was opened on 2016-11-21 via a Sentinel sweep targeting card [other id] belonging to customer [other id]. The investigation revealed an undocumented pattern of structuring, consisting of 4 online purchases made within 30 minutes on 2016-11-21 with amounts kept just under $500, totaling ...\n\nPOLICY & GUIDANCE\n- [POLICY-R1] R1. Verify before you block on a weak signal: R1. Verify before you block on a weak signal. If the case rests on a single signal (including a risk score alone) and your assessed fraud probability is below 0.70, recommend VERIFY_WITH_CUSTOMER or STEP_UP_AUTH before any block. Blocking a legitimate customer on one signal is a policy breach. Related actions (\u00a71): VERIFY_WITH_CUSTOMER -- ask the cardholder whether they made the transaction; the card stays active pending reply (low customer impact, ...\n- [PATTERN-card_not_present_fraud] Card-not-present fraud: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 2. Card-not-present fraud. The number is used online without the card. Amounts and products that don't fit the cardholder's history, often in a burst of two to four within 48 hours. On its ...\n- [PATTERN-card_testing] Card testing: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 1. Card testing. A stolen card number is checked before use: three or more tiny online authorizations, often under $5, then a larger purchase. Confirmed by the sequence itself. Policy R5.\n- [POLICY-R3] R3. Customer confirms the transaction: R3. Customer confirms the transaction. Recommend CLOSE_NO_FRAUD. Note the confirmation in the case file. Compare R2, where the customer instead denies the transaction and the agent recommends BLOCK_CARD and CREATE_CASE. Related action (\u00a71): CLOSE_NO_FRAUD -- close the alert as legitimate (no customer impact, route auto). Per the Answer Format notes, for a legitimate verdict affected_txn_ids is empty, exposure_usd is 0, and sar.file is false.\n- [PATTERN-account_takeover] Account takeover: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 5. Account takeover. Mixed-channel activity inconsistent with the cardholder, often with device and match-flag anomalies, pointing to stolen credentials rather than a stolen number. The README glossary defines an identity record as the ...\n- [POLICY-R5] R5. Card testing: R5. Card testing. Three or more small online authorizations on one card within an hour, followed by a larger purchase: recommend DECLINE_TRANSACTION and STEP_UP_AUTH. If a purchase over $100 has already cleared, recommend BLOCK_CARD. Related actions (\u00a71): DECLINE_TRANSACTION -- decline the flagged authorization only, card stays active (route L1). STEP_UP_AUTH -- require a one-time passcode or app confirmation before further activity (route auto). BLOCK_CARD -- block this card and reissue ...\n- [FATF-CYBERFRAUD-04] Red flags: transaction patterns: FATF's Annex A on cyber-enabled fraud risk indicators lists transaction-pattern red flags including: rapid or immediate high- or low-value transactions after an account is opened, inconsistent with the account's stated purpose; rapid cash withdrawals or transfers of large amounts immediately after receiving a funds transfer, effectively emptying the account; frequent, large transactions inconsistent with the account holder's economic profile, such as sudden international transfers or cash withdrawals through payment cards ...\n\nINSTRUCTIONS\nUse only the facts above. Cite the ids in square brackets and the txn/card/device ids shown; never invent an id, amount or date. Past cases are memory, not this customer's activity: their ids are not connected cards. The bank risk score is not a verdict. Actions come from the policy engine: explain them, do not change them."
+}

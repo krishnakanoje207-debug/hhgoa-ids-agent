@@ -1,0 +1,115 @@
+USE GRAPH FraudGraph
+
+# 1. Everything a card did in a time window, with the device/proxy/new-device flags from FROM_DEVICE.
+CREATE OR REPLACE QUERY card_history(STRING card_id, DATETIME t_from, DATETIME t_to) FOR GRAPH FraudGraph {
+  SetAccum<STRING> @device, @dev_status, @proxy;
+  SetAccum<VERTEX> @@seed;
+  @@seed += to_vertex(card_id, "Card");
+  Start = {@@seed};
+  T = SELECT t FROM Start:c -(MADE)- Txn:t WHERE t.ts >= t_from AND t.ts <= t_to;
+  D = SELECT t FROM T:t -(FROM_DEVICE:e)- DeviceProfile:d
+      ACCUM t.@device += d.id, t.@dev_status += e.dev_status, t.@proxy += e.proxy_type;
+  PRINT T AS txns;
+}
+
+# 2. Who else used this device profile: cards in the window, their activity, and their past cases.
+CREATE OR REPLACE QUERY device_neighbors(STRING device_id, DATETIME t_from, DATETIME t_to) FOR GRAPH FraudGraph {
+  OrAccum @in_win;
+  SetAccum<STRING> @status, @proxy, @txns, @cases;
+  SumAccum<INT> @n, @n_new;
+  SumAccum<DOUBLE> @amt;
+  MinAccum<DATETIME> @first;
+  MaxAccum<DATETIME> @last;
+  SetAccum<VERTEX> @@seed;
+  SumAccum<INT> @@ever_txns;
+  @@seed += to_vertex(device_id, "DeviceProfile");
+  Dev = {@@seed};
+  T = SELECT t FROM Dev:d -(FROM_DEVICE:e)- Txn:t
+      ACCUM @@ever_txns += 1,
+            IF t.ts >= t_from AND t.ts <= t_to THEN t.@in_win += TRUE, t.@status += e.dev_status, t.@proxy += e.proxy_type END;
+  Ever = SELECT c FROM T:t -(MADE)- Card:c;
+  C = SELECT c FROM T:t -(MADE)- Card:c WHERE t.@in_win
+      ACCUM c.@n += 1, c.@amt += t.amount, c.@first += t.ts, c.@last += t.ts, c.@txns += t.id,
+            c.@proxy += t.@proxy,
+            IF t.@status.contains("New") THEN c.@n_new += 1 END;
+  K = SELECT k FROM C:c -((ON_CARD|CONNECTED_TO))- (ClosedCase|AgentCase):k
+      ACCUM c.@cases += k.id;
+  PRINT @@ever_txns AS ever_txns, Ever.size() AS ever_cards;
+  PRINT C AS cards;
+}
+
+# 3. Region context: when each card first appeared in a billing region, and which cards are new to it in a window (R6 region cluster).
+CREATE OR REPLACE QUERY region_cluster(STRING region, DATETIME t_from, DATETIME t_to) FOR GRAPH FraudGraph {
+  MinAccum<DATETIME> @first;
+  SumAccum<INT> @n_win;
+  SumAccum<DOUBLE> @amt_win;
+  SetAccum<STRING> @cases, @channels;
+  SetAccum<VERTEX> @@seed;
+  @@seed += to_vertex(region, "Region");
+  R = {@@seed};
+  T = SELECT t FROM R:r -(BILLED_IN)- Txn:t;
+  C = SELECT c FROM T:t -(MADE)- Card:c
+      ACCUM c.@first += t.ts,
+            IF t.ts >= t_from AND t.ts <= t_to THEN c.@n_win += 1, c.@amt_win += t.amount, c.@channels += t.channel END;
+  NewCards = SELECT c FROM C:c WHERE c.@first >= t_from AND c.@first <= t_to;
+  K = SELECT k FROM NewCards:c -((ON_CARD|CONNECTED_TO))- (ClosedCase|AgentCase):k ACCUM c.@cases += k.id;
+  PRINT T.size() AS region_txns, C.size() AS region_cards;
+  PRINT NewCards AS new_cards;
+}
+
+# 4. The customer's cards and every closed / agent case on them (case memory, R10).
+CREATE OR REPLACE QUERY customer_cases(STRING customer_id) FOR GRAPH FraudGraph {
+  SetAccum<STRING> @cards;
+  SetAccum<VERTEX> @@seed;
+  @@seed += to_vertex(customer_id, "Customer");
+  Cu = {@@seed};
+  C = SELECT c FROM Cu:cu -(OWNS)- Card:c;
+  K = SELECT k FROM C:c -((ON_CARD|CONNECTED_TO))- (ClosedCase|AgentCase):k ACCUM k.@cards += c.id;
+  PRINT C AS cards;
+  PRINT K AS cases;
+}
+
+# 5. GraphRAG: nearest past cases (bank history + the agent's own earlier cases) by embedding.
+CREATE OR REPLACE QUERY similar_cases(LIST<FLOAT> qv, INT k) FOR GRAPH FraudGraph {
+  MapAccum<VERTEX, FLOAT> @@dist;
+  V = vectorSearch({ClosedCase.emb, AgentCase.emb}, qv, k, {distance_map: @@dist});
+  PRINT V;
+  PRINT @@dist AS distances;
+}
+
+# 6. GraphRAG: nearest policy / pattern / regulatory passages by embedding.
+CREATE OR REPLACE QUERY search_docs(LIST<FLOAT> qv, INT k) FOR GRAPH FraudGraph {
+  MapAccum<VERTEX, FLOAT> @@dist;
+  V = vectorSearch({Doc.emb}, qv, k, {distance_map: @@dist});
+  PRINT V;
+  PRINT @@dist AS distances;
+}
+
+# 7. Typology discovery: device profiles that turned up as New on several cards in one window.
+CREATE OR REPLACE QUERY device_ring_scan(DATETIME t_from, DATETIME t_to, INT min_cards) FOR GRAPH FraudGraph {
+  MaxAccum<STRING> @card;
+  SetAccum<STRING> @new_cards, @proxies, @txns;
+  SumAccum<DOUBLE> @amt;
+  SetAccum<VERTEX> @@all_cards;
+  T = {Txn.*};
+  T = SELECT t FROM T:t WHERE t.ts >= t_from AND t.ts <= t_to AND t.channel == "online";
+  T = SELECT t FROM T:t -(MADE)- Card:c ACCUM t.@card += c.id;
+  D = SELECT d FROM T:t -(FROM_DEVICE:e)- DeviceProfile:d
+      WHERE e.dev_status == "New"
+      ACCUM d.@new_cards += t.@card, d.@proxies += e.proxy_type, d.@txns += t.id, d.@amt += t.amount
+      HAVING d.@new_cards.size() >= min_cards;
+  PRINT D AS devices;
+}
+
+# 8. Structuring scan: online purchases just under a threshold, grouped by card (sentinel mode).
+CREATE OR REPLACE QUERY near_threshold_scan(DATETIME t_from, DATETIME t_to, DOUBLE lo, DOUBLE hi, INT min_txns) FOR GRAPH FraudGraph {
+  ListAccum<STRING> @txns;
+  ListAccum<DATETIME> @times;
+  SumAccum<DOUBLE> @amt;
+  T = {Txn.*};
+  T = SELECT t FROM T:t WHERE t.ts >= t_from AND t.ts <= t_to AND t.amount >= lo AND t.amount < hi AND t.channel == "online";
+  C = SELECT c FROM T:t -(MADE)- Card:c
+      ACCUM c.@txns += t.id, c.@times += t.ts, c.@amt += t.amount
+      HAVING c.@txns.size() >= min_txns;
+  PRINT C AS cards;
+}

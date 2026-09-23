@@ -1,0 +1,263 @@
+{
+  "case_id": "HHG-018",
+  "case": {
+    "status": "escalated",
+    "verdict": "uncertain",
+    "fraud_probability": 0.673,
+    "pattern": "out_of_region_use",
+    "pattern_description": "",
+    "affected_txn_ids": [
+      "3491361"
+    ],
+    "first_suspicious_txn_id": "3491361",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 39.08,
+    "evidence": [
+      {
+        "claim": "Card-present use in billing region 126.0; the customer's home region is 325.0 (199 earlier txns there)",
+        "source": "graph",
+        "ref": "query:region_history(customer_id=C02354)",
+        "entity_ids": [
+          "3491361"
+        ]
+      },
+      {
+        "claim": "Customer has 19 earlier confirmed fraud case(s): CC-5558, CC-0454, CC-2432, CC-2051, CC-0631",
+        "source": "graph",
+        "ref": "query:customer_cases",
+        "entity_ids": [
+          "CC-5558",
+          "CC-0454",
+          "CC-2432",
+          "CC-2051",
+          "CC-0631"
+        ]
+      },
+      {
+        "claim": "Prior transactions 3333448, 3345735, 3351986, and 3364912 on the account associated with transaction 3491361 appear in confirmed fraud cases CC-4436, CC-4721, and CC-4942.",
+        "source": "graph",
+        "ref": "query:customer_cases + get_neighbors(ClosedCase-INVOLVES-Txn)",
+        "entity_ids": [
+          "CC-4436",
+          "CC-4721",
+          "CC-4942",
+          "3333448",
+          "3345735",
+          "3351986",
+          "3364912"
+        ]
+      },
+      {
+        "claim": "Closed-case classifier scores flagged txn 3491361 at 0.39, in line with this card's legitimate history (bank risk score 0.48 is often high on false alarms)",
+        "source": "graph",
+        "ref": "model:closed_case_classifier",
+        "entity_ids": [
+          "3491361"
+        ]
+      },
+      {
+        "claim": "Card-present purchases occurred in billing region 126.0 across 55 separate days while 1919 transactions continued normally in home region 325.0.",
+        "source": "graph",
+        "ref": "query:region_history(customer_id=C02354)",
+        "entity_ids": [
+          "3307974",
+          "3308024",
+          "3309706",
+          "3309755",
+          "3310622",
+          "3311819"
+        ]
+      },
+      {
+        "claim": "The disputed $39.08 transaction 3491361 matches previous recurring monthly charges of the same amount and product, specifically transactions 3309755, 3322872, 3327042, and 3329055.",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C02354-K2, window=60d)",
+        "entity_ids": [
+          "3491361",
+          "3309755",
+          "3322872",
+          "3327042",
+          "3329055"
+        ]
+      },
+      {
+        "claim": "Device profile Windows | Windows 7 | chrome generic | 1680x1050 was utilized by 1 other card in the 30 days prior to the alert and appears in cases CC-0023, CC-0048, CC-0498, CC-0711, CC-1005, and CC-1263.",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id=Windows | Windows 7 | chrome generic | 1680x1050, window=30d)",
+        "entity_ids": [
+          "C11309-K1",
+          "CC-0023",
+          "CC-0048",
+          "CC-0498",
+          "CC-0711",
+          "CC-1005",
+          "CC-1263"
+        ]
+      },
+      {
+        "claim": "A total of 20 cards recorded their first purchase in billing region 126.0 within the 7 days preceding the alert.",
+        "source": "graph",
+        "ref": "query:region_cluster(region=126.0, window=7d)",
+        "entity_ids": [
+          "C12992-K1",
+          "C08407-K1",
+          "C00704-K1",
+          "C04309-K2",
+          "C06343-K1",
+          "C10782-K1",
+          "C03697-K1",
+          "C11609-K1",
+          "C05360-K1",
+          "C08333-K1"
+        ]
+      },
+      {
+        "claim": "A total of 26 cards recorded their first purchase in billing region 325.0 within the 7 days preceding the alert.",
+        "source": "graph",
+        "ref": "query:region_cluster(region=325.0, window=7d)",
+        "entity_ids": [
+          "C00180-K1",
+          "C12643-K1",
+          "C13196-K1",
+          "C08511-K2",
+          "C12024-K1",
+          "C06939-K1",
+          "C02647-K1",
+          "C01688-K1",
+          "C05124-K1",
+          "C11513-K1"
+        ]
+      },
+      {
+        "claim": "Customer C02354 disputed transaction 3491361 via message stating they never made the $39.08 purchase.",
+        "source": "customer",
+        "ref": "case_pack:trigger_text",
+        "entity_ids": [
+          "3491361",
+          "C02354"
+        ]
+      },
+      {
+        "claim": "No response has been assumed yet for the analyst information request as the evidence remains balanced.",
+        "source": "external",
+        "ref": "evidence_request:1",
+        "entity_ids": []
+      },
+      {
+        "claim": "Similar historical cases retrieved include CC-3744, CC-5287, CC-4996, CC-5442, CC-5246, and CC-1725 under the out-of-region use pattern.",
+        "source": "graph",
+        "ref": "query:similar_cases",
+        "entity_ids": [
+          "CC-3744",
+          "CC-5287",
+          "CC-4996",
+          "CC-5442",
+          "CC-5246",
+          "CC-1725"
+        ]
+      },
+      {
+        "claim": "Fraud Policy R7 applies to disputed charges matching recurring patterns, supporting VERIFY_WITH_CUSTOMER, CREATE_CASE, and WARN_CUSTOMER actions.",
+        "source": "document",
+        "ref": "POLICY-R7",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R8 applies when verdicts are uncertain with conflicting evidence, supporting ESCALATE_TO_ANALYST.",
+        "source": "document",
+        "ref": "POLICY-R8",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R3 governs customer transaction confirmations.",
+        "source": "document",
+        "ref": "POLICY-R3",
+        "entity_ids": []
+      },
+      {
+        "claim": "Relevant typologies and regulatory guidance include out-of-region use, card-not-present fraud, card-not-present fraud from a new device, and card testing.",
+        "source": "document",
+        "ref": "PATTERN-out_of_region_use, PATTERN-card_not_present_fraud, PATTERN-card_not_present_new_device, PATTERN-card_testing",
+        "entity_ids": []
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-3744",
+      "CC-5287",
+      "CC-4996",
+      "CC-5442",
+      "CC-5246",
+      "CC-1725"
+    ],
+    "summary": "Customer C02354 reported an unrecognized charge of $39.08 on card C02354-K2 via transaction 3491361, which occurred in billing region 126.0 while their home region is 325.0. Graph analysis flagged out_of_region_use with a fraud probability of 0.67 and an uncertain verdict due to conflicting prosecution and defense evidence. Specifically, the disputed charge matches the customer's prior recurring monthly pattern involving earlier transactions 3309755, 3322872, 3327042, and 3329055. Because the verdict is uncertain and the evidence conflicts, policy R8 recommends escalation, while policy R7 recommends verifying the recurring charge with the customer, creating a case, and warning the customer.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-HHG-018"
+  },
+  "evidence_requests": [
+    {
+      "type": "analyst_info",
+      "asked_after_step": 4,
+      "assumed_response": "No response assumed yet: the evidence is balanced (probability 0.67), so the agent does not presume the analyst_info outcome; the case stays open until it arrives."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R7: confirm the recurring charge with the customer; do not block"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "R7: disputed charge matches the customer's recurring pattern; §3a: customer disputed a charge"
+      },
+      {
+        "action": "WARN_CUSTOMER",
+        "route": "auto",
+        "reason": "R7: send a recurring-charge reminder"
+      },
+      {
+        "action": "ESCALATE_TO_ANALYST",
+        "route": "auto",
+        "reason": "R8: prosecution and defence evidence conflict"
+      }
+    ],
+    "final": [
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R7: confirm the recurring charge with the customer; do not block"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "R7: disputed charge matches the customer's recurring pattern; §3a: customer disputed a charge"
+      },
+      {
+        "action": "WARN_CUSTOMER",
+        "route": "auto",
+        "reason": "R7: send a recurring-charge reminder"
+      },
+      {
+        "action": "ESCALATE_TO_ANALYST",
+        "route": "auto",
+        "reason": "R8: prosecution and defence evidence conflict"
+      }
+    ],
+    "what_changed": "nothing"
+  },
+  "sar": {
+    "file": false,
+    "reason": "§3a: no report; fraud is not confirmed or strongly suspected",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0,
+    "activity_dates": []
+  },
+  "stop_reason": "§3b/§5: ESCALATE_TO_ANALYST is recommended and the analyst_info response changes the actions (fraud -> VERIFY_WITH_CUSTOMER, CREATE_CASE, WARN_CUSTOMER; legitimate -> VERIFY_WITH_CUSTOMER, CREATE_CASE, WARN_CUSTOMER)",
+  "tool_calls": 19,
+  "tokens": 8820,
+  "latency_s": 32.4
+}

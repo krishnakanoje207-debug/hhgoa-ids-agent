@@ -1,0 +1,191 @@
+{
+  "case_id": "SEN-015",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.9,
+    "pattern": "undocumented",
+    "pattern_description": "The pattern involves structuring transactions with several online purchases executed within a short time frame, each kept just under the $500 authorization threshold. This activity affects cardholders by draining funds through rapid micro-bursts of spending. It was found via Sentinel sweeps identifying near-threshold transaction patterns.",
+    "affected_txn_ids": [
+      "3483817",
+      "3483854",
+      "3483876",
+      "3483895"
+    ],
+    "first_suspicious_txn_id": "3483817",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 1906.11,
+    "evidence": [
+      {
+        "claim": "Four card transactions from 2016-11-24 17:00:00 to 2016-11-24 17:21:00 form one episode totaling $1,906.11.",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C10751-K1, window=60d)",
+        "entity_ids": [
+          "3483817",
+          "3483854",
+          "3483876",
+          "3483895"
+        ]
+      },
+      {
+        "claim": "Four online purchases within 21 minutes were kept under the authorization threshold with amounts of $464.46, $488.58, $477.85, and $475.22.",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C10751-K1, window=60d)",
+        "entity_ids": [
+          "3483817",
+          "3483854",
+          "3483876",
+          "3483895"
+        ]
+      },
+      {
+        "claim": "1 episode txn(s) came from a device marked New for this account (Trident/7.0 | Windows 10 | ie 11.0 for desktop | 1920x1080); the flagged device was never seen on this card before",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C10751-K1, window=60d)",
+        "entity_ids": [
+          "3483817"
+        ]
+      },
+      {
+        "claim": "The closed-case classifier scored flagged transaction 3483895 at 0.07, while the bank risk score was 0.21.",
+        "source": "graph",
+        "ref": "model:closed_case_classifier",
+        "entity_ids": [
+          "3483895"
+        ]
+      },
+      {
+        "claim": "Device profile Windows | Windows 10 | chrome 63.0 | was used by 0 other cards in the 30 days prior and 113 cards ever.",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id=Windows | Windows 10 | chrome 63.0 | , window=30d)",
+        "entity_ids": []
+      },
+      {
+        "claim": "Device profile Windows | Windows 10 | edge 16.0 | 3440x1440 was used by 0 other cards in the 30 days prior and 2 cards ever.",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id=Windows | Windows 10 | edge 16.0 | 3440x1440, window=30d)",
+        "entity_ids": []
+      },
+      {
+        "claim": "Device profile Trident/7.0 | Windows 10 | ie 11.0 for desktop | 1920x1080 was used by 40 other cards in the 30 days prior and 253 cards ever, associated with cases CASE-HHG-014, CC-0045, CC-0063, CC-0090, CC-0091, and CC-0118.",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id=Trident/7.0 | Windows 10 | ie 11.0 for desktop | 1920x1080, window=30d)",
+        "entity_ids": [
+          "C08605-K1",
+          "C01138-K2",
+          "C03080-K2",
+          "C03218-K2",
+          "C03484-K1",
+          "C03169-K1",
+          "C05560-K2",
+          "C08913-K2",
+          "C07196-K2",
+          "C11159-K1",
+          "CC-0045",
+          "CC-0063",
+          "CC-0090",
+          "CC-0091",
+          "CC-0118",
+          "CC-0120"
+        ]
+      },
+      {
+        "claim": "Nearest cases in case memory include CASE-SEN-008, which involved fraud and an undocumented pattern.",
+        "source": "graph",
+        "ref": "query:similar_cases",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R1 regarding verification before blocking on weak signals served as guidance for evaluating the BLOCK_CARD action.",
+        "source": "document",
+        "ref": "POLICY-R1",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R3 concerning customer transaction confirmation was retrieved as contextual reference.",
+        "source": "document",
+        "ref": "POLICY-R3",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy actions that agents may recommend were retrieved as context for decision-making.",
+        "source": "document",
+        "ref": "POLICY-S1-ACTIONS",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R5 concerning card testing was retrieved as contextual reference.",
+        "source": "document",
+        "ref": "POLICY-R5",
+        "entity_ids": []
+      },
+      {
+        "claim": "Typology and regulatory guidance covering card-not-present fraud, card testing, and account takeover were retrieved as context.",
+        "source": "document",
+        "ref": "PATTERN-card_not_present_fraud, PATTERN-card_testing, PATTERN-account_takeover",
+        "entity_ids": []
+      }
+    ],
+    "similar_prior_cases": [],
+    "summary": "Case SEN-015 was opened on 2016-11-24 following a Sentinel sweep on card C10751-K1 belonging to customer C10751. The investigation revealed four online purchases made within 21 minutes, each structured just under the $500 authorization threshold for a total exposure of $1,906.11. With a fraud probability of 0.90, the verdict is confirmed as fraud. Recommended actions include blocking the card, creating a case, and filing a report.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-SEN-015"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R1 not triggered: 3 independent signals at probability 0.90; exposure $1,906.11 is under $2,500 (\u00a72)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "\u00a73a: fraud probability 0.90 reaches 0.30"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,906.11 exceeds $1,000"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R1 not triggered: 3 independent signals at probability 0.90; exposure $1,906.11 is under $2,500 (\u00a72)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "\u00a73a: fraud probability 0.90 reaches 0.30"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,906.11 exceeds $1,000"
+      }
+    ],
+    "what_changed": "nothing"
+  },
+  "sar": {
+    "file": true,
+    "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,906.11 exceeds $1,000",
+    "narrative": "Customer C10751 utilizing card C10751-K1 was identified in a suspicious transaction pattern involving unauthorized online activity. A series of four fraudulent online purchases totaling $1,906.11 was executed across the affected account. The activity occurred on 2016-11-24 between 17:00:00 and 17:21:00. Transactions were conducted via online channels from specific regional and device profiles. The perpetrator utilized structured amounts just under the $500 threshold to evade immediate authorization blocks. This activity is highly suspicious due to the rapid succession of near-limit transactions and the deployment of new device profiles. No connected cards were identified in this specific incident. Recommended actions include blocking the card and filing a regulatory report.",
+    "subjects": [
+      "C10751",
+      "C10751-K1"
+    ],
+    "total_amount_usd": 1906.11,
+    "activity_dates": [
+      "2016-11-24",
+      "2016-11-24"
+    ]
+  },
+  "stop_reason": "\u00a76: probability 0.90 is decisive and rests on 3 independent pieces of evidence",
+  "tool_calls": 13,
+  "tokens": 5881,
+  "latency_s": 19.6
+}

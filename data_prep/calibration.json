@@ -1,0 +1,35 @@
+{
+  "episode_score": 0.5,
+  "member_coef": [
+    0.618,
+    0.5733,
+    0.0574,
+    0.7462,
+    0.4534,
+    0.6772,
+    0.3781,
+    1.0295,
+    -0.3274,
+    -0.7178,
+    0.2567,
+    -0.0741,
+    -0.8876
+  ],
+  "member_intercept": -0.8349,
+  "member_tau": 0.4,
+  "episode_gap_h": 48,
+  "episode_days": 10,
+  "coef": {
+    "logit_flag": 0.3515,
+    "logit_ep_max": -0.1472,
+    "logit_ep_mean": 0.4744,
+    "log_ep_n": 0.8665,
+    "new_phone_signature": -1.4794
+  },
+  "intercept": 2.2564,
+  "prior_shift": -1.2319,
+  "fraud_at": 0.85,
+  "legit_at": 0.15,
+  "fit_on": "2856 closed cases opened before 2016-09-01",
+  "train_base_rate": 0.7742
+}

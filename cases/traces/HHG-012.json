@@ -1,0 +1,764 @@
+{
+  "case_id": "HHG-012",
+  "trigger": {
+    "case_id": "HHG-012",
+    "opened_at": "2016-12-18 05:00:31",
+    "trigger_type": "risk_score",
+    "trigger_text": "Real-time model scored transaction 3553342 ($30.91, in billing region 494.0) at 0.55. Review and decide.",
+    "flagged_txn_id": "3553342",
+    "card_id": "C05876-K2",
+    "customer_id": "C05876",
+    "risk_score": 0.55
+  },
+  "steps": [
+    {
+      "step": 1,
+      "name": "Trigger received",
+      "tool": null,
+      "args": {
+        "trigger_type": "risk_score"
+      },
+      "summary": "risk_score alert on card C05876-K2, flagged txn 3553342, bank risk score 0.55 (a reason to look, not a verdict)",
+      "ms": 0
+    },
+    {
+      "step": 2,
+      "name": "Card history (60 days to opening)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "card_history",
+        "card_id": "C05876-K2",
+        "t_from": "2016-10-19 05:00:31",
+        "t_to": "2016-12-18 05:00:31"
+      },
+      "summary": "373 txns on C05876-K2",
+      "ms": 3815
+    },
+    {
+      "step": 2,
+      "name": "Customer cards and prior cases",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "customer_cases",
+        "customer_id": "C05876"
+      },
+      "summary": "2 card(s), 3 case(s)",
+      "ms": 1468
+    },
+    {
+      "step": 2,
+      "name": "Region cluster (7 days)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "region_cluster",
+        "region": "494.0",
+        "t_from": "2016-12-11 05:00:31",
+        "t_to": "2016-12-18 05:00:31"
+      },
+      "summary": "9 card(s) new to region 494.0 in the window",
+      "ms": 310
+    },
+    {
+      "step": 2,
+      "name": "Plan optional queries",
+      "tool": "llm",
+      "args": {
+        "source": "llm",
+        "choices": [
+          {
+            "tool": "region_cluster",
+            "arg": "330.0",
+            "why": "Region 330.0 appears frequently in recent transactions and has a confirmed fraud case history."
+          },
+          {
+            "tool": "region_cluster",
+            "arg": "433.0",
+            "why": "Region 433.0 shows multiple high-value transactions recently and helps check for widespread geographic anomalies."
+          }
+        ],
+        "catalogue": 8
+      },
+      "summary": "The card shows very high transaction velocity across multiple different billing regions within a short 7-day window, indicating potential card compromise. Checking regional clusters for the most active regions helps identify if other fraudulent cards are operating in the same areas.",
+      "ms": 1642
+    },
+    {
+      "step": 2,
+      "name": "Region cluster (7 days)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "region_cluster",
+        "region": "330.0",
+        "t_from": "2016-12-11 05:00:31",
+        "t_to": "2016-12-18 05:00:31"
+      },
+      "summary": "25 card(s) new to region 330.0 in the window",
+      "ms": 343
+    },
+    {
+      "step": 2,
+      "name": "Region cluster (7 days)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "region_cluster",
+        "region": "433.0",
+        "t_from": "2016-12-11 05:00:31",
+        "t_to": "2016-12-18 05:00:31"
+      },
+      "summary": "11 card(s) new to region 433.0 in the window",
+      "ms": 308
+    },
+    {
+      "step": 3,
+      "name": "Gather evidence (card analytics)",
+      "tool": null,
+      "args": {
+        "device_ctx": null
+      },
+      "summary": "pattern out_of_region_use (card-present use in region 494.0, home region is 325.0); 1 episode txn(s), exposure $30.91; 2 prosecution / 3 defence items",
+      "ms": 4
+    },
+    {
+      "step": 4,
+      "name": "Assess uncertainty",
+      "tool": null,
+      "args": {
+        "fraud_probability": 0.404,
+        "verdict": "uncertain"
+      },
+      "summary": "probability 0.40, verdict uncertain, 3 independent evidence, single_signal=False, conflicts=True; initial: VERIFY_WITH_CUSTOMER, CREATE_CASE, ESCALATE_TO_ANALYST",
+      "ms": 0
+    },
+    {
+      "step": 5,
+      "name": "Request more evidence",
+      "tool": null,
+      "args": {
+        "type": "analyst_info",
+        "assumed_response": null
+      },
+      "summary": "§3b/§5: ESCALATE_TO_ANALYST is recommended and the analyst_info response changes the actions (fraud -> BLOCK_CARD, CREATE_CASE; legitimate -> CLOSE_NO_FRAUD) Evidence balanced (p 0.40): request left pending, case stays open",
+      "ms": 0
+    },
+    {
+      "step": 6,
+      "name": "Next best actions",
+      "tool": null,
+      "args": {
+        "final": [
+          "VERIFY_WITH_CUSTOMER",
+          "CREATE_CASE",
+          "ESCALATE_TO_ANALYST"
+        ]
+      },
+      "summary": "executed (auto): VERIFY_WITH_CUSTOMER, CREATE_CASE, ESCALATE_TO_ANALYST; awaiting approval: none",
+      "ms": 0
+    },
+    {
+      "step": 7,
+      "name": "GraphRAG retrieval",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "queries": [
+          "similar_cases",
+          "search_docs"
+        ],
+        "calls": 4
+      },
+      "summary": "6 similar case(s), 7 passage(s)",
+      "ms": 5161
+    },
+    {
+      "step": 7,
+      "name": "Explain decision",
+      "tool": "llm",
+      "args": {
+        "fallback": []
+      },
+      "summary": "LLM text validated",
+      "ms": 3640
+    },
+    {
+      "step": 8,
+      "name": "Update case memory",
+      "tool": "tigergraph__add_node",
+      "args": {
+        "vertex": "AgentCase",
+        "id": "CASE-HHG-012",
+        "edges": 12
+      },
+      "summary": "wrote CASE-HHG-012",
+      "ms": 4263
+    }
+  ],
+  "hypotheses": {
+    "prosecution": [
+      {
+        "claim": "Card-present use in billing region 494.0; the customer's home region is 325.0 (6 earlier txns there)",
+        "score": 0.6,
+        "entity_ids": [
+          "3553342"
+        ],
+        "ref": "query:region_history(customer_id=C05876)"
+      },
+      {
+        "claim": "Customer has 1 earlier confirmed fraud case(s): CC-2370",
+        "score": 0.4,
+        "entity_ids": [
+          "CC-2370"
+        ],
+        "ref": "query:customer_cases"
+      }
+    ],
+    "defence": [
+      {
+        "claim": "Closed-case classifier scores flagged txn 3553342 at 0.11, in line with this card's legitimate history (bank risk score 0.55 is often high on false alarms)",
+        "score": 0.89,
+        "entity_ids": [
+          "3553342"
+        ],
+        "ref": "model:closed_case_classifier"
+      },
+      {
+        "claim": "Card-present purchases in region 494.0 on 6 different days while 49 txns continued in home region 325.0: looks like a trip, not a clone",
+        "score": 0.7,
+        "entity_ids": [
+          "3382063",
+          "3417005",
+          "3486224",
+          "3486951",
+          "3497187",
+          "3537376"
+        ],
+        "ref": "query:region_history(customer_id=C05876)"
+      },
+      {
+        "claim": "Disputed $30.91 (W) matches earlier charges of the same amount and product roughly monthly: 3380318, 3442424, 3442469, 3456319",
+        "score": 0.8,
+        "entity_ids": [
+          "3553342",
+          "3380318",
+          "3442424",
+          "3442469",
+          "3456319"
+        ],
+        "ref": "query:card_history(card_id=C05876-K2, window=60d)"
+      }
+    ]
+  },
+  "probability": {
+    "initial": 0.404,
+    "final": 0.404,
+    "features": {
+      "logit_flag": -2.0851,
+      "logit_ep_max": -2.0846,
+      "logit_ep_mean": -2.0846,
+      "log_ep_n": 0.0,
+      "trip_signature": 1.0,
+      "new_phone_signature": 0.0,
+      "card_testing": 0.0,
+      "structuring": 0.0,
+      "ring": 0.0
+    }
+  },
+  "evidence_gate": {
+    "type": "analyst_info",
+    "why": "§3b/§5: ESCALATE_TO_ANALYST is recommended and the analyst_info response changes the actions (fraud -> BLOCK_CARD, CREATE_CASE; legitimate -> CLOSE_NO_FRAUD)",
+    "outcomes": {
+      "fraud": [
+        "BLOCK_CARD",
+        "CREATE_CASE"
+      ],
+      "legitimate": [
+        "CLOSE_NO_FRAUD"
+      ]
+    },
+    "assumed_response": null
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "C05876",
+        "type": "Customer",
+        "label": "C05876",
+        "flag": "subject"
+      },
+      {
+        "id": "C05876-K2",
+        "type": "Card",
+        "label": "C05876-K2",
+        "flag": "subject"
+      },
+      {
+        "id": "C05876-K1",
+        "type": "Card",
+        "label": "C05876-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "3553342",
+        "type": "Transaction",
+        "label": "3553342 $30.91",
+        "flag": "suspicious"
+      },
+      {
+        "id": "region 494.0",
+        "type": "BillingRegion",
+        "label": "region 494.0",
+        "flag": "normal"
+      },
+      {
+        "id": "C08190-K2",
+        "type": "Card",
+        "label": "C08190-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C07614-K2",
+        "type": "Card",
+        "label": "C07614-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C08334-K1",
+        "type": "Card",
+        "label": "C08334-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C12826-K1",
+        "type": "Card",
+        "label": "C12826-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C04060-K1",
+        "type": "Card",
+        "label": "C04060-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C12742-K1",
+        "type": "Card",
+        "label": "C12742-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C06929-K1",
+        "type": "Card",
+        "label": "C06929-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C06605-K1",
+        "type": "Card",
+        "label": "C06605-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C09874-K1",
+        "type": "Card",
+        "label": "C09874-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "region 330.0",
+        "type": "BillingRegion",
+        "label": "region 330.0",
+        "flag": "normal"
+      },
+      {
+        "id": "C11909-K1",
+        "type": "Card",
+        "label": "C11909-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C11639-K1",
+        "type": "Card",
+        "label": "C11639-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C12565-K1",
+        "type": "Card",
+        "label": "C12565-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C00181-K1",
+        "type": "Card",
+        "label": "C00181-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C05755-K1",
+        "type": "Card",
+        "label": "C05755-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C06898-K1",
+        "type": "Card",
+        "label": "C06898-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C10159-K1",
+        "type": "Card",
+        "label": "C10159-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C00711-K1",
+        "type": "Card",
+        "label": "C00711-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C03979-K1",
+        "type": "Card",
+        "label": "C03979-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C12440-K1",
+        "type": "Card",
+        "label": "C12440-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "region 433.0",
+        "type": "BillingRegion",
+        "label": "region 433.0",
+        "flag": "normal"
+      },
+      {
+        "id": "C05670-K1",
+        "type": "Card",
+        "label": "C05670-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C03100-K2",
+        "type": "Card",
+        "label": "C03100-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C04167-K1",
+        "type": "Card",
+        "label": "C04167-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C11751-K1",
+        "type": "Card",
+        "label": "C11751-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C04840-K1",
+        "type": "Card",
+        "label": "C04840-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C02241-K1",
+        "type": "Card",
+        "label": "C02241-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C05514-K1",
+        "type": "Card",
+        "label": "C05514-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C00725-K1",
+        "type": "Card",
+        "label": "C00725-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C07730-K1",
+        "type": "Card",
+        "label": "C07730-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C08285-K2",
+        "type": "Card",
+        "label": "C08285-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "CC-0003",
+        "type": "ClosedCase",
+        "label": "CC-0003",
+        "flag": "cleared"
+      },
+      {
+        "id": "CC-2370",
+        "type": "ClosedCase",
+        "label": "CC-2370",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CASE-HHG-012",
+        "type": "AgentCase",
+        "label": "CASE-HHG-012",
+        "flag": "subject"
+      },
+      {
+        "id": "CASE-HHG-018",
+        "type": "AgentCase",
+        "label": "CASE-HHG-018",
+        "flag": "normal"
+      },
+      {
+        "id": "CASE-HHG-003",
+        "type": "AgentCase",
+        "label": "CASE-HHG-003",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CC-3744",
+        "type": "ClosedCase",
+        "label": "CC-3744",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CC-5287",
+        "type": "ClosedCase",
+        "label": "CC-5287",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CC-4996",
+        "type": "ClosedCase",
+        "label": "CC-4996",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CASE-HHG-017",
+        "type": "AgentCase",
+        "label": "CASE-HHG-017",
+        "flag": "normal"
+      }
+    ],
+    "edges": [
+      {
+        "src": "C05876",
+        "dst": "C05876-K2",
+        "type": "OWNS"
+      },
+      {
+        "src": "C05876",
+        "dst": "C05876-K1",
+        "type": "OWNS"
+      },
+      {
+        "src": "C05876-K2",
+        "dst": "3553342",
+        "type": "MADE"
+      },
+      {
+        "src": "3553342",
+        "dst": "region 494.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C08190-K2",
+        "dst": "region 494.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C07614-K2",
+        "dst": "region 494.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C08334-K1",
+        "dst": "region 494.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C12826-K1",
+        "dst": "region 494.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C04060-K1",
+        "dst": "region 494.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C12742-K1",
+        "dst": "region 494.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C06929-K1",
+        "dst": "region 494.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C06605-K1",
+        "dst": "region 494.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C09874-K1",
+        "dst": "region 494.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C11909-K1",
+        "dst": "region 330.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C11639-K1",
+        "dst": "region 330.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C12565-K1",
+        "dst": "region 330.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C00181-K1",
+        "dst": "region 330.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C05755-K1",
+        "dst": "region 330.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C06898-K1",
+        "dst": "region 330.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C10159-K1",
+        "dst": "region 330.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C00711-K1",
+        "dst": "region 330.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C03979-K1",
+        "dst": "region 330.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C12440-K1",
+        "dst": "region 330.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C05670-K1",
+        "dst": "region 433.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C03100-K2",
+        "dst": "region 433.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C04167-K1",
+        "dst": "region 433.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C11751-K1",
+        "dst": "region 433.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C04840-K1",
+        "dst": "region 433.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C02241-K1",
+        "dst": "region 433.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C05514-K1",
+        "dst": "region 433.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C00725-K1",
+        "dst": "region 433.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C07730-K1",
+        "dst": "region 433.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C08285-K2",
+        "dst": "region 433.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "CC-0003",
+        "dst": "C05876-K2",
+        "type": "ON_CARD"
+      },
+      {
+        "src": "CC-2370",
+        "dst": "C05876-K2",
+        "type": "ON_CARD"
+      },
+      {
+        "src": "CASE-HHG-012",
+        "dst": "C05876-K2",
+        "type": "ON_CARD"
+      },
+      {
+        "src": "CASE-HHG-012",
+        "dst": "CASE-HHG-018",
+        "type": "SIMILAR_TO"
+      },
+      {
+        "src": "CASE-HHG-012",
+        "dst": "CASE-HHG-003",
+        "type": "SIMILAR_TO"
+      },
+      {
+        "src": "CASE-HHG-012",
+        "dst": "CC-3744",
+        "type": "SIMILAR_TO"
+      },
+      {
+        "src": "CASE-HHG-012",
+        "dst": "CC-5287",
+        "type": "SIMILAR_TO"
+      },
+      {
+        "src": "CASE-HHG-012",
+        "dst": "CC-4996",
+        "type": "SIMILAR_TO"
+      },
+      {
+        "src": "CASE-HHG-012",
+        "dst": "CASE-HHG-017",
+        "type": "SIMILAR_TO"
+      }
+    ]
+  },
+  "rag_context": "CASE\nHHG-012 opened 2016-12-18 05:00:31 by risk_score trigger: \"Real-time model scored transaction 3553342 ($30.91, in billing region 494.0) at 0.55. Review and decide.\"\nFlagged txn 3553342 on card C05876-K2 (customer C05876). Bank risk score 0.55 is a reason to look, not a verdict (§0).\nGraph analysis: pattern out_of_region_use (card-present use in region 494.0, home region is 325.0); fraud probability 0.40; verdict uncertain; 1 affected txns, first 3553342, exposure $30.91.\n\nGRAPH EVIDENCE\n- 9 card(s) made their first purchase in billing region 494.0 in the 7 days before the alert (6 linked to cases; 373 cards ever billed there) (query:region_cluster(region=494.0, window=7d))\n- 25 card(s) made their first purchase in billing region 330.0 in the 7 days before the alert (4 linked to cases; 1452 cards ever billed there) (query:region_cluster(region=330.0, window=7d))\n- 11 card(s) made their first purchase in billing region 433.0 in the 7 days before the alert (3 linked to cases; 723 cards ever billed there) (query:region_cluster(region=433.0, window=7d))\n- Customer C05876 cards: C05876-K1, C05876-K2; prior cases on them: CC-0003 (cleared, none), CC-2370 (confirmed_fraud, card_not_present_fraud) (query:customer_cases)\n- [prosecution 0.60] Card-present use in billing region 494.0; the customer's home region is 325.0 (6 earlier txns there) (ref: query:region_history(customer_id=C05876); ids: 3553342)\n- [prosecution 0.40] Customer has 1 earlier confirmed fraud case(s): CC-2370 (ref: query:customer_cases; ids: CC-2370)\n- [defence 0.89] Closed-case classifier scores flagged txn 3553342 at 0.11, in line with this card's legitimate history (bank risk score 0.55 is often high on false alarms) (ref: model:closed_case_classifier; ids: 3553342)\n- [defence 0.70] Card-present purchases in region 494.0 on 6 different days while 49 txns continued in home region 325.0: looks like a trip, not a clone (ref: query:region_history(customer_id=C05876); ids: 3382063, 3417005, 3486224, 3486951, 3497187, 3537376)\n- [defence 0.80] Disputed $30.91 (W) matches earlier charges of the same amount and product roughly monthly: 3380318, 3442424, 3442469, 3456319 (ref: query:card_history(card_id=C05876-K2, window=60d); ids: 3553342, 3380318, 3442424, 3442469, 3456319)\n\nSIMILAR PAST CASES (vector search over closed and agent cases; same pattern first)\n- [CASE-HHG-018] AgentCase uncertain, pattern out_of_region_use, distance 0.118: Customer [other id] reported an unrecognized charge of $39.08 on card [other id] via transaction 3491361, which occurred in billing region 126.0 while their home region is 325.0. Graph analysis flagged out_of_region_use with a fraud probability of 0.67 and an uncertain verdict due to conflicting ...\n- [CASE-HHG-003] AgentCase fraud, pattern out_of_region_use, distance 0.148: Case HHG-003 was opened following a customer report from customer [other id] regarding an unrecognized $49.00 purchase on card [other id] via transaction 3530164. Graph analysis flagged out_of_region_use with a fraud probability of 0.90 and a verdict of fraud, identifying 2 affected transactions totaling $165.93. ...\n- [CC-3744] ClosedCase confirmed_fraud, pattern out_of_region_use, distance 0.177: cardholder [other id] reported unrecognized activity on card [other id]. 4 transaction(s) between 2016-09-19 and 2016-09-19 totaling $1,119.89 were confirmed fraudulent. Card-present use in a billing region the cardholder had no history in, while the cardholder retained the card. Card blocked and reissued. Customer reimbursed.\n- [CC-5287] ClosedCase confirmed_fraud, pattern out_of_region_use, distance 0.177: cardholder [other id] reported unrecognized activity on card [other id]. 1 transaction(s) between 2016-10-24 and 2016-10-24 totaling $1,103.92 were confirmed fraudulent. Card-present use in a billing region the cardholder had no history in, while the cardholder retained the card. Card blocked and reissued. Customer reimbursed.\n- [CC-4996] ClosedCase confirmed_fraud, pattern out_of_region_use, distance 0.177: cardholder [other id] reported unrecognized activity on card [other id]. 13 transaction(s) between 2016-10-15 and 2016-10-17 totaling $1,394.09 were confirmed fraudulent. Card-present use in a billing region the cardholder had no history in, while the cardholder retained the card. Card blocked and reissued. Customer reimbursed.\n- [CASE-HHG-017] AgentCase uncertain, pattern card_not_present_fraud, distance 0.160: Case HHG-017 was opened following a risk score trigger of 0.57 on online transaction 3450629 for $100.09 on card [other id] (customer [other id]). Graph analysis assessed a fraud probability of 0.60 with an uncertain verdict under the card-not-present fraud pattern. Following Policy R1 for ...\n\nPOLICY & GUIDANCE\n- [POLICY-R1] R1. Verify before you block on a weak signal: R1. Verify before you block on a weak signal. If the case rests on a single signal (including a risk score alone) and your assessed fraud probability is below 0.70, recommend VERIFY_WITH_CUSTOMER or STEP_UP_AUTH before any block. Blocking a legitimate customer on one signal is a policy breach. Related actions (§1): VERIFY_WITH_CUSTOMER -- ask the cardholder whether they made the transaction; the card stays active pending reply (low customer impact, ...\n- [POLICY-R8] R8. Escalate when uncertain and exposed: R8. Escalate when uncertain and exposed. If the verdict is uncertain and exposure exceeds $500, or the evidence conflicts, recommend ESCALATE_TO_ANALYST. Related action (§1): ESCALATE_TO_ANALYST -- hand the case to a human analyst with the evidence (no customer impact, route auto). Per the Answer Format notes, uncertain is a valid verdict and earns full credit on cases designed to be ambiguous, provided the actions follow policy R1 and R8.\n- [PATTERN-out_of_region_use] Out-of-region use: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 4. Out-of-region use. Card-present purchases in a billing region the cardholder has no history in, while their normal activity continues at home. Several days of purchases in one new region is a trip, ...\n- [PATTERN-card_not_present_fraud] Card-not-present fraud: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 2. Card-not-present fraud. The number is used online without the card. Amounts and products that don't fit the cardholder's history, often in a burst of two to four within 48 hours. On its ...\n- [POLICY-R3] R3. Customer confirms the transaction: R3. Customer confirms the transaction. Recommend CLOSE_NO_FRAUD. Note the confirmation in the case file. Compare R2, where the customer instead denies the transaction and the agent recommends BLOCK_CARD and CREATE_CASE. Related action (§1): CLOSE_NO_FRAUD -- close the alert as legitimate (no customer impact, route auto). Per the Answer Format notes, for a legitimate verdict affected_txn_ids is empty, exposure_usd is 0, and sar.file is false.\n- [PATTERN-card_testing] Card testing: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 1. Card testing. A stolen card number is checked before use: three or more tiny online authorizations, often under $5, then a larger purchase. Confirmed by the sequence itself. Policy R5.\n- [POLICY-S0-SCORE] What the agent starts with: the risk score: Every transaction carries a risk_score between 0 and 1 from the bank's detection model. The model is useful and imperfect: many high scores are legitimate, and some fraud scores low. A score is a reason to look, never a verdict. The only confirmed outcomes are in the closed cases. As the README glossary puts it: Risk score -- a number from 0 to 1 the bank's model attached to every ...\n\nINSTRUCTIONS\nUse only the facts above. Cite the ids in square brackets and the txn/card/device ids shown; never invent an id, amount or date. Past cases are memory, not this customer's activity: their ids are not connected cards. The bank risk score is not a verdict. Actions come from the policy engine: explain them, do not change them."
+}

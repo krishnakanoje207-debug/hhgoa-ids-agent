@@ -1,0 +1,185 @@
+{
+  "case_id": "SEN-014",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.9,
+    "pattern": "undocumented",
+    "pattern_description": "The pattern involves structuring several online purchases within an hour, each kept just under the $500 authorization threshold. It affects card C04697-K1 under customer C04697 and was discovered via Sentinel sweep near-threshold detection and graph episode modeling.",
+    "affected_txn_ids": [
+      "3531473",
+      "3531477",
+      "3531493"
+    ],
+    "first_suspicious_txn_id": "3531473",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 1499.85,
+    "evidence": [
+      {
+        "claim": "Three card transactions from 2016-12-10 20:34:25 to 2016-12-10 20:39:21 constitute a single episode with gaps under 48 hours, totaling $1,499.85.",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C04697-K1, window=60d)",
+        "entity_ids": [
+          "3531473",
+          "3531477",
+          "3531493"
+        ]
+      },
+      {
+        "claim": "Three online purchases executed within 5 minutes, priced at $499.97, $499.91, and $499.97, respectively, with amounts kept under an authorization threshold.",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C04697-K1, window=60d)",
+        "entity_ids": [
+          "3531473",
+          "3531477",
+          "3531493"
+        ]
+      },
+      {
+        "claim": "The closed-case classifier assigns a score of 0.02 to flagged transaction 3531493, aligning with the card's legitimate history while the bank risk score is 0.04.",
+        "source": "graph",
+        "ref": "model:closed_case_classifier",
+        "entity_ids": [
+          "3531493"
+        ]
+      },
+      {
+        "claim": "The device profile Windows | Windows 10 | chrome 66.0 | 1920x1080 was utilized by 55 other cards in the 30 days prior to the alert, with associated cases including CASE-HHG-007, CASE-HHG-019, CASE-SEN-002, CC-0005, CC-0028, and CC-0033.",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id=Windows | Windows 10 | chrome 66.0 | 1920x1080, window=30d)",
+        "entity_ids": [
+          "C03435-K1",
+          "C00452-K2",
+          "C07735-K1",
+          "C05560-K2",
+          "C05281-K1",
+          "C02295-K1",
+          "C05809-K1",
+          "C07196-K2",
+          "C03549-K1",
+          "C11000-K2",
+          "CC-0005",
+          "CC-0028",
+          "CC-0033",
+          "CC-0045",
+          "CC-0059",
+          "CC-0063"
+        ]
+      },
+      {
+        "claim": "Fifty-two cards completed their first purchase in billing region 299.0 during the 7 days prior to the alert, with 9 linked to cases out of 2075 historical cards.",
+        "source": "graph",
+        "ref": "query:region_cluster(region=299.0, window=7d)",
+        "entity_ids": [
+          "C06067-K2",
+          "C01569-K1",
+          "C12395-K1",
+          "C07612-K2",
+          "C02987-K1",
+          "C01551-K1",
+          "C12335-K1",
+          "C03210-K1",
+          "C01374-K1",
+          "C06905-K1"
+        ]
+      },
+      {
+        "claim": "Nearest historical cases retrieved from memory include CASE-SEN-008, CASE-SEN-007, CASE-SEN-002, CASE-SEN-009, CASE-SEN-003, and CASE-SEN-004.",
+        "source": "graph",
+        "ref": "query:similar_cases",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R1 regarding verification before blocking on a weak signal was evaluated for the BLOCK_CARD basis.",
+        "source": "document",
+        "ref": "POLICY-R1",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R3 regarding customer transaction confirmation was retrieved as contextual guidance.",
+        "source": "document",
+        "ref": "POLICY-R3",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R5 regarding card testing was retrieved as contextual guidance.",
+        "source": "document",
+        "ref": "POLICY-R5",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy action definitions were retrieved as contextual guidance.",
+        "source": "document",
+        "ref": "POLICY-S1-ACTIONS",
+        "entity_ids": []
+      },
+      {
+        "claim": "Typology and regulatory guidance regarding card-not-present fraud, card testing, and account takeover were retrieved as context.",
+        "source": "document",
+        "ref": "PATTERN-card_not_present_fraud, PATTERN-card_testing, PATTERN-account_takeover",
+        "entity_ids": []
+      }
+    ],
+    "similar_prior_cases": [],
+    "summary": "Case SEN-014 was opened following a Sentinel near-threshold scan on card C04697-K1 held by customer C04697. Graph analysis confirmed a fraud verdict with a 0.90 probability across an episode of 3 transactions totaling $1,499.85. The activity featured structuring tactics, keeping transaction amounts just under the $500 threshold within 5 minutes on 2016-12-10. Consequently, the final recommended actions are BLOCK_CARD routed to L1, CREATE_CASE routed to auto, and FILE_REPORT routed to L2 per \u00a73a.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-SEN-014"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R1 not triggered: 2 independent signals at probability 0.90; exposure $1,499.85 is under $2,500 (\u00a72)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "\u00a73a: fraud probability 0.90 reaches 0.30"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,499.85 exceeds $1,000"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R1 not triggered: 2 independent signals at probability 0.90; exposure $1,499.85 is under $2,500 (\u00a72)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "\u00a73a: fraud probability 0.90 reaches 0.30"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,499.85 exceeds $1,000"
+      }
+    ],
+    "what_changed": "nothing"
+  },
+  "sar": {
+    "file": true,
+    "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,499.85 exceeds $1,000",
+    "narrative": "Customer C04697 utilizing card C04697-K1 engaged in suspicious structuring activity on 2016-12-10. A series of 3 online transactions totaling $1,499.85 (including transactions 3531473, 3531477, and 3531493) were executed within 5 minutes. The activity took place online within billing region 299.0 using the device profile Windows | Windows 10 | chrome 66.0 | 1920x1080. This activity is suspicious because the amounts were deliberately kept just under the $500 authorization threshold to evade detection. Connected cards were not identified in this specific sweep, but the device profile has links to other historical cases such as CASE-HHG-007, CASE-HHG-019, and CASE-SEN-002. Recommended actions include blocking card C04697-K1, creating case SEN-014, and filing a regulatory report.",
+    "subjects": [
+      "C04697",
+      "C04697-K1"
+    ],
+    "total_amount_usd": 1499.85,
+    "activity_dates": [
+      "2016-12-10",
+      "2016-12-10"
+    ]
+  },
+  "stop_reason": "\u00a76: probability 0.90 is decisive and rests on 2 independent pieces of evidence",
+  "tool_calls": 12,
+  "tokens": 5811,
+  "latency_s": 20.1
+}

@@ -1,0 +1,152 @@
+{
+  "case_id": "HHG-005",
+  "case": {
+    "status": "closed_legitimate",
+    "verdict": "legitimate",
+    "fraud_probability": 0.1,
+    "pattern": "none",
+    "pattern_description": "",
+    "affected_txn_ids": [],
+    "first_suspicious_txn_id": "",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 0,
+    "evidence": [
+      {
+        "claim": "1 episode txn(s) came from a device marked New for this account (iOS Device | iOS 9.3.5 | mobile safari 9.0 | 1024x768); the flagged device was never seen on this card before",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C02923-K1, window=60d)",
+        "entity_ids": [
+          "3523199"
+        ]
+      },
+      {
+        "claim": "Customer has 3 earlier confirmed fraud case(s): CC-2400, CC-2857, CC-2717",
+        "source": "graph",
+        "ref": "query:customer_cases",
+        "entity_ids": [
+          "CC-2400",
+          "CC-2857",
+          "CC-2717"
+        ]
+      },
+      {
+        "claim": "Closed-case classifier scores flagged txn 3523199 at 0.02, in line with this card's legitimate history (bank risk score 0.54 is often high on false alarms)",
+        "source": "graph",
+        "ref": "model:closed_case_classifier",
+        "entity_ids": [
+          "3523199"
+        ]
+      },
+      {
+        "claim": "Device iOS Device | iOS 9.3.5 | mobile safari 9.0 | 1024x768 was used by 0 other cards in the 30 days prior to the alert, with 0 as a new device and 112 cards ever.",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id=iOS Device | iOS 9.3.5 | mobile safari 9.0 | 1024x768, window=30d)",
+        "entity_ids": []
+      },
+      {
+        "claim": "A total of 30 cards made their first purchase in billing region 330.0 in the 7 days before the alert, with 7 linked to cases and 1452 cards ever billed there.",
+        "source": "graph",
+        "ref": "query:region_cluster(region=330.0, window=7d)",
+        "entity_ids": [
+          "C07648-K1",
+          "C08976-K1",
+          "C13440-K1",
+          "C07511-K1",
+          "C05278-K1",
+          "C12455-K1",
+          "C03047-K1",
+          "C05519-K1",
+          "C04191-K1",
+          "C02250-K1"
+        ]
+      },
+      {
+        "claim": "The customer validation assumed confirmation of transaction 3523199 as legitimate, given the low probability and closed-case classifier score of 0.02.",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": []
+      },
+      {
+        "claim": "Nearest cases in case memory include CASE-HHG-010, CASE-HHG-020, CASE-HHG-015, and CASE-HHG-017.",
+        "source": "graph",
+        "ref": "query:similar_cases",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R3 governs customer confirmation of the transaction as the basis for CLOSE_NO_FRAUD.",
+        "source": "document",
+        "ref": "POLICY-R3",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R7 regarding disputed but legitimate transactions was retrieved as contextual guidance.",
+        "source": "document",
+        "ref": "POLICY-R7",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R5 regarding card testing was retrieved as contextual guidance.",
+        "source": "document",
+        "ref": "POLICY-R5",
+        "entity_ids": []
+      },
+      {
+        "claim": "Typology and regulatory guidance retrieved covers card-not-present fraud from a new device, card testing, card-not-present fraud, and account takeover.",
+        "source": "document",
+        "ref": "PATTERN-card_not_present_new_device, PATTERN-card_testing, PATTERN-card_not_present_fraud, PATTERN-account_takeover",
+        "entity_ids": []
+      }
+    ],
+    "similar_prior_cases": [],
+    "summary": "Case HHG-005 was opened on 2016-12-08 03:38:37 following a real-time model risk score trigger of 0.54 on online transaction 3523199 for $100.07 on card C02923-K1 held by customer C02923. Although the transaction originated from a new device (iOS Device | iOS 9.3.5 | mobile safari 9.0 | 1024x768) and the customer had prior confirmed fraud cases CC-2400, CC-2857, and CC-2717, the closed-case classifier scored the transaction at 0.02. Following customer validation confirming the transaction per policy R3, the final action recommended was CLOSE_NO_FRAUD.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-HHG-005"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 4,
+      "assumed_response": "Assumed the customer confirms transaction 3523199 as their own, because the evidence leans legitimate (probability 0.15 < 0.50; strongest point: Closed-case classifier scores flagged txn 3523199 at 0.02, in line with this card's legitimate history (bank risk score 0.54 is often high on false alarms))."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R1: single signal at probability 0.15 < 0.70; verify before any block"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "§3a: evidence requested"
+      }
+    ],
+    "final": [
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "§3a: evidence was requested"
+      },
+      {
+        "action": "CLOSE_NO_FRAUD",
+        "route": "auto",
+        "reason": "R3: customer confirmed the transaction; confirmation noted in the case file"
+      }
+    ],
+    "what_changed": "Following the customer validation step where the customer confirmed transaction 3523199, the policy engine updated the final recommendations to include CLOSE_NO_FRAUD pursuant to policy R3."
+  },
+  "sar": {
+    "file": false,
+    "reason": "§3a: no report; activity closed as legitimate (R3)",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0,
+    "activity_dates": []
+  },
+  "stop_reason": "§6: the verification response settles the question",
+  "tool_calls": 10,
+  "tokens": 5183,
+  "latency_s": 14.5
+}

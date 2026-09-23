@@ -1,0 +1,584 @@
+{
+  "case_id": "HHG-017",
+  "trigger": {
+    "case_id": "HHG-017",
+    "opened_at": "2016-11-12 00:46:24",
+    "trigger_type": "risk_score",
+    "trigger_text": "Real-time model scored transaction 3450629 ($100.09, online) at 0.57. Review and decide.",
+    "flagged_txn_id": "3450629",
+    "card_id": "C04570-K1",
+    "customer_id": "C04570",
+    "risk_score": 0.57
+  },
+  "steps": [
+    {
+      "step": 1,
+      "name": "Trigger received",
+      "tool": null,
+      "args": {
+        "trigger_type": "risk_score"
+      },
+      "summary": "risk_score alert on card C04570-K1, flagged txn 3450629, bank risk score 0.57 (a reason to look, not a verdict)",
+      "ms": 0
+    },
+    {
+      "step": 2,
+      "name": "Card history (60 days to opening)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "card_history",
+        "card_id": "C04570-K1",
+        "t_from": "2016-09-13 00:46:24",
+        "t_to": "2016-11-12 00:46:24"
+      },
+      "summary": "13 txns on C04570-K1",
+      "ms": 4746
+    },
+    {
+      "step": 2,
+      "name": "Customer cards and prior cases",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "customer_cases",
+        "customer_id": "C04570"
+      },
+      "summary": "1 card(s), 2 case(s)",
+      "ms": 246
+    },
+    {
+      "step": 2,
+      "name": "Device neighbourhood (30 days)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "device_neighbors",
+        "device_id": "Windows | Windows 10 | chrome 65.0 | 1920x1080",
+        "t_from": "2016-10-13 00:46:24",
+        "t_to": "2016-11-12 00:46:24"
+      },
+      "summary": "164 card(s) used it in the window, 299 ever",
+      "ms": 1283
+    },
+    {
+      "step": 2,
+      "name": "Plan optional queries",
+      "tool": "llm",
+      "args": {
+        "source": "llm",
+        "choices": [
+          {
+            "tool": "region_cluster",
+            "arg": "204.0",
+            "why": "Check cards new to billing region 204.0 to detect potential coordinated ring activity matching the rapid succession of online transactions."
+          }
+        ],
+        "catalogue": 1
+      },
+      "summary": "The flagged transaction shows rapid sequential online charges using a heavily shared device profile and a hidden proxy, indicating potential automated testing or card abuse. Inspecting the billing region cluster will help determine if other cards in this region exhibit similar suspicious patterns.",
+      "ms": 1837
+    },
+    {
+      "step": 2,
+      "name": "Region cluster (7 days)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "region_cluster",
+        "region": "204.0",
+        "t_from": "2016-11-05 00:46:24",
+        "t_to": "2016-11-12 00:46:24"
+      },
+      "summary": "36 card(s) new to region 204.0 in the window",
+      "ms": 314
+    },
+    {
+      "step": 3,
+      "name": "Gather evidence (card analytics)",
+      "tool": null,
+      "args": {
+        "device_ctx": "Windows | Windows 10 | chrome 65.0 | 1920x1080"
+      },
+      "summary": "pattern card_not_present_fraud (online episode, no device marked New); 1 episode txn(s), exposure $100.09; 0 prosecution / 2 defence items",
+      "ms": 3
+    },
+    {
+      "step": 4,
+      "name": "Assess uncertainty",
+      "tool": null,
+      "args": {
+        "fraud_probability": 0.597,
+        "verdict": "uncertain"
+      },
+      "summary": "probability 0.60, verdict uncertain, 0 independent evidence, single_signal=True, conflicts=False; initial: VERIFY_WITH_CUSTOMER, CREATE_CASE",
+      "ms": 0
+    },
+    {
+      "step": 5,
+      "name": "Request more evidence",
+      "tool": null,
+      "args": {
+        "type": "customer_validation",
+        "assumed_response": null
+      },
+      "summary": "§3b/§5: VERIFY_WITH_CUSTOMER is recommended and the customer_validation response changes the actions (deny -> BLOCK_CARD, CREATE_CASE; confirm -> CREATE_CASE, CLOSE_NO_FRAUD; no_reply -> DECLINE_TRANSACTION, MONITOR_CARD, CREATE_CASE) Evidence balanced (p 0.60): request left pending, case stays open",
+      "ms": 0
+    },
+    {
+      "step": 6,
+      "name": "Next best actions",
+      "tool": null,
+      "args": {
+        "final": [
+          "VERIFY_WITH_CUSTOMER",
+          "CREATE_CASE"
+        ]
+      },
+      "summary": "executed (auto): VERIFY_WITH_CUSTOMER, CREATE_CASE; awaiting approval: none",
+      "ms": 0
+    },
+    {
+      "step": 7,
+      "name": "GraphRAG retrieval",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "queries": [
+          "similar_cases",
+          "search_docs"
+        ],
+        "calls": 3
+      },
+      "summary": "0 similar case(s), 7 passage(s)",
+      "ms": 5682
+    },
+    {
+      "step": 7,
+      "name": "Explain decision",
+      "tool": "llm",
+      "args": {
+        "fallback": []
+      },
+      "summary": "LLM text validated",
+      "ms": 3425
+    },
+    {
+      "step": 8,
+      "name": "Update case memory",
+      "tool": "tigergraph__add_node",
+      "args": {
+        "vertex": "AgentCase",
+        "id": "CASE-HHG-017",
+        "edges": 9
+      },
+      "summary": "wrote CASE-HHG-017",
+      "ms": 2312
+    }
+  ],
+  "hypotheses": {
+    "prosecution": [],
+    "defence": [
+      {
+        "claim": "Closed-case classifier scores flagged txn 3450629 at 0.28, in line with this card's legitimate history (bank risk score 0.57 is often high on false alarms)",
+        "score": 0.72,
+        "entity_ids": [
+          "3450629"
+        ],
+        "ref": "model:closed_case_classifier"
+      },
+      {
+        "claim": "Flagged device Windows | Windows 10 | chrome 65.0 | 1920x1080 was already used on this card before",
+        "score": 0.5,
+        "entity_ids": [
+          "3450629"
+        ],
+        "ref": "query:card_history(card_id=C04570-K1, window=60d)"
+      }
+    ]
+  },
+  "probability": {
+    "initial": 0.597,
+    "final": 0.597,
+    "features": {
+      "logit_flag": -0.9322,
+      "logit_ep_max": -0.9321,
+      "logit_ep_mean": -0.9321,
+      "log_ep_n": 0.0,
+      "trip_signature": 0.0,
+      "new_phone_signature": 0.0,
+      "card_testing": 0.0,
+      "structuring": 0.0,
+      "ring": 0.0
+    }
+  },
+  "evidence_gate": {
+    "type": "customer_validation",
+    "why": "§3b/§5: VERIFY_WITH_CUSTOMER is recommended and the customer_validation response changes the actions (deny -> BLOCK_CARD, CREATE_CASE; confirm -> CREATE_CASE, CLOSE_NO_FRAUD; no_reply -> DECLINE_TRANSACTION, MONITOR_CARD, CREATE_CASE)",
+    "outcomes": {
+      "deny": [
+        "BLOCK_CARD",
+        "CREATE_CASE"
+      ],
+      "confirm": [
+        "CREATE_CASE",
+        "CLOSE_NO_FRAUD"
+      ],
+      "no_reply": [
+        "DECLINE_TRANSACTION",
+        "MONITOR_CARD",
+        "CREATE_CASE"
+      ]
+    },
+    "assumed_response": null
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "C04570",
+        "type": "Customer",
+        "label": "C04570",
+        "flag": "subject"
+      },
+      {
+        "id": "C04570-K1",
+        "type": "Card",
+        "label": "C04570-K1",
+        "flag": "subject"
+      },
+      {
+        "id": "3450629",
+        "type": "Transaction",
+        "label": "3450629 $100.09",
+        "flag": "suspicious"
+      },
+      {
+        "id": "Windows | Windows 10 | chrome 65.0 | 1920x1080",
+        "type": "DeviceProfile",
+        "label": "Windows | Windows 10 | chrome 65.0 | 1920x1080",
+        "flag": "normal"
+      },
+      {
+        "id": "region 204.0",
+        "type": "BillingRegion",
+        "label": "region 204.0",
+        "flag": "normal"
+      },
+      {
+        "id": "C13007-K1",
+        "type": "Card",
+        "label": "C13007-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C08605-K1",
+        "type": "Card",
+        "label": "C08605-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C11198-K1",
+        "type": "Card",
+        "label": "C11198-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C02975-K1",
+        "type": "Card",
+        "label": "C02975-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C08918-K2",
+        "type": "Card",
+        "label": "C08918-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C04016-K1",
+        "type": "Card",
+        "label": "C04016-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C07735-K1",
+        "type": "Card",
+        "label": "C07735-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C05560-K2",
+        "type": "Card",
+        "label": "C05560-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C09981-K2",
+        "type": "Card",
+        "label": "C09981-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C07194-K1",
+        "type": "Card",
+        "label": "C07194-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C11786-K1",
+        "type": "Card",
+        "label": "C11786-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C04230-K1",
+        "type": "Card",
+        "label": "C04230-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C02897-K1",
+        "type": "Card",
+        "label": "C02897-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C13440-K2",
+        "type": "Card",
+        "label": "C13440-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C09719-K1",
+        "type": "Card",
+        "label": "C09719-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C06001-K1",
+        "type": "Card",
+        "label": "C06001-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C10482-K1",
+        "type": "Card",
+        "label": "C10482-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C11113-K1",
+        "type": "Card",
+        "label": "C11113-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C04346-K2",
+        "type": "Card",
+        "label": "C04346-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C12502-K1",
+        "type": "Card",
+        "label": "C12502-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C00551-K1",
+        "type": "Card",
+        "label": "C00551-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C11519-K1",
+        "type": "Card",
+        "label": "C11519-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C00053-K1",
+        "type": "Card",
+        "label": "C00053-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C06889-K1",
+        "type": "Card",
+        "label": "C06889-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C00866-K1",
+        "type": "Card",
+        "label": "C00866-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "CC-1383",
+        "type": "ClosedCase",
+        "label": "CC-1383",
+        "flag": "cleared"
+      },
+      {
+        "id": "CASE-HHG-017",
+        "type": "AgentCase",
+        "label": "CASE-HHG-017",
+        "flag": "subject"
+      }
+    ],
+    "edges": [
+      {
+        "src": "C04570",
+        "dst": "C04570-K1",
+        "type": "OWNS"
+      },
+      {
+        "src": "C04570-K1",
+        "dst": "3450629",
+        "type": "MADE"
+      },
+      {
+        "src": "3450629",
+        "dst": "Windows | Windows 10 | chrome 65.0 | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "3450629",
+        "dst": "region 204.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C13007-K1",
+        "dst": "Windows | Windows 10 | chrome 65.0 | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C08605-K1",
+        "dst": "Windows | Windows 10 | chrome 65.0 | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C11198-K1",
+        "dst": "Windows | Windows 10 | chrome 65.0 | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C02975-K1",
+        "dst": "Windows | Windows 10 | chrome 65.0 | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C08918-K2",
+        "dst": "Windows | Windows 10 | chrome 65.0 | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C04016-K1",
+        "dst": "Windows | Windows 10 | chrome 65.0 | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C07735-K1",
+        "dst": "Windows | Windows 10 | chrome 65.0 | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C05560-K2",
+        "dst": "Windows | Windows 10 | chrome 65.0 | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C09981-K2",
+        "dst": "Windows | Windows 10 | chrome 65.0 | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C07194-K1",
+        "dst": "Windows | Windows 10 | chrome 65.0 | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C11786-K1",
+        "dst": "Windows | Windows 10 | chrome 65.0 | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C04230-K1",
+        "dst": "Windows | Windows 10 | chrome 65.0 | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C02897-K1",
+        "dst": "Windows | Windows 10 | chrome 65.0 | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C13440-K2",
+        "dst": "Windows | Windows 10 | chrome 65.0 | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C09719-K1",
+        "dst": "Windows | Windows 10 | chrome 65.0 | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C06001-K1",
+        "dst": "region 204.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C10482-K1",
+        "dst": "region 204.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C11113-K1",
+        "dst": "region 204.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C04346-K2",
+        "dst": "region 204.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C12502-K1",
+        "dst": "region 204.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C00551-K1",
+        "dst": "region 204.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C11519-K1",
+        "dst": "region 204.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C00053-K1",
+        "dst": "region 204.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C06889-K1",
+        "dst": "region 204.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C00866-K1",
+        "dst": "region 204.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "CC-1383",
+        "dst": "C04570-K1",
+        "type": "ON_CARD"
+      },
+      {
+        "src": "CASE-HHG-017",
+        "dst": "C04570-K1",
+        "type": "ON_CARD"
+      }
+    ]
+  },
+  "rag_context": "CASE\nHHG-017 opened 2016-11-12 00:46:24 by risk_score trigger: \"Real-time model scored transaction 3450629 ($100.09, online) at 0.57. Review and decide.\"\nFlagged txn 3450629 on card C04570-K1 (customer C04570). Bank risk score 0.57 is a reason to look, not a verdict (§0).\nGraph analysis: pattern card_not_present_fraud (online episode, no device marked New); fraud probability 0.60; verdict uncertain; 1 affected txns, first 3450629, exposure $100.09.\n\nGRAPH EVIDENCE\n- Device profile Windows | Windows 10 | chrome 65.0 | 1920x1080 was used by 163 other card(s) in the 30 days before the alert (73 as a New device; 299 cards ever); their cases: CC-0004, CC-0006, CC-0013, CC-0016, CC-0019, CC-0022 (query:device_neighbors(device_id=Windows | Windows 10 | chrome 65.0 | 1920x1080, window=30d))\n- 36 card(s) made their first purchase in billing region 204.0 in the 7 days before the alert (10 linked to cases; 2006 cards ever billed there) (query:region_cluster(region=204.0, window=7d))\n- Customer C04570 cards: C04570-K1; prior cases on them: CC-1383 (cleared, none) (query:customer_cases)\n- [defence 0.72] Closed-case classifier scores flagged txn 3450629 at 0.28, in line with this card's legitimate history (bank risk score 0.57 is often high on false alarms) (ref: model:closed_case_classifier; ids: 3450629)\n- [defence 0.50] Flagged device Windows | Windows 10 | chrome 65.0 | 1920x1080 was already used on this card before (ref: query:card_history(card_id=C04570-K1, window=60d); ids: 3450629)\n\nSIMILAR PAST CASES (vector search over closed and agent cases; same pattern first)\n- none retrieved\n\nPOLICY & GUIDANCE\n- [POLICY-R1] R1. Verify before you block on a weak signal: R1. Verify before you block on a weak signal. If the case rests on a single signal (including a risk score alone) and your assessed fraud probability is below 0.70, recommend VERIFY_WITH_CUSTOMER or STEP_UP_AUTH before any block. Blocking a legitimate customer on one signal is a policy breach. Related actions (§1): VERIFY_WITH_CUSTOMER -- ask the cardholder whether they made the transaction; the card stays active pending reply (low customer impact, ...\n- [PATTERN-card_not_present_fraud] Card-not-present fraud: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 2. Card-not-present fraud. The number is used online without the card. Amounts and products that don't fit the cardholder's history, often in a burst of two to four within 48 hours. On its ...\n- [POLICY-S0-SCORE] What the agent starts with: the risk score: Every transaction carries a risk_score between 0 and 1 from the bank's detection model. The model is useful and imperfect: many high scores are legitimate, and some fraud scores low. A score is a reason to look, never a verdict. The only confirmed outcomes are in the closed cases. As the README glossary puts it: Risk score -- a number from 0 to 1 the bank's model attached to every ...\n- [README-THINGS-TO-KNOW-01] Risk scores, legitimate cases, and undocumented patterns: \"From the README's \"\"Things to know\"\" section: a risk score is a reason to look -- never a verdict. Half the cases in the case pack are legitimate; many look suspicious\n- [POLICY-R3] R3. Customer confirms the transaction: R3. Customer confirms the transaction. Recommend CLOSE_NO_FRAUD. Note the confirmation in the case file. Compare R2, where the customer instead denies the transaction and the agent recommends BLOCK_CARD and CREATE_CASE. Related action (§1): CLOSE_NO_FRAUD -- close the alert as legitimate (no customer impact, route auto). Per the Answer Format notes, for a legitimate verdict affected_txn_ids is empty, exposure_usd is 0, and sar.file is false.\n- [PATTERN-card_testing] Card testing: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 1. Card testing. A stolen card number is checked before use: three or more tiny online authorizations, often under $5, then a larger purchase. Confirmed by the sequence itself. Policy R5.\n- [FATF-CYBERFRAUD-04] Red flags: transaction patterns: FATF's Annex A on cyber-enabled fraud risk indicators lists transaction-pattern red flags including: rapid or immediate high- or low-value transactions after an account is opened, inconsistent with the account's stated purpose; rapid cash withdrawals or transfers of large amounts immediately after receiving a funds transfer, effectively emptying the account; frequent, large transactions inconsistent with the account holder's economic profile, such as sudden international transfers or cash withdrawals through payment cards ...\n\nINSTRUCTIONS\nUse only the facts above. Cite the ids in square brackets and the txn/card/device ids shown; never invent an id, amount or date. Past cases are memory, not this customer's activity: their ids are not connected cards. The bank risk score is not a verdict. Actions come from the policy engine: explain them, do not change them."
+}

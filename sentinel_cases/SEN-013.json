@@ -1,0 +1,175 @@
+{
+  "case_id": "SEN-013",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.938,
+    "pattern": "undocumented",
+    "pattern_description": "The identified pattern involves financial structuring where a series of online purchases are executed within a short timeframe, with each amount kept just under a $500 authorization threshold. This pattern affects the cardholder through unauthorized transactions and was found via a Sentinel near-threshold scan.",
+    "affected_txn_ids": [
+      "3475403",
+      "3475405",
+      "3475408",
+      "3475414"
+    ],
+    "first_suspicious_txn_id": "3475403",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 1911.84,
+    "evidence": [
+      {
+        "claim": "Closed-case classifier scored flagged transaction 3475414 at 0.80 based on confirmed and cleared bank cases, disregarding the 0.07 bank risk score.",
+        "source": "graph",
+        "ref": "model:closed_case_classifier",
+        "entity_ids": [
+          "3475414"
+        ]
+      },
+      {
+        "claim": "Four card transactions between 2016-11-21 10:00:00 and 2016-11-21 10:30:00 comprise a single episode totaling $1,911.84 across transactions 3475403, 3475405, 3475408, and 3475414.",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C05851-K1, window=60d)",
+        "entity_ids": [
+          "3475403",
+          "3475405",
+          "3475408",
+          "3475414"
+        ]
+      },
+      {
+        "claim": "Four online purchases occurred within 30 minutes, valued at $459.27, $496.35, $468.22, and $488.00, keeping amounts under the authorization threshold.",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C05851-K1, window=60d)",
+        "entity_ids": [
+          "3475403",
+          "3475405",
+          "3475408",
+          "3475414"
+        ]
+      },
+      {
+        "claim": "Product code C never used on this card in the prior window",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C05851-K1, window=60d)",
+        "entity_ids": [
+          "3475414"
+        ]
+      },
+      {
+        "claim": "The flagged amount of $488.00 for transaction 3475414 is 13.5 times the card's median amount of $36.04.",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C05851-K1, window=60d)",
+        "entity_ids": [
+          "3475414"
+        ]
+      },
+      {
+        "claim": "Device profile C6743 Build/LMY47V | Android 5.1.1 | android browser 4.0 | 960x540 was used by 0 other cards in the preceding 30 days and 10 cards ever.",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id=C6743 Build/LMY47V | Android 5.1.1 | android browser 4.0 | 960x540, window=30d)",
+        "entity_ids": []
+      },
+      {
+        "claim": "Ten cards made their first purchase in billing region 420.0 in the 7 days prior to the alert, with 6 linked to cases out of 442 total cards ever billed there.",
+        "source": "graph",
+        "ref": "query:region_cluster(region=420.0, window=7d)",
+        "entity_ids": [
+          "C09365-K2",
+          "C07180-K1",
+          "C08737-K1",
+          "C11040-K1",
+          "C09595-K1",
+          "C11815-K1",
+          "C05876-K2",
+          "C06031-K2",
+          "C06844-K1",
+          "C09863-K1"
+        ]
+      },
+      {
+        "claim": "Fraud Policy R1 guidance was reviewed regarding verification before blocking on weak signals.",
+        "source": "document",
+        "ref": "POLICY-R1",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R3 guidance regarding customer confirmation and closing legitimate cases was retrieved as context.",
+        "source": "document",
+        "ref": "POLICY-R3",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy action definitions were retrieved as background context.",
+        "source": "document",
+        "ref": "POLICY-S1-ACTIONS",
+        "entity_ids": []
+      },
+      {
+        "claim": "Relevant regulatory typologies and guidance covering card testing, card-not-present fraud, account takeover, and transaction patterns were retrieved.",
+        "source": "document",
+        "ref": "PATTERN-card_testing, PATTERN-card_not_present_fraud, PATTERN-account_takeover, FATF-CYBERFRAUD-04",
+        "entity_ids": []
+      }
+    ],
+    "similar_prior_cases": [],
+    "summary": "Case SEN-013 was opened on 2016-11-21 due to a Sentinel sweep identifying structuring on card C05851-K1 belonging to customer C05851. The investigation revealed four online purchases within 30 minutes totaling $1,911.84, with individual amounts kept just under $500. Graph analysis and the closed-case classifier yielded a fraud probability of 0.94 and a verdict of fraud. Consequently, recommended actions include BLOCK_CARD, CREATE_CASE, and FILE_REPORT.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-SEN-013"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R1 not triggered: 5 independent signals at probability 0.94; exposure $1,911.84 is under $2,500 (\u00a72)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "\u00a73a: fraud probability 0.94 reaches 0.30"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,911.84 exceeds $1,000"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R1 not triggered: 5 independent signals at probability 0.94; exposure $1,911.84 is under $2,500 (\u00a72)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "\u00a73a: fraud probability 0.94 reaches 0.30"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,911.84 exceeds $1,000"
+      }
+    ],
+    "what_changed": "nothing"
+  },
+  "sar": {
+    "file": true,
+    "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,911.84 exceeds $1,000",
+    "narrative": "Customer C05851 holding card C05851-K1 was subjected to fraudulent activity involving four unauthorized online transactions. Four transactions totaling $1,911.84 occurred on 2016-11-21 between 10:00:00 and 10:30:00. The activity took place on 2016-11-21 through online channels in billing region 420.0. The transactions were executed using device profile C6743 Build/LMY47V | Android 5.1.1 | android browser 4.0 | 960x540. This activity is highly suspicious because the amounts were deliberately kept just under the $500 threshold and significantly exceeded the card's median spend. There are no connected cards associated with this incident. Recommended actions for this case include BLOCK_CARD, CREATE_CASE, and FILE_REPORT under policy guidelines.",
+    "subjects": [
+      "C05851",
+      "C05851-K1"
+    ],
+    "total_amount_usd": 1911.84,
+    "activity_dates": [
+      "2016-11-21",
+      "2016-11-21"
+    ]
+  },
+  "stop_reason": "\u00a76: probability 0.94 is decisive and rests on 5 independent pieces of evidence",
+  "tool_calls": 12,
+  "tokens": 5433,
+  "latency_s": 17.6
+}

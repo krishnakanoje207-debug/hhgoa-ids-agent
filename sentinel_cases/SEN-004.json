@@ -1,0 +1,172 @@
+{
+  "case_id": "SEN-004",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.9,
+    "pattern": "undocumented",
+    "pattern_description": "The pattern involves structuring multiple online purchases within a short timeframe, with individual amounts kept just under a $500 authorization threshold to evade automated controls. It affects card-not-present channels and was identified through Sentinel sweep anomaly detection analyzing rapid burst transactions within a 21-minute window.",
+    "affected_txn_ids": [
+      "3487284",
+      "3487318",
+      "3487340",
+      "3487348"
+    ],
+    "first_suspicious_txn_id": "3487284",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 1935.29,
+    "evidence": [
+      {
+        "claim": "A sequence of 4 card transactions occurring between 2016-11-25 21:00:00 and 2016-11-25 21:21:00 comprises a single episode totaling $1,935.29 across transaction IDs 3487284, 3487318, 3487340, and 3487348.",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C03633-K1, window=60d)",
+        "entity_ids": [
+          "3487284",
+          "3487318",
+          "3487340",
+          "3487348"
+        ]
+      },
+      {
+        "claim": "Four online purchases executed within a 21-minute span for amounts of $488.31, $489.91, $479.33, and $477.74 demonstrate deliberate structuring under the $500 threshold.",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C03633-K1, window=60d)",
+        "entity_ids": [
+          "3487284",
+          "3487318",
+          "3487340",
+          "3487348"
+        ]
+      },
+      {
+        "claim": "The closed-case classifier evaluated flagged transaction 3487348 at a score of 0.16, aligning with the card's baseline history while the bank risk score registered 0.15.",
+        "source": "graph",
+        "ref": "model:closed_case_classifier",
+        "entity_ids": [
+          "3487348"
+        ]
+      },
+      {
+        "claim": "Device profile MacOS | Mac OS X 10_8_5 | chrome 49.0 | 1280x800 was shared by 2 other cards within the preceding 30 days, with historical associations linked to cases CC-0248, CC-1858, CC-3531, and CC-3811.",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id=MacOS | Mac OS X 10_8_5 | chrome 49.0 | 1280x800, window=30d)",
+        "entity_ids": [
+          "C03405-K2",
+          "C04514-K1",
+          "CC-0248",
+          "CC-1858",
+          "CC-3531",
+          "CC-3811"
+        ]
+      },
+      {
+        "claim": "Billing region 191.0 recorded 13 cards making their first purchase in the 7 days prior to the alert, with 4 linked to prior cases among 1033 historical cards.",
+        "source": "graph",
+        "ref": "query:region_cluster(region=191.0, window=7d)",
+        "entity_ids": [
+          "C00452-K2",
+          "C06923-K2",
+          "C03271-K1",
+          "C03231-K2",
+          "C00877-K1",
+          "C09405-K1",
+          "C02848-K1",
+          "C10855-K1",
+          "C09476-K1",
+          "C06446-K1"
+        ]
+      },
+      {
+        "claim": "Nearest historical matches in case memory consist of CASE-SEN-011, CASE-SEN-008, and CASE-SEN-013, all categorized as undocumented fraud.",
+        "source": "graph",
+        "ref": "query:similar_cases",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R1 governs verification requirements before blocking on weak signals.",
+        "source": "document",
+        "ref": "POLICY-R1",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R3 addresses customer confirmation scenarios resulting in case closure.",
+        "source": "document",
+        "ref": "POLICY-R3",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R5 outlines criteria for card testing and subsequent authorization declines or card blocks.",
+        "source": "document",
+        "ref": "POLICY-R5",
+        "entity_ids": []
+      },
+      {
+        "claim": "Regulatory guidance and typologies include card-not-present fraud, card testing, account takeover, and FATF cyber-enabled fraud red flags.",
+        "source": "document",
+        "ref": "PATTERN-card_not_present_fraud, PATTERN-card_testing, PATTERN-account_takeover, FATF-CYBERFRAUD-04",
+        "entity_ids": []
+      }
+    ],
+    "similar_prior_cases": [],
+    "summary": "Case SEN-004 was initiated by a Sentinel sweep following a card-not-present structuring pattern on card C03633-K1, belonging to customer C03633. The graph analysis established a fraud probability of 0.90 based on four online purchases executed within 21 minutes, totaling $1,935.29, with amounts kept just under the $500 threshold. Because the fraud probability reached 0.90 and exposure exceeded $1,000, recommended actions include blocking the card, creating a case, and filing a regulatory report under \u00a73a and \u00a76. Prior cases on this customer include CASE-SEN-005.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-SEN-004"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R1 not triggered: 2 independent signals at probability 0.90; exposure $1,935.29 is under $2,500 (\u00a72)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "\u00a73a: fraud probability 0.90 reaches 0.30"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,935.29 exceeds $1,000"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R1 not triggered: 2 independent signals at probability 0.90; exposure $1,935.29 is under $2,500 (\u00a72)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "\u00a73a: fraud probability 0.90 reaches 0.30"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,935.29 exceeds $1,000"
+      }
+    ],
+    "what_changed": "nothing"
+  },
+  "sar": {
+    "file": true,
+    "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,935.29 exceeds $1,000",
+    "narrative": "Customer C03633 utilizing card C03633-K1 is the subject of this suspicious activity report. A total of four online transactions amounting to $1,935.29 were executed. The activity occurred on 2016-11-25 between 21:00:00 and 21:21:00. Transactions took place via online channels with billing in region 191.0. The transactions utilized device profile MacOS | Mac OS X 10_8_5 | chrome 49.0 | 1280x800 and exhibited structuring tactics keeping amounts just under the $500 threshold. This behavior is suspicious due to rapid sequential transactions designed to avoid authorization triggers. No connected cards were identified in this specific sweep episode. Recommended actions include blocking the card, creating a case, and filing a report per \u00a73a.",
+    "subjects": [
+      "C03633",
+      "C03633-K1"
+    ],
+    "total_amount_usd": 1935.29,
+    "activity_dates": [
+      "2016-11-25",
+      "2016-11-25"
+    ]
+  },
+  "stop_reason": "\u00a76: probability 0.90 is decisive and rests on 2 independent pieces of evidence",
+  "tool_calls": 12,
+  "tokens": 5775,
+  "latency_s": 20.0
+}

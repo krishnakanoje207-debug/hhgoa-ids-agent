@@ -1,0 +1,224 @@
+{
+  "case_id": "SEN-010",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.9,
+    "pattern": "undocumented",
+    "pattern_description": "The undocumented pattern involves structuring multiple online purchases within an hour, each kept just under the $500 threshold to evade authorization limits. It affects repeat customers with prior fraud histories and was found through Sentinel near-threshold sweeps and graph analysis.",
+    "affected_txn_ids": [
+      "3481356",
+      "3481393",
+      "3481403",
+      "3481444"
+    ],
+    "first_suspicious_txn_id": "3481356",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 1921.59,
+    "evidence": [
+      {
+        "claim": "Four card transactions from 2016-11-23 18:00:00 to 2016-11-23 18:27:00 form one episode totaling $1,921.59 (ids: 3481356, 3481393, 3481403, 3481444).",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C01890-K1, window=60d)",
+        "entity_ids": [
+          "3481356",
+          "3481393",
+          "3481403",
+          "3481444"
+        ]
+      },
+      {
+        "claim": "Four online purchases within 27 minutes ($469.82, $467.06, $496.08, $488.63) had amounts kept under an authorization threshold (ids: 3481356, 3481393, 3481403, 3481444).",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C01890-K1, window=60d)",
+        "entity_ids": [
+          "3481356",
+          "3481393",
+          "3481403",
+          "3481444"
+        ]
+      },
+      {
+        "claim": "One episode transaction came from a device marked New for this account, Moto E (4) Plus Build/NMA26.42-69 |  | chrome generic | (id: 3481403).",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C01890-K1, window=60d)",
+        "entity_ids": [
+          "3481403"
+        ]
+      },
+      {
+        "claim": "Customer has 4 earlier confirmed fraud cases: CC-0351, CC-1608, CC-4983, CC-2368.",
+        "source": "graph",
+        "ref": "query:customer_cases",
+        "entity_ids": [
+          "CC-0351",
+          "CC-1608",
+          "CC-4983",
+          "CC-2368"
+        ]
+      },
+      {
+        "claim": "Closed-case classifier scores flagged transaction 3481444 at 0.21, in line with this card's legitimate history (id: 3481444).",
+        "source": "graph",
+        "ref": "model:closed_case_classifier",
+        "entity_ids": [
+          "3481444"
+        ]
+      },
+      {
+        "claim": "Device profile Moto E (4) Plus Build/NMA26.42-69 |  | chrome generic | was used by 16 other cards in the 30 days before the alert; their cases: CC-0031, CC-0086, CC-0094, CC-0097, CC-0122, CC-0180.",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id=Moto E (4) Plus Build/NMA26.42-69 |  | chrome generic | , window=30d)",
+        "entity_ids": [
+          "C06906-K1",
+          "C01525-K2",
+          "C06663-K2",
+          "C05031-K2",
+          "C11597-K2",
+          "C11919-K2",
+          "C11923-K2",
+          "C06744-K2",
+          "C08962-K2",
+          "C06988-K1",
+          "CC-0031",
+          "CC-0086",
+          "CC-0094",
+          "CC-0097",
+          "CC-0122",
+          "CC-0180"
+        ]
+      },
+      {
+        "claim": "Device profile | | mobile safari generic | was used by 307 other cards in the 30 days before the alert; their cases: CASE-HHG-002, CASE-HHG-014, CASE-SEN-011, CASE-SEN-012, CC-0001, CC-0005.",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id= |  | mobile safari generic | , window=30d)",
+        "entity_ids": [
+          "C06362-K1",
+          "C07204-K1",
+          "C04597-K2",
+          "C00978-K1",
+          "C01599-K1",
+          "C00722-K1",
+          "C11881-K1",
+          "C07657-K1",
+          "C03157-K2",
+          "C00944-K1",
+          "CC-0001",
+          "CC-0005",
+          "CC-0014",
+          "CC-0015",
+          "CC-0016",
+          "CC-0023"
+        ]
+      },
+      {
+        "claim": "Four cards made their first purchase in billing region 284.0 in the 7 days before the alert (2 linked to cases; 120 cards ever billed there).",
+        "source": "graph",
+        "ref": "query:region_cluster(region=284.0, window=7d)",
+        "entity_ids": [
+          "C11362-K2",
+          "C10837-K2",
+          "C02545-K2",
+          "C06243-K1"
+        ]
+      },
+      {
+        "claim": "Nearest cases in case memory: CASE-SEN-011, CASE-SEN-008, CASE-SEN-013.",
+        "source": "graph",
+        "ref": "query:similar_cases",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R1. Verify before you block on a weak signal: basis for BLOCK_CARD.",
+        "source": "document",
+        "ref": "POLICY-R1",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R3. Customer confirms the transaction: retrieved as context.",
+        "source": "document",
+        "ref": "POLICY-R3",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R5. Card testing: retrieved as context.",
+        "source": "document",
+        "ref": "POLICY-R5",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy Actions the agent may recommend: retrieved as context.",
+        "source": "document",
+        "ref": "POLICY-S1-ACTIONS",
+        "entity_ids": []
+      },
+      {
+        "claim": "Typology and regulatory guidance retrieved: Card-not-present fraud; Card testing; Account takeover.",
+        "source": "document",
+        "ref": "PATTERN-card_not_present_fraud, PATTERN-card_testing, PATTERN-account_takeover",
+        "entity_ids": []
+      }
+    ],
+    "similar_prior_cases": [],
+    "summary": "Case SEN-010 was initiated on 2016-11-23 following a Sentinel sweep on card C01890-K1, which executed four online purchases totaling $1,921.59 within 27 minutes. Graph analysis confirmed a fraud probability of 0.90 due to structuring tactics keeping amounts just under the $500 threshold. Although the closed-case classifier scored the flagged transaction 3481444 at 0.21, the customer has four earlier confirmed fraud cases (CC-0351, CC-1608, CC-4983, CC-2368). The final actions include blocking the card via L1, creating a case automatically, and filing a report via L2 under \u00a73a.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-SEN-010"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R1 not triggered: 4 independent signals at probability 0.90; exposure $1,921.59 is under $2,500 (\u00a72)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "\u00a73a: fraud probability 0.90 reaches 0.30"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,921.59 exceeds $1,000"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R1 not triggered: 4 independent signals at probability 0.90; exposure $1,921.59 is under $2,500 (\u00a72)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "\u00a73a: fraud probability 0.90 reaches 0.30"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,921.59 exceeds $1,000"
+      }
+    ],
+    "what_changed": "nothing"
+  },
+  "sar": {
+    "file": true,
+    "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,921.59 exceeds $1,000",
+    "narrative": "Customer C01890 utilizing card C01890-K1 is the subject of this suspicious activity report. A total of four transactions amounting to $1,921.59 were executed across the account. The activity occurred on 2016-11-23 between 18:00:00 and 18:27:00. The transactions were conducted via online channels with billing region 284.0. The perpetrator utilized a new device profile, Moto E (4) Plus Build/NMA26.42-69 |  | chrome generic |, to perform rapid successive purchases. The activity is suspicious due to structuring amounts just under $500 and the customer's prior fraud history. Connected cards and devices were evaluated during the investigation. Recommended actions include blocking the card, creating a case, and filing a formal report.",
+    "subjects": [
+      "C01890",
+      "C01890-K1"
+    ],
+    "total_amount_usd": 1921.59,
+    "activity_dates": [
+      "2016-11-23",
+      "2016-11-23"
+    ]
+  },
+  "stop_reason": "\u00a76: probability 0.90 is decisive and rests on 4 independent pieces of evidence",
+  "tool_calls": 13,
+  "tokens": 11860,
+  "latency_s": 27.9
+}

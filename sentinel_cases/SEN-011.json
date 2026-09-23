@@ -1,0 +1,240 @@
+{
+  "case_id": "SEN-011",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.9,
+    "pattern": "undocumented",
+    "pattern_description": "The undocumented fraud pattern involves structuring multiple online purchases within a brief timeframe, with individual amounts kept just under the $500 authorization threshold to evade detection. It affects cardholders through rapid bursts of unauthorized online activity using compromised card details. The pattern was identified via a Sentinel near-threshold scan analyzing transaction clustering and velocity.",
+    "affected_txn_ids": [
+      "3476601",
+      "3476621",
+      "3476655",
+      "3476664"
+    ],
+    "first_suspicious_txn_id": "3476601",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 1860.43,
+    "evidence": [
+      {
+        "claim": "Four card transactions from 2016-11-21 20:00:00 to 2016-11-21 20:24:00 form one episode with a total exposure of $1,860.43 (ids: 3476601, 3476621, 3476655, 3476664).",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C00466-K1, window=60d)",
+        "entity_ids": [
+          "3476601",
+          "3476621",
+          "3476655",
+          "3476664"
+        ]
+      },
+      {
+        "claim": "Four online purchases occurred within 24 minutes with amounts kept just under the authorization threshold ($463.88, $466.93, $459.07, $470.55; ids: 3476601, 3476621, 3476655, 3476664).",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C00466-K1, window=60d)",
+        "entity_ids": [
+          "3476601",
+          "3476621",
+          "3476655",
+          "3476664"
+        ]
+      },
+      {
+        "claim": "Two episode transactions originated from a device marked as New for this account ( |  | chrome 63.0 | ; ids: 3476621, 3476664).",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C00466-K1, window=60d)",
+        "entity_ids": [
+          "3476621",
+          "3476664"
+        ]
+      },
+      {
+        "claim": "Customer has 8 earlier confirmed fraud case(s): CC-4662, CC-2680, CC-1708, CC-1400, CC-1035",
+        "source": "graph",
+        "ref": "query:customer_cases",
+        "entity_ids": [
+          "CC-4662",
+          "CC-2680",
+          "CC-1708",
+          "CC-1400",
+          "CC-1035"
+        ]
+      },
+      {
+        "claim": "The closed-case classifier scored flagged transaction 3476664 at 0.31, while the bank risk score was 0.07.",
+        "source": "graph",
+        "ref": "model:closed_case_classifier",
+        "entity_ids": [
+          "3476664"
+        ]
+      },
+      {
+        "claim": "Flagged device Windows |  | chrome 64.0 |  was already used on this card before",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C00466-K1, window=60d)",
+        "entity_ids": [
+          "3476664"
+        ]
+      },
+      {
+        "claim": "Device profile Windows |  | chrome 64.0 |  was used by 58 other cards in the 30 days prior, with associated cases including CC-0015, CC-0031, CC-0037, CC-0054, CC-0056, and CC-0067.",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id=Windows |  | chrome 64.0 | , window=30d)",
+        "entity_ids": [
+          "C10114-K1",
+          "C04597-K2",
+          "C02147-K2",
+          "C08391-K2",
+          "C09791-K1",
+          "C01846-K1",
+          "C00426-K2",
+          "C06906-K1",
+          "C05381-K2",
+          "C01172-K1",
+          "CC-0015",
+          "CC-0031",
+          "CC-0037",
+          "CC-0054",
+          "CC-0056",
+          "CC-0067"
+        ]
+      },
+      {
+        "claim": "Device profile |  | chrome 63.0 |  was used by 20 other cards in the 30 days prior, with associated cases including CC-0031, CC-0086, CC-0097, CC-0137, CC-0184, and CC-0190.",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id= |  | chrome 63.0 | , window=30d)",
+        "entity_ids": [
+          "C05677-K1",
+          "C02716-K2",
+          "C13447-K1",
+          "C05381-K2",
+          "C06351-K1",
+          "C12942-K2",
+          "C05031-K2",
+          "C04463-K1",
+          "C11923-K2",
+          "C08962-K2",
+          "CC-0031",
+          "CC-0086",
+          "CC-0097",
+          "CC-0137",
+          "CC-0184",
+          "CC-0190"
+        ]
+      },
+      {
+        "claim": "Device profile XT1032 Build/LPBS23.13-56-2 |  | chrome 64.0 for android |  was used by 4 other cards in the 30 days prior, with associated cases including CC-0180, CC-0199, CC-0380, CC-0429, CC-0520, and CC-0535.",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id=XT1032 Build/LPBS23.13-56-2 |  | chrome 64.0 for android | , window=30d)",
+        "entity_ids": [
+          "C05381-K2",
+          "C11597-K2",
+          "C08962-K2",
+          "C00294-K2",
+          "CC-0180",
+          "CC-0199",
+          "CC-0380",
+          "CC-0429",
+          "CC-0520",
+          "CC-0535"
+        ]
+      },
+      {
+        "claim": "Nearest cases in memory are CASE-SEN-008 and CASE-SEN-013, both categorized as fraud with an undocumented pattern.",
+        "source": "graph",
+        "ref": "query:similar_cases",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R1 regarding verification before blocking on weak signals served as context.",
+        "source": "document",
+        "ref": "POLICY-R1",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R3 regarding customer confirmation was retrieved as context.",
+        "source": "document",
+        "ref": "POLICY-R3",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R5 regarding card testing was retrieved as context.",
+        "source": "document",
+        "ref": "POLICY-R5",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy Actions guidance was retrieved as context.",
+        "source": "document",
+        "ref": "POLICY-S1-ACTIONS",
+        "entity_ids": []
+      },
+      {
+        "claim": "Typology and regulatory guidance were retrieved for card-not-present fraud, card testing, and account takeover.",
+        "source": "document",
+        "ref": "PATTERN-card_not_present_fraud, PATTERN-card_testing, PATTERN-account_takeover",
+        "entity_ids": []
+      }
+    ],
+    "similar_prior_cases": [],
+    "summary": "Case SEN-011 was opened following a Sentinel sweep on card C00466-K1 belonging to customer C00466, flagging an episode of 4 online transactions totaling $1,860.43 executed within 24 minutes. The transactions were structured just under the $500 threshold with amounts of $463.88, $466.93, $459.07, and $470.55 (transactions 3476601, 3476621, 3476655, 3476664). Graph analysis confirmed a fraud probability of 0.90 based on multiple independent risk signals, including prior confirmed fraud history on the customer. Recommended actions include blocking the card, creating a case, and filing a report under \u00a73a.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-SEN-011"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R1 not triggered: 4 independent signals at probability 0.90; exposure $1,860.43 is under $2,500 (\u00a72)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "\u00a73a: fraud probability 0.90 reaches 0.30"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,860.43 exceeds $1,000"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R1 not triggered: 4 independent signals at probability 0.90; exposure $1,860.43 is under $2,500 (\u00a72)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "\u00a73a: fraud probability 0.90 reaches 0.30"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,860.43 exceeds $1,000"
+      }
+    ],
+    "what_changed": "nothing"
+  },
+  "sar": {
+    "file": true,
+    "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,860.43 exceeds $1,000",
+    "narrative": "Customer C00466 utilizing card C00466-K1 was subjected to fraudulent activity involving a series of structured online transactions. A total of four transactions (3476601, 3476621, 3476655, 3476664) amounting to $1,860.43 were executed. The activity took place on 2016-11-21 between 20:00:00 and 20:24:00. The transactions occurred via online channels using device profiles including Windows |  | chrome 64.0 |  and |  | chrome 63.0 |. The method involved rapid authorization attempts kept just under the $500 threshold to evade detection. This pattern is suspicious due to velocity, structuring, and the customer's prior confirmed fraud history including cases CC-4662, CC-2680, CC-1708, CC-1400, and CC-1035. No connected cards were identified in this case. Recommended actions include blocking card C00466-K1, creating case SEN-011, and filing a regulatory report.",
+    "subjects": [
+      "C00466",
+      "C00466-K1"
+    ],
+    "total_amount_usd": 1860.43,
+    "activity_dates": [
+      "2016-11-21",
+      "2016-11-21"
+    ]
+  },
+  "stop_reason": "\u00a76: probability 0.90 is decisive and rests on 4 independent pieces of evidence",
+  "tool_calls": 13,
+  "tokens": 6888,
+  "latency_s": 17.8
+}

@@ -1,0 +1,224 @@
+{
+  "case_id": "SEN-002",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.9,
+    "pattern": "undocumented",
+    "pattern_description": "The undocumented structuring pattern involves multiple online purchases executed within a short timeframe, with individual transaction amounts kept just under the $500 authorization threshold. This pattern affects cards like C05560-K2 and was uncovered through Sentinel sweep alerts identifying rapid bursts of near-threshold transactions.",
+    "affected_txn_ids": [
+      "3517236",
+      "3518540",
+      "3518547",
+      "3518549"
+    ],
+    "first_suspicious_txn_id": "3517236",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 1799.79,
+    "evidence": [
+      {
+        "claim": "4 card txns from 2016-12-05 21:29:03 to 2016-12-06 11:23:33 form one episode (grouped by the episode model fitted on closed cases, gaps under 48 h), total $1,799.79",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C05560-K2, window=60d)",
+        "entity_ids": [
+          "3517236",
+          "3518540",
+          "3518547",
+          "3518549"
+        ]
+      },
+      {
+        "claim": "Three online purchases made within 7 minutes (transactions 3518540, 3518547, and 3518549) were each priced just under $500 ($499.98, $499.95, and $499.91) to stay below authorization limits.",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C05560-K2, window=60d)",
+        "entity_ids": [
+          "3518540",
+          "3518547",
+          "3518549"
+        ]
+      },
+      {
+        "claim": "One transaction in the episode originated from a device profile flagged as New for the account (iOS Device | iOS 11.2.5 | mobile safari 11.0 | 2436x1125).",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C05560-K2, window=60d)",
+        "entity_ids": [
+          "3517236"
+        ]
+      },
+      {
+        "claim": "Customer has 8 earlier confirmed fraud case(s): CC-5150, CC-1587, CC-5020, CC-3466, CC-1210",
+        "source": "graph",
+        "ref": "query:customer_cases",
+        "entity_ids": [
+          "CC-5150",
+          "CC-1587",
+          "CC-5020",
+          "CC-3466",
+          "CC-1210"
+        ]
+      },
+      {
+        "claim": "The closed-case classifier scored transaction 3518549 at 0.17, while the bank risk score was 0.24.",
+        "source": "graph",
+        "ref": "model:closed_case_classifier",
+        "entity_ids": [
+          "3518549"
+        ]
+      },
+      {
+        "claim": "Flagged device rv:11.0 |  | ie 11.0 for desktop |  was already used on this card before",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C05560-K2, window=60d)",
+        "entity_ids": [
+          "3518549"
+        ]
+      },
+      {
+        "claim": "The disputed $499.91 transaction 3518549 on product R aligns with previous monthly charges under IDs 3419766, 3419774, 3446119, and 3446124.",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C05560-K2, window=60d)",
+        "entity_ids": [
+          "3518549",
+          "3419766",
+          "3419774",
+          "3446119",
+          "3446124"
+        ]
+      },
+      {
+        "claim": "The device profile rv:11.0 |  | ie 11.0 for desktop | was utilized by 60 other cards in the preceding 30 days and appears in cases CASE-HHG-014, CASE-HHG-019, CASE-SEN-001, CASE-SEN-012, CC-0015, and CC-0031.",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id=rv:11.0 |  | ie 11.0 for desktop | , window=30d)",
+        "entity_ids": [
+          "C10955-K2",
+          "C08391-K2",
+          "C08918-K2",
+          "C03218-K2",
+          "C02387-K1",
+          "C09791-K1",
+          "C03040-K2",
+          "C04597-K2",
+          "C01138-K2",
+          "C10713-K1",
+          "CC-0015",
+          "CC-0031",
+          "CC-0033",
+          "CC-0042",
+          "CC-0045",
+          "CC-0053"
+        ]
+      },
+      {
+        "claim": "The device profile iOS Device | iOS 11.2.5 | mobile safari 11.0 | 2436x1125 was used by 1 other card in the 30 days prior and is linked to cases CC-0063, CC-0452, CC-0557, CC-0695, CC-0932, and CC-1039.",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id=iOS Device | iOS 11.2.5 | mobile safari 11.0 | 2436x1125, window=30d)",
+        "entity_ids": [
+          "C11000-K2",
+          "CC-0063",
+          "CC-0452",
+          "CC-0557",
+          "CC-0695",
+          "CC-0932",
+          "CC-1039"
+        ]
+      },
+      {
+        "claim": "Similar past cases retrieved from memory include CASE-SEN-011, CASE-SEN-009, CASE-SEN-008, CASE-SEN-013, and CASE-SEN-003.",
+        "source": "graph",
+        "ref": "query:similar_cases",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R1 establishes guidelines for verifying weak signals before executing a block.",
+        "source": "document",
+        "ref": "POLICY-R1",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R3 details procedures when a customer confirms a transaction.",
+        "source": "document",
+        "ref": "POLICY-R3",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R5 governs rules for handling card testing patterns.",
+        "source": "document",
+        "ref": "POLICY-R5",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy S1 outlines the approved action set available to agents.",
+        "source": "document",
+        "ref": "POLICY-S1-ACTIONS",
+        "entity_ids": []
+      },
+      {
+        "claim": "Regulatory guidance documents card-not-present fraud, card testing, and account takeover typologies.",
+        "source": "document",
+        "ref": "PATTERN-card_not_present_fraud, PATTERN-card_testing, PATTERN-account_takeover",
+        "entity_ids": []
+      }
+    ],
+    "similar_prior_cases": [],
+    "summary": "Case SEN-002 was opened on 2016-12-06 following a Sentinel near-threshold scan on card C05560-K2 belonging to customer C05560. Graph analysis confirmed a fraud verdict with a 0.90 probability across an episode of 4 transactions totaling $1,799.79. The activity featured structuring tactics, keeping amounts just under the $500 threshold. Consequently, recommended actions include blocking the card, creating a case, and filing a report.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-SEN-002"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R1 not triggered: 4 independent signals at probability 0.90; exposure $1,799.79 is under $2,500 (\u00a72)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "\u00a73a: fraud probability 0.90 reaches 0.30"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,799.79 exceeds $1,000"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R1 not triggered: 4 independent signals at probability 0.90; exposure $1,799.79 is under $2,500 (\u00a72)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "\u00a73a: fraud probability 0.90 reaches 0.30"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,799.79 exceeds $1,000"
+      }
+    ],
+    "what_changed": "nothing"
+  },
+  "sar": {
+    "file": true,
+    "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,799.79 exceeds $1,000",
+    "narrative": "Customer C05560, holding card C05560-K2, was identified in a fraud investigation involving suspicious online transactions. A series of 4 card transactions totaling $1,799.79 was executed between 2016-12-05 and 2016-12-06. The activity occurred online across channels involving desktop and mobile device profiles. The method utilized structuring, wherein multiple purchases were made in rapid succession with amounts kept just under the $500 threshold to evade standard controls. This behavior is highly suspicious and consistent with fraudulent structuring tactics observed in prior connected cases. The customer also has 8 earlier confirmed fraud cases including CC-5150, CC-1587, CC-5020, CC-3466, and CC-1210. Recommended actions for this case include blocking the card, creating a case, and filing a report.",
+    "subjects": [
+      "C05560",
+      "C05560-K2"
+    ],
+    "total_amount_usd": 1799.79,
+    "activity_dates": [
+      "2016-12-05",
+      "2016-12-06"
+    ]
+  },
+  "stop_reason": "\u00a76: probability 0.90 is decisive and rests on 4 independent pieces of evidence",
+  "tool_calls": 15,
+  "tokens": 8593,
+  "latency_s": 22.0
+}

@@ -1,0 +1,203 @@
+{
+  "case_id": "HHG-006",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.9,
+    "pattern": "undocumented",
+    "pattern_description": "The pattern involves several online purchases executed within a short timeframe, each kept just under the $500 authorization threshold to evade detection. It affects cardholders through rapid, unauthorized online billing episodes. It was found via graph analysis identifying clustered card history and device profile associations.",
+    "affected_txn_ids": [
+      "3476602",
+      "3476633",
+      "3476665",
+      "3476682"
+    ],
+    "first_suspicious_txn_id": "3476602",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 1906.07,
+    "evidence": [
+      {
+        "claim": "A series of 4 card transactions occurring between 2016-11-21 20:00:00 and 2016-11-21 20:30:00 constitute a single episode with a combined total of $1,906.07.",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C07297-K1, window=60d)",
+        "entity_ids": [
+          "3476602",
+          "3476633",
+          "3476665",
+          "3476682"
+        ]
+      },
+      {
+        "claim": "Four online purchases executed within 30 minutes, each valued just under $500 ($478.95, $456.96, $488.04, $482.12), indicating amounts managed to stay beneath authorization limits.",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C07297-K1, window=60d)",
+        "entity_ids": [
+          "3476602",
+          "3476633",
+          "3476665",
+          "3476682"
+        ]
+      },
+      {
+        "claim": "The closed-case classifier evaluated the flagged transaction 3476682 at 0.35, aligning with the card's normal history while noting the bank risk score of 0.25 often triggers false alarms.",
+        "source": "graph",
+        "ref": "model:closed_case_classifier",
+        "entity_ids": [
+          "3476682"
+        ]
+      },
+      {
+        "claim": "Device Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080 is New but was then used again on this card (1 txns, all scored low): consistent with the cardholder's new phone",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C07297-K1, window=60d)",
+        "entity_ids": [
+          "3476682",
+          "3476602"
+        ]
+      },
+      {
+        "claim": "Device profile Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080 was shared by 78 other cards during the 30 days preceding the alert, with associated cases CC-0005, CC-0018, CC-0019, CC-0033, CC-0041, and CC-0045.",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id=Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080, window=30d)",
+        "entity_ids": [
+          "C06001-K1",
+          "C10713-K1",
+          "C08918-K2",
+          "C03218-K2",
+          "C10842-K1",
+          "C01982-K2",
+          "C02716-K2",
+          "C10755-K1",
+          "C03040-K2",
+          "C11000-K2",
+          "CC-0005",
+          "CC-0018",
+          "CC-0019",
+          "CC-0033",
+          "CC-0041",
+          "CC-0045"
+        ]
+      },
+      {
+        "claim": "Device profile iOS Device | iOS 11.2.1 | mobile safari 11.0 | 2208x1242 was utilized by 0 other cards in the 30-day window prior to the alert.",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id=iOS Device | iOS 11.2.1 | mobile safari 11.0 | 2208x1242, window=30d)",
+        "entity_ids": []
+      },
+      {
+        "claim": "A total of 7 cards recorded their initial purchase within billing region 476.0 during the 7 days prior to the alert, including 2 linked to existing cases.",
+        "source": "graph",
+        "ref": "query:region_cluster(region=476.0, window=7d)",
+        "entity_ids": [
+          "C07087-K1",
+          "C07277-K1",
+          "C09249-K1",
+          "C07936-K2",
+          "C01484-K1",
+          "C10419-K1",
+          "C02843-K1"
+        ]
+      },
+      {
+        "claim": "Customer C07297 submitted a dispute for transaction 3476682 stating they never made the $482.12 purchase.",
+        "source": "customer",
+        "ref": "case_pack:trigger_text",
+        "entity_ids": [
+          "3476682",
+          "C07297"
+        ]
+      },
+      {
+        "claim": "Similar historical cases identified in memory include CASE-SEN-008, CASE-SEN-011, and CASE-SEN-013, all categorized as fraud with undocumented patterns.",
+        "source": "graph",
+        "ref": "query:similar_cases",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R1 serves as the reference regarding verification before blocking on weak signals.",
+        "source": "document",
+        "ref": "POLICY-R1",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R3 provides guidance for handling transactions confirmed by the customer.",
+        "source": "document",
+        "ref": "POLICY-R3",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R7 outlines procedures for disputed transactions that match recurring patterns.",
+        "source": "document",
+        "ref": "POLICY-R7",
+        "entity_ids": []
+      },
+      {
+        "claim": "Relevant typologies and regulatory guidelines reviewed include Card-not-present fraud, Card-not-present fraud from a new device, Card testing, and transaction-pattern red flags.",
+        "source": "document",
+        "ref": "PATTERN-card_not_present_fraud, PATTERN-card_not_present_new_device, PATTERN-card_testing, FATF-CYBERFRAUD-04",
+        "entity_ids": []
+      }
+    ],
+    "similar_prior_cases": [],
+    "summary": "Case HHG-006 was opened following a customer report from customer C07297 regarding an unauthorized online purchase on card C07297-K1. Graph analysis confirmed a fraud probability of 0.90 based on an undocumented structuring pattern of 4 online purchases totaling $1,906.07. Because the probability exceeds the threshold and rests on independent evidence, recommended actions include blocking the card via L1, creating a case automatically, and filing a report via L2 under §3a.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-HHG-006"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R1 not triggered: 2 independent signals at probability 0.90; exposure $1,906.07 is under $2,500 (§2)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "§3a: customer disputed a charge"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "§3a: fraud confirmed or strongly suspected and exposure $1,906.07 exceeds $1,000"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R1 not triggered: 2 independent signals at probability 0.90; exposure $1,906.07 is under $2,500 (§2)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "§3a: customer disputed a charge"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "§3a: fraud confirmed or strongly suspected and exposure $1,906.07 exceeds $1,000"
+      }
+    ],
+    "what_changed": "nothing"
+  },
+  "sar": {
+    "file": true,
+    "reason": "§3a: fraud confirmed or strongly suspected and exposure $1,906.07 exceeds $1,000",
+    "narrative": "Customer C07297 holding card C07297-K1 experienced fraudulent activity involving multiple unauthorized transactions. Four online card transactions totaling $1,906.07 were executed on 2016-11-21. The activity occurred between 2016-11-21 20:00:00 and 2016-11-21 20:30:00. Transactions originated online using device profile Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080. The activity is suspicious due to an undocumented structuring pattern keeping amounts just under $500. No connected cards were identified in this case. Recommended actions include blocking card C07297-K1, creating a case for customer C07297, and filing a regulatory report.",
+    "subjects": [
+      "C07297",
+      "C07297-K1"
+    ],
+    "total_amount_usd": 1906.07,
+    "activity_dates": [
+      "2016-11-21",
+      "2016-11-21"
+    ]
+  },
+  "stop_reason": "§6: probability 0.90 is decisive and rests on 2 independent pieces of evidence",
+  "tool_calls": 12,
+  "tokens": 17182,
+  "latency_s": 32.9
+}

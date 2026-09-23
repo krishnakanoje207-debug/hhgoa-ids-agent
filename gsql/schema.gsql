@@ -1,0 +1,46 @@
+# FraudGraph schema. README "Suggested graph schema" plus case memory (AgentCase) and a GraphRAG corpus (Doc).
+# Undirected edges keep traversal queries simple in both directions.
+# Txn.model_score comes from scripts/train_model.py (a model learned from the closed cases).
+
+CREATE VERTEX Customer (PRIMARY_ID id STRING) WITH primary_id_as_attribute="true"
+CREATE VERTEX Card (PRIMARY_ID id STRING, network STRING, card_type STRING) WITH primary_id_as_attribute="true"
+CREATE VERTEX Txn (PRIMARY_ID id STRING, ts DATETIME, amount DOUBLE, product STRING, channel STRING,
+                   risk DOUBLE, addr1 STRING, addr2 STRING, dist1 DOUBLE, p_email STRING, r_email STRING,
+                   m_flags STRING, c1 DOUBLE, c13 DOUBLE, d1 DOUBLE, d15 DOUBLE,
+                   model_score DOUBLE) WITH primary_id_as_attribute="true"
+CREATE VERTEX DeviceProfile (PRIMARY_ID id STRING, device_info STRING, os STRING, browser STRING,
+                   screen STRING, device_type STRING) WITH primary_id_as_attribute="true"
+CREATE VERTEX EmailDomain (PRIMARY_ID id STRING) WITH primary_id_as_attribute="true"
+CREATE VERTEX Region (PRIMARY_ID id STRING) WITH primary_id_as_attribute="true"
+CREATE VERTEX ClosedCase (PRIMARY_ID id STRING, outcome STRING, pattern STRING, opened_at DATETIME,
+                   closed_at DATETIME, n_txns INT, exposure DOUBLE, actions STRING, report_filed BOOL,
+                   notes STRING) WITH primary_id_as_attribute="true"
+CREATE VERTEX AgentCase (PRIMARY_ID id STRING, case_id STRING, created_at DATETIME, status STRING,
+                   verdict STRING, pattern STRING, probability DOUBLE, exposure DOUBLE, summary STRING,
+                   answer_json STRING) WITH primary_id_as_attribute="true"
+CREATE VERTEX Doc (PRIMARY_ID id STRING, source STRING, section STRING, title STRING, text STRING)
+                   WITH primary_id_as_attribute="true"
+
+CREATE UNDIRECTED EDGE OWNS (FROM Customer, TO Card)
+CREATE UNDIRECTED EDGE MADE (FROM Card, TO Txn)
+# id_15 (New/Found for this account) and id_23 (proxy) describe the account-device relationship, so they live on the edge.
+CREATE UNDIRECTED EDGE FROM_DEVICE (FROM Txn, TO DeviceProfile, dev_status STRING, proxy_type STRING)
+CREATE UNDIRECTED EDGE PURCHASER_EMAIL (FROM Txn, TO EmailDomain)
+CREATE UNDIRECTED EDGE RECIPIENT_EMAIL (FROM Txn, TO EmailDomain)
+CREATE UNDIRECTED EDGE BILLED_IN (FROM Txn, TO Region)
+CREATE UNDIRECTED EDGE INVOLVES (FROM ClosedCase, TO Txn | FROM AgentCase, TO Txn)
+CREATE UNDIRECTED EDGE ON_CARD (FROM ClosedCase, TO Card | FROM AgentCase, TO Card)
+CREATE UNDIRECTED EDGE CONNECTED_TO (FROM ClosedCase, TO Card | FROM AgentCase, TO Card)
+CREATE UNDIRECTED EDGE LINKS_DEVICE (FROM AgentCase, TO DeviceProfile)
+CREATE UNDIRECTED EDGE SIMILAR_TO (FROM AgentCase, TO ClosedCase)
+CREATE UNDIRECTED EDGE CITES (FROM AgentCase, TO Doc)
+
+CREATE GRAPH FraudGraph (*)
+
+USE GLOBAL
+CREATE GLOBAL SCHEMA_CHANGE JOB add_vectors {
+  ALTER VERTEX ClosedCase ADD VECTOR ATTRIBUTE emb(DIMENSION=384, METRIC="COSINE");
+  ALTER VERTEX Doc ADD VECTOR ATTRIBUTE emb(DIMENSION=384, METRIC="COSINE");
+  ALTER VERTEX AgentCase ADD VECTOR ATTRIBUTE emb(DIMENSION=384, METRIC="COSINE");
+}
+RUN GLOBAL SCHEMA_CHANGE JOB add_vectors

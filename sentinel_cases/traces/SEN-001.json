@@ -1,0 +1,875 @@
+{
+  "case_id": "SEN-001",
+  "trigger": {
+    "case_id": "SEN-001",
+    "opened_at": "2016-12-04 13:47:00",
+    "trigger_type": "analyst_request",
+    "trigger_text": "Sentinel sweep (device_ring_scan): device profile SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080 was used as New by 28 cards between 2016-11-14 and 2016-12-04 (28 behind an anonymous proxy); only 52 cards ever used it; linked cases CASE-HHG-014, CASE-SEN-001, CC-0020, CC-0100, CC-0118; ring also touches case-pack card(s) C13487-K1. Review transaction 3512563 on card C07472-K1 and look for related activity.",
+    "flagged_txn_id": "3512563",
+    "card_id": "C07472-K1",
+    "customer_id": "C07472",
+    "risk_score": null
+  },
+  "steps": [
+    {
+      "step": 1,
+      "name": "Trigger received",
+      "tool": null,
+      "args": {
+        "trigger_type": "analyst_request"
+      },
+      "summary": "analyst_request alert on card C07472-K1, flagged txn 3512563",
+      "ms": 0
+    },
+    {
+      "step": 2,
+      "name": "Card history (60 days to opening)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "card_history",
+        "card_id": "C07472-K1",
+        "t_from": "2016-10-05 13:47:00",
+        "t_to": "2016-12-04 13:47:00"
+      },
+      "summary": "41 txns on C07472-K1",
+      "ms": 629
+    },
+    {
+      "step": 2,
+      "name": "Customer cards and prior cases",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "customer_cases",
+        "customer_id": "C07472"
+      },
+      "summary": "1 card(s), 1 case(s)",
+      "ms": 560
+    },
+    {
+      "step": 2,
+      "name": "Device neighbourhood (30 days)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "device_neighbors",
+        "device_id": "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080",
+        "t_from": "2016-11-04 13:47:00",
+        "t_to": "2016-12-04 13:47:00"
+      },
+      "summary": "28 card(s) used it in the window, 52 ever",
+      "ms": 522
+    },
+    {
+      "step": 2,
+      "name": "Plan optional queries",
+      "tool": "llm",
+      "args": {
+        "source": "llm",
+        "choices": [
+          {
+            "tool": "device_neighbors",
+            "arg": "SM-G950U Build/R16NW | Android 8.0.0 | chrome 65.0 for android | 2220x1080",
+            "why": "Check if the second device profile (SM-G950U) used by this card is also tied to a fraudulent device ring or other compromised cards."
+          },
+          {
+            "tool": "region_cluster",
+            "arg": "315.0",
+            "why": "Examine the billing region cluster around addr1 315.0 to determine if multiple cards are sharing this region under suspicious circumstances."
+          }
+        ],
+        "catalogue": 2
+      },
+      "summary": "The card has recently used two distinct device profiles, one of which is already flagged in a massive device ring (SM-G935F). Querying the second device profile and the local billing region will reveal if a broader multi-device card-testing network is operating.",
+      "ms": 2252
+    },
+    {
+      "step": 2,
+      "name": "Device neighbourhood (30 days)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "device_neighbors",
+        "device_id": "SM-G950U Build/R16NW | Android 8.0.0 | chrome 65.0 for android | 2220x1080",
+        "t_from": "2016-11-04 13:47:00",
+        "t_to": "2016-12-04 13:47:00"
+      },
+      "summary": "13 card(s) used it in the window, 15 ever",
+      "ms": 276
+    },
+    {
+      "step": 2,
+      "name": "Region cluster (7 days)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "region_cluster",
+        "region": "315.0",
+        "t_from": "2016-11-27 13:47:00",
+        "t_to": "2016-12-04 13:47:00"
+      },
+      "summary": "16 card(s) new to region 315.0 in the window",
+      "ms": 272
+    },
+    {
+      "step": 3,
+      "name": "Gather evidence (card analytics)",
+      "tool": null,
+      "args": {
+        "device_ctx": "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080"
+      },
+      "summary": "pattern undocumented (device-profile ring: several other cards used the same rare device as New); 2 episode txn(s), exposure $265.85; 6 prosecution / 0 defence items",
+      "ms": 3
+    },
+    {
+      "step": 4,
+      "name": "Assess uncertainty",
+      "tool": null,
+      "args": {
+        "fraud_probability": 0.9,
+        "verdict": "fraud"
+      },
+      "summary": "probability 0.90, verdict fraud, 5 independent evidence, single_signal=False, conflicts=False; initial: BLOCK_CARD, CREATE_CASE, FILE_REPORT, MONITOR_CONNECTED_CARDS, ESCALATE_TO_ANALYST",
+      "ms": 0
+    },
+    {
+      "step": 5,
+      "name": "Evidence gate",
+      "tool": null,
+      "args": {},
+      "summary": "no response to any warranted request changes the actions: stop",
+      "ms": 0
+    },
+    {
+      "step": 6,
+      "name": "Next best actions",
+      "tool": null,
+      "args": {
+        "final": [
+          "BLOCK_CARD",
+          "CREATE_CASE",
+          "FILE_REPORT",
+          "MONITOR_CONNECTED_CARDS",
+          "ESCALATE_TO_ANALYST"
+        ]
+      },
+      "summary": "executed (auto): CREATE_CASE, MONITOR_CONNECTED_CARDS, ESCALATE_TO_ANALYST; awaiting approval: BLOCK_CARD (L1), FILE_REPORT (L2)",
+      "ms": 0
+    },
+    {
+      "step": 7,
+      "name": "GraphRAG retrieval",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "queries": [
+          "similar_cases",
+          "search_docs"
+        ],
+        "calls": 4
+      },
+      "summary": "4 similar case(s), 7 passage(s)",
+      "ms": 6821
+    },
+    {
+      "step": 7,
+      "name": "Explain decision",
+      "tool": "llm",
+      "args": {
+        "fallback": []
+      },
+      "summary": "LLM text validated",
+      "ms": 5784
+    },
+    {
+      "step": 8,
+      "name": "Update case memory",
+      "tool": "tigergraph__add_node",
+      "args": {
+        "vertex": "AgentCase",
+        "id": "CASE-SEN-001",
+        "edges": 38
+      },
+      "summary": "wrote CASE-SEN-001",
+      "ms": 4213
+    }
+  ],
+  "hypotheses": {
+    "prosecution": [
+      {
+        "claim": "Closed-case classifier scores flagged txn 3512563 at 0.74 (learned from the bank's confirmed/cleared cases; the bank risk score 0.10 is not used as a verdict)",
+        "score": 0.74,
+        "entity_ids": [
+          "3512563"
+        ],
+        "ref": "model:closed_case_classifier"
+      },
+      {
+        "claim": "2 card txns from 2016-11-30 15:47:00 to 2016-12-04 11:47:00 form one episode (every txn this card made on the ring device), total $265.85",
+        "score": 0.6,
+        "entity_ids": [
+          "3500431",
+          "3512563"
+        ],
+        "ref": "query:card_history(card_id=C07472-K1, window=60d)"
+      },
+      {
+        "claim": "Device profile SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080 was used as New by 27 other cards in the window (27 behind an anonymous proxy); only 52 cards ever used it; 57 linked closed case(s) incl. CASE-HHG-014, CASE-SEN-001, CC-0020, CC-0100, CC-0118",
+        "score": 0.9,
+        "entity_ids": [
+          "C01289-K1",
+          "C01996-K2",
+          "C02910-K1",
+          "C02975-K1",
+          "C03676-K2",
+          "C04108-K2",
+          "C04274-K1",
+          "C05448-K2",
+          "C06031-K2",
+          "C06650-K2",
+          "CASE-HHG-014",
+          "CASE-SEN-001",
+          "CC-0020",
+          "CC-0100",
+          "CC-0118",
+          "CC-0359",
+          "CC-0422",
+          "CC-0462",
+          "CC-0601",
+          "CC-0612",
+          "CC-1102",
+          "CC-1484",
+          "CC-1622",
+          "CC-1854",
+          "CC-1947",
+          "CC-2047",
+          "CC-2245",
+          "CC-2503",
+          "CC-2734",
+          "CC-2736",
+          "CC-2818",
+          "CC-2940",
+          "CC-3023",
+          "CC-3132",
+          "CC-3419",
+          "CC-3421",
+          "CC-3508",
+          "CC-3599",
+          "CC-3623",
+          "CC-3664",
+          "CC-3696",
+          "CC-3805",
+          "CC-3878",
+          "CC-3906",
+          "CC-3908",
+          "CC-3976",
+          "CC-3998",
+          "CC-4022",
+          "CC-4046",
+          "CC-4085",
+          "CC-4131",
+          "CC-4172",
+          "CC-4332",
+          "CC-4591",
+          "CC-4592",
+          "CC-4647",
+          "CC-4752",
+          "CC-4808",
+          "CC-4820",
+          "CC-4952",
+          "CC-5033",
+          "CC-5155",
+          "CC-5177",
+          "CC-5256",
+          "CC-5345",
+          "CC-5410",
+          "CC-5531"
+        ],
+        "ref": "query:device_neighbors(device_id=SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080)"
+      },
+      {
+        "claim": "2 episode txn(s) came from a device marked New for this account (SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080); the flagged device was never seen on this card before",
+        "score": 0.6,
+        "entity_ids": [
+          "3500431",
+          "3512563"
+        ],
+        "ref": "query:card_history(card_id=C07472-K1, window=60d)"
+      },
+      {
+        "claim": "2 episode txn(s) went through an anonymous proxy",
+        "score": 0.6,
+        "entity_ids": [
+          "3500431",
+          "3512563"
+        ],
+        "ref": "query:card_history(card_id=C07472-K1, window=60d)"
+      },
+      {
+        "claim": "Product code C never used on this card in the prior window",
+        "score": 0.4,
+        "entity_ids": [
+          "3512563"
+        ],
+        "ref": "query:card_history(card_id=C07472-K1, window=60d)"
+      }
+    ],
+    "defence": []
+  },
+  "probability": {
+    "initial": 0.9,
+    "final": 0.9,
+    "features": {
+      "logit_flag": 1.054,
+      "logit_ep_max": 1.0538,
+      "logit_ep_mean": 0.2116,
+      "log_ep_n": 0.6931,
+      "trip_signature": 0.0,
+      "new_phone_signature": 0.0,
+      "card_testing": 0.0,
+      "structuring": 0.0,
+      "ring": 1.0
+    }
+  },
+  "evidence_gate": null,
+  "graph": {
+    "nodes": [
+      {
+        "id": "C07472",
+        "type": "Customer",
+        "label": "C07472",
+        "flag": "subject"
+      },
+      {
+        "id": "C07472-K1",
+        "type": "Card",
+        "label": "C07472-K1",
+        "flag": "subject"
+      },
+      {
+        "id": "3512563",
+        "type": "Transaction",
+        "label": "3512563 $209.66",
+        "flag": "suspicious"
+      },
+      {
+        "id": "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080",
+        "type": "DeviceProfile",
+        "label": "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080",
+        "flag": "suspicious"
+      },
+      {
+        "id": "region 315.0",
+        "type": "BillingRegion",
+        "label": "region 315.0",
+        "flag": "normal"
+      },
+      {
+        "id": "3500431",
+        "type": "Transaction",
+        "label": "3500431 $56.19",
+        "flag": "suspicious"
+      },
+      {
+        "id": "C02975-K1",
+        "type": "Card",
+        "label": "C02975-K1",
+        "flag": "suspicious"
+      },
+      {
+        "id": "C01289-K1",
+        "type": "Card",
+        "label": "C01289-K1",
+        "flag": "suspicious"
+      },
+      {
+        "id": "C05448-K2",
+        "type": "Card",
+        "label": "C05448-K2",
+        "flag": "suspicious"
+      },
+      {
+        "id": "C06710-K1",
+        "type": "Card",
+        "label": "C06710-K1",
+        "flag": "suspicious"
+      },
+      {
+        "id": "C10020-K1",
+        "type": "Card",
+        "label": "C10020-K1",
+        "flag": "suspicious"
+      },
+      {
+        "id": "C01996-K2",
+        "type": "Card",
+        "label": "C01996-K2",
+        "flag": "suspicious"
+      },
+      {
+        "id": "C10193-K2",
+        "type": "Card",
+        "label": "C10193-K2",
+        "flag": "suspicious"
+      },
+      {
+        "id": "C06650-K2",
+        "type": "Card",
+        "label": "C06650-K2",
+        "flag": "suspicious"
+      },
+      {
+        "id": "C09195-K1",
+        "type": "Card",
+        "label": "C09195-K1",
+        "flag": "suspicious"
+      },
+      {
+        "id": "C11670-K2",
+        "type": "Card",
+        "label": "C11670-K2",
+        "flag": "suspicious"
+      },
+      {
+        "id": "C12796-K1",
+        "type": "Card",
+        "label": "C12796-K1",
+        "flag": "suspicious"
+      },
+      {
+        "id": "C10326-K1",
+        "type": "Card",
+        "label": "C10326-K1",
+        "flag": "suspicious"
+      },
+      {
+        "id": "C09975-K1",
+        "type": "Card",
+        "label": "C09975-K1",
+        "flag": "suspicious"
+      },
+      {
+        "id": "C06031-K2",
+        "type": "Card",
+        "label": "C06031-K2",
+        "flag": "suspicious"
+      },
+      {
+        "id": "SM-G950U Build/R16NW | Android 8.0.0 | chrome 65.0 for android | 2220x1080",
+        "type": "DeviceProfile",
+        "label": "SM-G950U Build/R16NW | Android 8.0.0 | chrome 65.0 for android | 2220x1080",
+        "flag": "normal"
+      },
+      {
+        "id": "C03218-K2",
+        "type": "Card",
+        "label": "C03218-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C02348-K1",
+        "type": "Card",
+        "label": "C02348-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C08989-K2",
+        "type": "Card",
+        "label": "C08989-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C03318-K1",
+        "type": "Card",
+        "label": "C03318-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C06224-K2",
+        "type": "Card",
+        "label": "C06224-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C06726-K1",
+        "type": "Card",
+        "label": "C06726-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C08945-K2",
+        "type": "Card",
+        "label": "C08945-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C00750-K2",
+        "type": "Card",
+        "label": "C00750-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C01909-K2",
+        "type": "Card",
+        "label": "C01909-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C03005-K1",
+        "type": "Card",
+        "label": "C03005-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C00854-K2",
+        "type": "Card",
+        "label": "C00854-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C12166-K2",
+        "type": "Card",
+        "label": "C12166-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C07284-K1",
+        "type": "Card",
+        "label": "C07284-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C05160-K1",
+        "type": "Card",
+        "label": "C05160-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C07516-K1",
+        "type": "Card",
+        "label": "C07516-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C12123-K1",
+        "type": "Card",
+        "label": "C12123-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C10506-K1",
+        "type": "Card",
+        "label": "C10506-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C02314-K1",
+        "type": "Card",
+        "label": "C02314-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C04944-K1",
+        "type": "Card",
+        "label": "C04944-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C10590-K1",
+        "type": "Card",
+        "label": "C10590-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C00616-K1",
+        "type": "Card",
+        "label": "C00616-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C01116-K2",
+        "type": "Card",
+        "label": "C01116-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "CASE-SEN-001",
+        "type": "AgentCase",
+        "label": "CASE-SEN-001",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CASE-HHG-014",
+        "type": "AgentCase",
+        "label": "CASE-HHG-014",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CASE-SEN-010",
+        "type": "AgentCase",
+        "label": "CASE-SEN-010",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CASE-SEN-008",
+        "type": "AgentCase",
+        "label": "CASE-SEN-008",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CASE-HHG-019",
+        "type": "AgentCase",
+        "label": "CASE-HHG-019",
+        "flag": "suspicious"
+      }
+    ],
+    "edges": [
+      {
+        "src": "C07472",
+        "dst": "C07472-K1",
+        "type": "OWNS"
+      },
+      {
+        "src": "C07472-K1",
+        "dst": "3512563",
+        "type": "MADE"
+      },
+      {
+        "src": "3512563",
+        "dst": "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "3512563",
+        "dst": "region 315.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C07472-K1",
+        "dst": "3500431",
+        "type": "MADE"
+      },
+      {
+        "src": "3500431",
+        "dst": "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "3500431",
+        "dst": "region 315.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C02975-K1",
+        "dst": "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C01289-K1",
+        "dst": "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C05448-K2",
+        "dst": "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C06710-K1",
+        "dst": "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C10020-K1",
+        "dst": "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C01996-K2",
+        "dst": "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C10193-K2",
+        "dst": "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C06650-K2",
+        "dst": "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C09195-K1",
+        "dst": "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C11670-K2",
+        "dst": "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C12796-K1",
+        "dst": "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C10326-K1",
+        "dst": "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C07472-K1",
+        "dst": "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C09975-K1",
+        "dst": "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C06031-K2",
+        "dst": "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C03218-K2",
+        "dst": "SM-G950U Build/R16NW | Android 8.0.0 | chrome 65.0 for android | 2220x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C02348-K1",
+        "dst": "SM-G950U Build/R16NW | Android 8.0.0 | chrome 65.0 for android | 2220x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C08989-K2",
+        "dst": "SM-G950U Build/R16NW | Android 8.0.0 | chrome 65.0 for android | 2220x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C03318-K1",
+        "dst": "SM-G950U Build/R16NW | Android 8.0.0 | chrome 65.0 for android | 2220x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C06224-K2",
+        "dst": "SM-G950U Build/R16NW | Android 8.0.0 | chrome 65.0 for android | 2220x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C06726-K1",
+        "dst": "SM-G950U Build/R16NW | Android 8.0.0 | chrome 65.0 for android | 2220x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C08945-K2",
+        "dst": "SM-G950U Build/R16NW | Android 8.0.0 | chrome 65.0 for android | 2220x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C00750-K2",
+        "dst": "SM-G950U Build/R16NW | Android 8.0.0 | chrome 65.0 for android | 2220x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C01909-K2",
+        "dst": "SM-G950U Build/R16NW | Android 8.0.0 | chrome 65.0 for android | 2220x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C03005-K1",
+        "dst": "SM-G950U Build/R16NW | Android 8.0.0 | chrome 65.0 for android | 2220x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C00854-K2",
+        "dst": "SM-G950U Build/R16NW | Android 8.0.0 | chrome 65.0 for android | 2220x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C12166-K2",
+        "dst": "SM-G950U Build/R16NW | Android 8.0.0 | chrome 65.0 for android | 2220x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C07472-K1",
+        "dst": "SM-G950U Build/R16NW | Android 8.0.0 | chrome 65.0 for android | 2220x1080",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C07284-K1",
+        "dst": "region 315.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C05160-K1",
+        "dst": "region 315.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C07516-K1",
+        "dst": "region 315.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C12123-K1",
+        "dst": "region 315.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C10506-K1",
+        "dst": "region 315.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C02314-K1",
+        "dst": "region 315.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C04944-K1",
+        "dst": "region 315.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C10590-K1",
+        "dst": "region 315.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C00616-K1",
+        "dst": "region 315.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C01116-K2",
+        "dst": "region 315.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "CASE-SEN-001",
+        "dst": "C07472-K1",
+        "type": "ON_CARD"
+      },
+      {
+        "src": "CASE-SEN-001",
+        "dst": "CASE-HHG-014",
+        "type": "SIMILAR_TO"
+      },
+      {
+        "src": "CASE-SEN-001",
+        "dst": "CASE-SEN-010",
+        "type": "SIMILAR_TO"
+      },
+      {
+        "src": "CASE-SEN-001",
+        "dst": "CASE-SEN-008",
+        "type": "SIMILAR_TO"
+      },
+      {
+        "src": "CASE-SEN-001",
+        "dst": "CASE-HHG-019",
+        "type": "SIMILAR_TO"
+      }
+    ]
+  },
+  "rag_context": "CASE\nSEN-001 opened 2016-12-04 13:47:00 by analyst_request trigger: \"Sentinel sweep (device_ring_scan): device profile SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080 was used as New by 28 cards between 2016-11-14 and 2016-12-04 (28 behind an anonymous proxy); only 52 cards ever used it; linked cases CASE-HHG-014, CASE-SEN-001, CC-0020, CC-0100, CC-0118; ring also touches case-pack card(s) C13487-K1. Review transaction 3512563 on card C07472-K1 and look for related activity.\"\nFlagged txn 3512563 on card C07472-K1 (customer C07472).\nGraph analysis: pattern undocumented (device-profile ring: several other cards used the same rare device as New); fraud probability 0.90; verdict fraud; 2 affected txns, first 3500431, exposure $265.85.\n\nGRAPH EVIDENCE\n- Device profile SM-G950U Build/R16NW | Android 8.0.0 | chrome 65.0 for android | 2220x1080 was used by 12 other card(s) in the 30 days before the alert (7 as a New device; 15 cards ever); their cases: CASE-HHG-019, CC-0005, CC-0070, CC-0090, CC-0107, CC-0121 (query:device_neighbors(device_id=SM-G950U Build/R16NW | Android 8.0.0 | chrome 65.0 for android | 2220x1080, window=30d))\n- 16 card(s) made their first purchase in billing region 315.0 in the 7 days before the alert (3 linked to cases; 1386 cards ever billed there) (query:region_cluster(region=315.0, window=7d))\n- Customer C07472 cards: C07472-K1; prior cases on them: CASE-SEN-001 (agent_fraud, undocumented) (query:customer_cases)\n- [prosecution 0.74] Closed-case classifier scores flagged txn 3512563 at 0.74 (learned from the bank's confirmed/cleared cases; the bank risk score 0.10 is not used as a verdict) (ref: model:closed_case_classifier; ids: 3512563)\n- [prosecution 0.60] 2 card txns from 2016-11-30 15:47:00 to 2016-12-04 11:47:00 form one episode (every txn this card made on the ring device), total $265.85 (ref: query:card_history(card_id=C07472-K1, window=60d); ids: 3500431, 3512563)\n- [prosecution 0.90] Device profile SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080 was used as New by 27 other cards in the window (27 behind an anonymous proxy); only 52 cards ever used it; 57 linked closed case(s) incl. CASE-HHG-014, CASE-SEN-001, CC-0020, CC-0100, CC-0118 (ref: query:device_neighbors(device_id=SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080); ids: C01289-K1, C01996-K2, C02910-K1, C02975-K1, C03676-K2, C04108-K2, C04274-K1, C05448-K2 +59 more)\n- [prosecution 0.60] 2 episode txn(s) came from a device marked New for this account (SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080); the flagged device was never seen on this card before (ref: query:card_history(card_id=C07472-K1, window=60d); ids: 3500431, 3512563)\n- [prosecution 0.60] 2 episode txn(s) went through an anonymous proxy (ref: query:card_history(card_id=C07472-K1, window=60d); ids: 3500431, 3512563)\n- [prosecution 0.40] Product code C never used on this card in the prior window (ref: query:card_history(card_id=C07472-K1, window=60d); ids: 3512563)\n\nSIMILAR PAST CASES (vector search over closed and agent cases; same pattern first)\n- [CASE-HHG-014] AgentCase fraud, pattern undocumented, distance 0.105: This case was opened following an analyst request to review transaction 3478561 on card [other id] belonging to customer [other id] due to an unusual device profile. Graph analysis determined a fraud verdict with a probability of 0.90, identifying an undocumented device-profile ring affecting two ...\n- [CASE-SEN-010] AgentCase fraud, pattern undocumented, distance 0.178: Investigation SEN-010 was triggered by a Sentinel sweep identifying four online purchases on card [other id], totaling $1,921.59 and structured just under the $500 authorization threshold within a 27-minute window on 2016-11-23. Graph analysis and the closed-case classifier confirmed the activity as fraudulent with a ...\n- [CASE-SEN-008] AgentCase fraud, pattern undocumented, distance 0.179: Case SEN-008 was opened following a Sentinel sweep on card [other id] for four online purchases totaling $1,926.93 made within a 24-minute window on 2016-11-21. Each transaction was kept just under the $500 threshold, matching an undocumented structuring pattern. Graph analysis assessed a fraud probability ...\n- [CASE-HHG-019] AgentCase fraud, pattern card_not_present_new_device, distance 0.167: Case HHG-019 was opened following a risk score trigger on online transaction 3503878 for $99.92 on card [other id] (customer [other id]). Graph analysis assessed a fraud probability of 0.86 under the card-not-present fraud from a new device pattern, identifying risk factors including a closed-case ...\n\nPOLICY & GUIDANCE\n- [POLICY-R1] R1. Verify before you block on a weak signal: R1. Verify before you block on a weak signal. If the case rests on a single signal (including a risk score alone) and your assessed fraud probability is below 0.70, recommend VERIFY_WITH_CUSTOMER or STEP_UP_AUTH before any block. Blocking a legitimate customer on one signal is a policy breach. Related actions (\u00a71): VERIFY_WITH_CUSTOMER -- ask the cardholder whether they made the transaction; the card stays active pending reply (low customer impact, ...\n- [POLICY-R6] R6. Shared origin: R6. Shared origin. When several cards show fraud from the same device profile, the same billing region, or the same recipient email in one window, name the shared element, recommend CREATE_CASE and FILE_REPORT, and MONITOR_CONNECTED_CARDS for every card that shares it. Related action (\u00a71): MONITOR_CONNECTED_CARDS -- put other cards linked to the same device profile, region cluster, or ring under monitoring (no customer impact, route auto). CREATE_CASE is auto; FILE_REPORT ...\n- [POLICY-R9] R9. Undocumented patterns: R9. Undocumented patterns. When activity fits none of the known patterns but the evidence shows coordinated or repeated abuse across customers, recommend CREATE_CASE, FILE_REPORT, and ESCALATE_TO_ANALYST, and describe the pattern in your own words. Do not force it into a known category. Per the Answer Format, pattern_description is required when pattern is undocumented: two or three sentences on what the pattern is, who it affects, and how you found it; ...\n- [PATTERN-card_not_present_new_device] Card-not-present fraud from a new device: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 3. Card-not-present fraud from a new device. Same as above, with the identity record marking the device as New for this account, sometimes behind a proxy. Stronger than pattern 2, still not proof: ...\n- [PATTERN-account_takeover] Account takeover: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 5. Account takeover. Mixed-channel activity inconsistent with the cardholder, often with device and match-flag anomalies, pointing to stolen credentials rather than a stolen number. The README glossary defines an identity record as the ...\n- [PATTERN-card_testing] Card testing: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 1. Card testing. A stolen card number is checked before use: three or more tiny online authorizations, often under $5, then a larger purchase. Confirmed by the sequence itself. Policy R5.\n- [POLICY-S1-ACTIONS] Actions the agent may recommend: The Fraud Policy defines a fixed set of action identifiers the agent must use exactly as named. ALLOW_TRANSACTION lets the flagged transaction stand (no customer impact). DECLINE_TRANSACTION declines the flagged authorization only; the card stays active (low impact). MONITOR_CARD keeps the card active and raises monitoring sensitivity for 72 hours (no impact). MONITOR_CONNECTED_CARDS puts other cards linked to the same device profile, region cluster, or ring under monitoring (no impact). ...\n\nINSTRUCTIONS\nUse only the facts above. Cite the ids in square brackets and the txn/card/device ids shown; never invent an id, amount or date. Past cases are memory, not this customer's activity: their ids are not connected cards. The bank risk score is not a verdict. Actions come from the policy engine: explain them, do not change them."
+}

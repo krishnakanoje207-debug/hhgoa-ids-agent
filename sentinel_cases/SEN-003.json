@@ -1,0 +1,253 @@
+{
+  "case_id": "SEN-003",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.9,
+    "pattern": "undocumented",
+    "pattern_description": "The undocumented structuring pattern involves multiple online purchases executed within a short timeframe, with each amount deliberately kept just under the $500 authorization threshold. It affects customers and cardholders targeted by rapid burst transactions designed to bypass standard monitoring limits. This pattern was identified through Sentinel sweep anomaly detection and graph analysis correlating transaction timing and amounts.",
+    "affected_txn_ids": [
+      "3509526",
+      "3509535",
+      "3509563",
+      "3509576"
+    ],
+    "first_suspicious_txn_id": "3509526",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 1884.76,
+    "evidence": [
+      {
+        "claim": "The closed-case classifier assigned a score of 0.68 to flagged transaction 3509576, based on historical confirmed and cleared cases, while the bank risk score of 0.08 is excluded from being a verdict.",
+        "source": "graph",
+        "ref": "model:closed_case_classifier",
+        "entity_ids": [
+          "3509576"
+        ]
+      },
+      {
+        "claim": "Four card transactions from 2016-12-03 12:00:00 to 2016-12-03 12:30:00 constitute a single episode with a total exposure of $1,884.76, as grouped by the closed-case episode model with gaps under 48 hours.",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C05423-K1, window=60d)",
+        "entity_ids": [
+          "3509526",
+          "3509535",
+          "3509563",
+          "3509576"
+        ]
+      },
+      {
+        "claim": "Four online purchases occurred within a 30-minute window with amounts of $457.09, $492.56, $455.25, and $479.86, which were kept just under the authorization threshold.",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C05423-K1, window=60d)",
+        "entity_ids": [
+          "3509526",
+          "3509535",
+          "3509563",
+          "3509576"
+        ]
+      },
+      {
+        "claim": "One of the episode transactions originated from a device profile flagged as New for this account, specifically Windows |  | chrome 65.0 |.",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C05423-K1, window=60d)",
+        "entity_ids": [
+          "3509576"
+        ]
+      },
+      {
+        "claim": "The flagged transaction amount of $479.86 represents 13.6 times the card's median transaction amount of $35.26.",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C05423-K1, window=60d)",
+        "entity_ids": [
+          "3509576"
+        ]
+      },
+      {
+        "claim": "The customer is associated with 10 earlier confirmed fraud cases, including CC-5341, CC-4582, CC-4274, CC-4865, and CC-2731.",
+        "source": "graph",
+        "ref": "query:customer_cases",
+        "entity_ids": [
+          "CC-5341",
+          "CC-4582",
+          "CC-4274",
+          "CC-4865",
+          "CC-2731"
+        ]
+      },
+      {
+        "claim": "The flagged device profile Windows |  | chrome 65.0 | had prior usage history on this card.",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C05423-K1, window=60d)",
+        "entity_ids": [
+          "3509576"
+        ]
+      },
+      {
+        "claim": "Device profile Windows |  | chrome 65.0 | was utilized by 224 other cards in the 30 days prior to the alert, including 140 new device instances and 321 total cards ever, appearing in cases CASE-HHG-014, CASE-HHG-018, CASE-HHG-019, CASE-SEN-004, CASE-SEN-010, and CASE-SEN-011.",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id=Windows |  | chrome 65.0 | , window=30d)",
+        "entity_ids": [
+          "C07204-K1",
+          "C10114-K1",
+          "C04597-K2",
+          "C01138-K2",
+          "C00978-K1",
+          "C11881-K1",
+          "C05778-K1",
+          "C07956-K1",
+          "C02652-K1",
+          "C04908-K1",
+          "CC-0014",
+          "CC-0015",
+          "CC-0029",
+          "CC-0031",
+          "CC-0032",
+          "CC-0033"
+        ]
+      },
+      {
+        "claim": "Device profile Windows |  | chrome 63.0 | was utilized by 11 other cards in the 30 days prior to the alert, including 6 new device instances and 629 total cards ever, appearing in cases CASE-SEN-008, CASE-SEN-010, CC-0015, CC-0031, CC-0073, and CC-0206.",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id=Windows |  | chrome 63.0 | , window=30d)",
+        "entity_ids": [
+          "C04597-K2",
+          "C06986-K1",
+          "C08391-K2",
+          "C12136-K2",
+          "C11923-K2",
+          "C12438-K1",
+          "C10990-K1",
+          "C06947-K2",
+          "C01890-K1",
+          "C10628-K1",
+          "CC-0015",
+          "CC-0031",
+          "CC-0073",
+          "CC-0206",
+          "CC-0290",
+          "CC-0351"
+        ]
+      },
+      {
+        "claim": "Device profile  |  | mobile safari generic | was utilized by 283 other cards in the 30 days prior to the alert, including 67 new device instances and 711 total cards ever, appearing in cases CASE-HHG-002, CASE-HHG-014, CASE-HHG-019, CASE-SEN-010, CASE-SEN-011, and CASE-SEN-012.",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id= |  | mobile safari generic | , window=30d)",
+        "entity_ids": [
+          "C06362-K1",
+          "C11891-K1",
+          "C00259-K1",
+          "C06464-K1",
+          "C07638-K1",
+          "C05367-K1",
+          "C04381-K1",
+          "C03938-K1",
+          "C13188-K1",
+          "C01324-K1",
+          "CC-0001",
+          "CC-0005",
+          "CC-0006",
+          "CC-0012",
+          "CC-0014",
+          "CC-0015"
+        ]
+      },
+      {
+        "claim": "The nearest cases in case memory consist of CASE-SEN-011, CASE-SEN-009, CASE-SEN-008, CASE-SEN-013, and CASE-SEN-014, all classified as fraud with an undocumented pattern.",
+        "source": "graph",
+        "ref": "query:similar_cases",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R1 regarding verification before blocking on a weak signal serves as context for evaluating action criteria.",
+        "source": "document",
+        "ref": "POLICY-R1",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R3 regarding customer confirmation of transactions is retrieved as reference context.",
+        "source": "document",
+        "ref": "POLICY-R3",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy actions available for agent recommendation are retrieved as context.",
+        "source": "document",
+        "ref": "POLICY-S1-ACTIONS",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R5 concerning card testing is retrieved as reference context.",
+        "source": "document",
+        "ref": "POLICY-R5",
+        "entity_ids": []
+      },
+      {
+        "claim": "Typology and regulatory guidance documents for card testing, card-not-present fraud, and account takeover are retrieved as context.",
+        "source": "document",
+        "ref": "PATTERN-card_testing, PATTERN-card_not_present_fraud, PATTERN-account_takeover",
+        "entity_ids": []
+      }
+    ],
+    "similar_prior_cases": [],
+    "summary": "Case SEN-003 was opened following a Sentinel sweep on card C05423-K1 held by customer C05423, which identified four online purchases executed within 30 minutes on 2016-12-03. Graph analysis confirmed a fraud probability of 0.90 due to an undocumented structuring pattern where transaction amounts were kept just under the $500 threshold. The total exposure across affected transactions 3509526, 3509535, 3509563, and 3509576 reached $1,884.76. Because the case rests on six independent pieces of evidence without triggering R1, final actions include blocking the card, creating a case, and filing a report.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-SEN-003"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R1 not triggered: 6 independent signals at probability 0.90; exposure $1,884.76 is under $2,500 (\u00a72)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "\u00a73a: fraud probability 0.90 reaches 0.30"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,884.76 exceeds $1,000"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R1 not triggered: 6 independent signals at probability 0.90; exposure $1,884.76 is under $2,500 (\u00a72)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "\u00a73a: fraud probability 0.90 reaches 0.30"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,884.76 exceeds $1,000"
+      }
+    ],
+    "what_changed": "nothing"
+  },
+  "sar": {
+    "file": true,
+    "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,884.76 exceeds $1,000",
+    "narrative": "Customer C05423 holding card C05423-K1 was identified in a suspicious activity alert involving fraudulent online transactions. Four online purchases totaling $1,884.76 were executed on 2016-12-03 between 12:00:00 and 12:30:00. The transactions occurred online via the device profile Windows |  | chrome 65.0 | . The activity was conducted by structuring amounts just under the $500 threshold to evade authorization limits. This pattern is highly suspicious because it matches known structuring behavior and coincides with a device marked as New for the account alongside the customer's prior fraud history. No connected cards were flagged during this specific sweep analysis. Recommended actions include blocking card C05423-K1, creating case SEN-003, and filing a regulatory report.",
+    "subjects": [
+      "C05423",
+      "C05423-K1"
+    ],
+    "total_amount_usd": 1884.76,
+    "activity_dates": [
+      "2016-12-03",
+      "2016-12-03"
+    ]
+  },
+  "stop_reason": "\u00a76: probability 0.90 is decisive and rests on 6 independent pieces of evidence",
+  "tool_calls": 13,
+  "tokens": 7950,
+  "latency_s": 22.3
+}

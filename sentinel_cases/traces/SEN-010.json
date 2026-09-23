@@ -1,0 +1,829 @@
+{
+  "case_id": "SEN-010",
+  "trigger": {
+    "case_id": "SEN-010",
+    "opened_at": "2016-11-23 20:27:00",
+    "trigger_type": "analyst_request",
+    "trigger_text": "Sentinel sweep (near_threshold_scan): card C01890-K1 made 4 online purchases between $450 and $500 within 27 minutes on 2016-11-23 (transactions 3481356, 3481393, 3481403, 3481444), amounts kept just under a $500 threshold. Review transaction 3481444 and look for related activity.",
+    "flagged_txn_id": "3481444",
+    "card_id": "C01890-K1",
+    "customer_id": "C01890",
+    "risk_score": null
+  },
+  "steps": [
+    {
+      "step": 1,
+      "name": "Trigger received",
+      "tool": null,
+      "args": {
+        "trigger_type": "analyst_request"
+      },
+      "summary": "analyst_request alert on card C01890-K1, flagged txn 3481444",
+      "ms": 0
+    },
+    {
+      "step": 2,
+      "name": "Card history (60 days to opening)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "card_history",
+        "card_id": "C01890-K1",
+        "t_from": "2016-09-24 20:27:00",
+        "t_to": "2016-11-23 20:27:00"
+      },
+      "summary": "25 txns on C01890-K1",
+      "ms": 1492
+    },
+    {
+      "step": 2,
+      "name": "Customer cards and prior cases",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "customer_cases",
+        "customer_id": "C01890"
+      },
+      "summary": "1 card(s), 5 case(s)",
+      "ms": 752
+    },
+    {
+      "step": 2,
+      "name": "Device neighbourhood (30 days)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "device_neighbors",
+        "device_id": "Moto E (4) Plus Build/NMA26.42-69 |  | chrome generic | ",
+        "t_from": "2016-10-24 20:27:00",
+        "t_to": "2016-11-23 20:27:00"
+      },
+      "summary": "17 card(s) used it in the window, 32 ever",
+      "ms": 510
+    },
+    {
+      "step": 2,
+      "name": "Plan optional queries",
+      "tool": "llm",
+      "args": {
+        "source": "llm",
+        "choices": [
+          {
+            "tool": "device_neighbors",
+            "arg": " |  | mobile safari generic | ",
+            "why": "Check the mobile safari generic device used in the sequence for multi-card fraud links."
+          },
+          {
+            "tool": "region_cluster",
+            "arg": "284.0",
+            "why": "Check the billing region 284.0 for recent new card fraud clusters."
+          }
+        ],
+        "catalogue": 3
+      },
+      "summary": "The recent transactions use multiple distinct devices and a specific billing region addr1. Checking device D1 and region R1 will help identify broader fraud ring patterns associated with this scan.",
+      "ms": 3032
+    },
+    {
+      "step": 2,
+      "name": "Device neighbourhood (30 days)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "device_neighbors",
+        "device_id": " |  | mobile safari generic | ",
+        "t_from": "2016-10-24 20:27:00",
+        "t_to": "2016-11-23 20:27:00"
+      },
+      "summary": "308 card(s) used it in the window, 711 ever",
+      "ms": 3431
+    },
+    {
+      "step": 2,
+      "name": "Region cluster (7 days)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "region_cluster",
+        "region": "284.0",
+        "t_from": "2016-11-16 20:27:00",
+        "t_to": "2016-11-23 20:27:00"
+      },
+      "summary": "4 card(s) new to region 284.0 in the window",
+      "ms": 260
+    },
+    {
+      "step": 3,
+      "name": "Gather evidence (card analytics)",
+      "tool": null,
+      "args": {
+        "device_ctx": "Moto E (4) Plus Build/NMA26.42-69 |  | chrome generic | "
+      },
+      "summary": "pattern undocumented (structuring: several online purchases within an hour, each just under $500); 4 episode txn(s), exposure $1,921.59; 4 prosecution / 1 defence items",
+      "ms": 2
+    },
+    {
+      "step": 4,
+      "name": "Assess uncertainty",
+      "tool": null,
+      "args": {
+        "fraud_probability": 0.9,
+        "verdict": "fraud"
+      },
+      "summary": "probability 0.90, verdict fraud, 4 independent evidence, single_signal=False, conflicts=False; initial: BLOCK_CARD, CREATE_CASE, FILE_REPORT",
+      "ms": 0
+    },
+    {
+      "step": 5,
+      "name": "Evidence gate",
+      "tool": null,
+      "args": {},
+      "summary": "no response to any warranted request changes the actions: stop",
+      "ms": 0
+    },
+    {
+      "step": 6,
+      "name": "Next best actions",
+      "tool": null,
+      "args": {
+        "final": [
+          "BLOCK_CARD",
+          "CREATE_CASE",
+          "FILE_REPORT"
+        ]
+      },
+      "summary": "executed (auto): CREATE_CASE; awaiting approval: BLOCK_CARD (L1), FILE_REPORT (L2)",
+      "ms": 0
+    },
+    {
+      "step": 7,
+      "name": "GraphRAG retrieval",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "queries": [
+          "similar_cases",
+          "search_docs"
+        ],
+        "calls": 3
+      },
+      "summary": "3 similar case(s), 7 passage(s)",
+      "ms": 4112
+    },
+    {
+      "step": 7,
+      "name": "Explain decision",
+      "tool": "llm",
+      "args": {
+        "fallback": []
+      },
+      "summary": "LLM text validated",
+      "ms": 10988
+    },
+    {
+      "step": 8,
+      "name": "Update case memory",
+      "tool": "tigergraph__add_node",
+      "args": {
+        "vertex": "AgentCase",
+        "id": "CASE-SEN-010",
+        "edges": 12
+      },
+      "summary": "wrote CASE-SEN-010",
+      "ms": 3312
+    }
+  ],
+  "hypotheses": {
+    "prosecution": [
+      {
+        "claim": "4 card txns from 2016-11-23 18:00:00 to 2016-11-23 18:27:00 form one episode (grouped by the episode model fitted on closed cases, gaps under 48 h), total $1,921.59",
+        "score": 0.7,
+        "entity_ids": [
+          "3481356",
+          "3481393",
+          "3481403",
+          "3481444"
+        ],
+        "ref": "query:card_history(card_id=C01890-K1, window=60d)"
+      },
+      {
+        "claim": "4 online purchases within 27 minutes, each just under $500 ($469.82, $467.06, $496.08, $488.63): amounts kept under an authorization threshold",
+        "score": 0.9,
+        "entity_ids": [
+          "3481356",
+          "3481393",
+          "3481403",
+          "3481444"
+        ],
+        "ref": "query:card_history(card_id=C01890-K1, window=60d)"
+      },
+      {
+        "claim": "1 episode txn(s) came from a device marked New for this account (Moto E (4) Plus Build/NMA26.42-69 |  | chrome generic | )",
+        "score": 0.6,
+        "entity_ids": [
+          "3481403"
+        ],
+        "ref": "query:card_history(card_id=C01890-K1, window=60d)"
+      },
+      {
+        "claim": "Customer has 4 earlier confirmed fraud case(s): CC-0351, CC-1608, CC-4983, CC-2368",
+        "score": 0.4,
+        "entity_ids": [
+          "CC-0351",
+          "CC-1608",
+          "CC-4983",
+          "CC-2368"
+        ],
+        "ref": "query:customer_cases"
+      }
+    ],
+    "defence": [
+      {
+        "claim": "Closed-case classifier scores flagged txn 3481444 at 0.21, in line with this card's legitimate history (bank risk score 0.21 is often high on false alarms)",
+        "score": 0.79,
+        "entity_ids": [
+          "3481444"
+        ],
+        "ref": "model:closed_case_classifier"
+      }
+    ]
+  },
+  "probability": {
+    "initial": 0.9,
+    "final": 0.9,
+    "features": {
+      "logit_flag": -1.319,
+      "logit_ep_max": 3.5884,
+      "logit_ep_mean": 0.6168,
+      "log_ep_n": 1.3863,
+      "trip_signature": 0.0,
+      "new_phone_signature": 0.0,
+      "card_testing": 0.0,
+      "structuring": 1.0,
+      "ring": 0.0
+    }
+  },
+  "evidence_gate": null,
+  "graph": {
+    "nodes": [
+      {
+        "id": "C01890",
+        "type": "Customer",
+        "label": "C01890",
+        "flag": "subject"
+      },
+      {
+        "id": "C01890-K1",
+        "type": "Card",
+        "label": "C01890-K1",
+        "flag": "subject"
+      },
+      {
+        "id": "3481444",
+        "type": "Transaction",
+        "label": "3481444 $488.63",
+        "flag": "suspicious"
+      },
+      {
+        "id": "region 284.0",
+        "type": "BillingRegion",
+        "label": "region 284.0",
+        "flag": "normal"
+      },
+      {
+        "id": "3481356",
+        "type": "Transaction",
+        "label": "3481356 $469.82",
+        "flag": "suspicious"
+      },
+      {
+        "id": "Windows |  | chrome 65.0 | ",
+        "type": "DeviceProfile",
+        "label": "Windows |  | chrome 65.0 | ",
+        "flag": "normal"
+      },
+      {
+        "id": "3481393",
+        "type": "Transaction",
+        "label": "3481393 $467.06",
+        "flag": "suspicious"
+      },
+      {
+        "id": " |  | mobile safari generic | ",
+        "type": "DeviceProfile",
+        "label": " |  | mobile safari generic | ",
+        "flag": "normal"
+      },
+      {
+        "id": "3481403",
+        "type": "Transaction",
+        "label": "3481403 $496.08",
+        "flag": "suspicious"
+      },
+      {
+        "id": "Moto E (4) Plus Build/NMA26.42-69 |  | chrome generic | ",
+        "type": "DeviceProfile",
+        "label": "Moto E (4) Plus Build/NMA26.42-69 |  | chrome generic | ",
+        "flag": "normal"
+      },
+      {
+        "id": "C06906-K1",
+        "type": "Card",
+        "label": "C06906-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C01525-K2",
+        "type": "Card",
+        "label": "C01525-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C06663-K2",
+        "type": "Card",
+        "label": "C06663-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C05031-K2",
+        "type": "Card",
+        "label": "C05031-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C11597-K2",
+        "type": "Card",
+        "label": "C11597-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C11919-K2",
+        "type": "Card",
+        "label": "C11919-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C11923-K2",
+        "type": "Card",
+        "label": "C11923-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C06744-K2",
+        "type": "Card",
+        "label": "C06744-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C08962-K2",
+        "type": "Card",
+        "label": "C08962-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C06988-K1",
+        "type": "Card",
+        "label": "C06988-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C12028-K2",
+        "type": "Card",
+        "label": "C12028-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C12987-K1",
+        "type": "Card",
+        "label": "C12987-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C05307-K2",
+        "type": "Card",
+        "label": "C05307-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C00294-K2",
+        "type": "Card",
+        "label": "C00294-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C06362-K1",
+        "type": "Card",
+        "label": "C06362-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C07204-K1",
+        "type": "Card",
+        "label": "C07204-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C04597-K2",
+        "type": "Card",
+        "label": "C04597-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C00978-K1",
+        "type": "Card",
+        "label": "C00978-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C01599-K1",
+        "type": "Card",
+        "label": "C01599-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C00722-K1",
+        "type": "Card",
+        "label": "C00722-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C11881-K1",
+        "type": "Card",
+        "label": "C11881-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C07657-K1",
+        "type": "Card",
+        "label": "C07657-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C03157-K2",
+        "type": "Card",
+        "label": "C03157-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C00944-K1",
+        "type": "Card",
+        "label": "C00944-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C02147-K2",
+        "type": "Card",
+        "label": "C02147-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C13364-K1",
+        "type": "Card",
+        "label": "C13364-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C01521-K2",
+        "type": "Card",
+        "label": "C01521-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C13001-K1",
+        "type": "Card",
+        "label": "C13001-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C01002-K1",
+        "type": "Card",
+        "label": "C01002-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C11362-K2",
+        "type": "Card",
+        "label": "C11362-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C10837-K2",
+        "type": "Card",
+        "label": "C10837-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C02545-K2",
+        "type": "Card",
+        "label": "C02545-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C06243-K1",
+        "type": "Card",
+        "label": "C06243-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "CC-0351",
+        "type": "ClosedCase",
+        "label": "CC-0351",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CC-1608",
+        "type": "ClosedCase",
+        "label": "CC-1608",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CC-4983",
+        "type": "ClosedCase",
+        "label": "CC-4983",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CC-2368",
+        "type": "ClosedCase",
+        "label": "CC-2368",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CASE-SEN-010",
+        "type": "AgentCase",
+        "label": "CASE-SEN-010",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CASE-SEN-011",
+        "type": "AgentCase",
+        "label": "CASE-SEN-011",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CASE-SEN-008",
+        "type": "AgentCase",
+        "label": "CASE-SEN-008",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CASE-SEN-013",
+        "type": "AgentCase",
+        "label": "CASE-SEN-013",
+        "flag": "suspicious"
+      }
+    ],
+    "edges": [
+      {
+        "src": "C01890",
+        "dst": "C01890-K1",
+        "type": "OWNS"
+      },
+      {
+        "src": "C01890-K1",
+        "dst": "3481444",
+        "type": "MADE"
+      },
+      {
+        "src": "3481444",
+        "dst": "region 284.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C01890-K1",
+        "dst": "3481356",
+        "type": "MADE"
+      },
+      {
+        "src": "3481356",
+        "dst": "Windows |  | chrome 65.0 | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C01890-K1",
+        "dst": "3481393",
+        "type": "MADE"
+      },
+      {
+        "src": "3481393",
+        "dst": " |  | mobile safari generic | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C01890-K1",
+        "dst": "3481403",
+        "type": "MADE"
+      },
+      {
+        "src": "3481403",
+        "dst": "Moto E (4) Plus Build/NMA26.42-69 |  | chrome generic | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C06906-K1",
+        "dst": "Moto E (4) Plus Build/NMA26.42-69 |  | chrome generic | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C01525-K2",
+        "dst": "Moto E (4) Plus Build/NMA26.42-69 |  | chrome generic | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C06663-K2",
+        "dst": "Moto E (4) Plus Build/NMA26.42-69 |  | chrome generic | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C05031-K2",
+        "dst": "Moto E (4) Plus Build/NMA26.42-69 |  | chrome generic | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C11597-K2",
+        "dst": "Moto E (4) Plus Build/NMA26.42-69 |  | chrome generic | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C11919-K2",
+        "dst": "Moto E (4) Plus Build/NMA26.42-69 |  | chrome generic | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C11923-K2",
+        "dst": "Moto E (4) Plus Build/NMA26.42-69 |  | chrome generic | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C06744-K2",
+        "dst": "Moto E (4) Plus Build/NMA26.42-69 |  | chrome generic | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C08962-K2",
+        "dst": "Moto E (4) Plus Build/NMA26.42-69 |  | chrome generic | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C06988-K1",
+        "dst": "Moto E (4) Plus Build/NMA26.42-69 |  | chrome generic | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C12028-K2",
+        "dst": "Moto E (4) Plus Build/NMA26.42-69 |  | chrome generic | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C12987-K1",
+        "dst": "Moto E (4) Plus Build/NMA26.42-69 |  | chrome generic | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C05307-K2",
+        "dst": "Moto E (4) Plus Build/NMA26.42-69 |  | chrome generic | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C00294-K2",
+        "dst": "Moto E (4) Plus Build/NMA26.42-69 |  | chrome generic | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C01890-K1",
+        "dst": "Moto E (4) Plus Build/NMA26.42-69 |  | chrome generic | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C06362-K1",
+        "dst": " |  | mobile safari generic | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C07204-K1",
+        "dst": " |  | mobile safari generic | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C04597-K2",
+        "dst": " |  | mobile safari generic | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C00978-K1",
+        "dst": " |  | mobile safari generic | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C01599-K1",
+        "dst": " |  | mobile safari generic | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C00722-K1",
+        "dst": " |  | mobile safari generic | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C11881-K1",
+        "dst": " |  | mobile safari generic | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C07657-K1",
+        "dst": " |  | mobile safari generic | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C03157-K2",
+        "dst": " |  | mobile safari generic | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C00944-K1",
+        "dst": " |  | mobile safari generic | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C02147-K2",
+        "dst": " |  | mobile safari generic | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C13364-K1",
+        "dst": " |  | mobile safari generic | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C01521-K2",
+        "dst": " |  | mobile safari generic | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C13001-K1",
+        "dst": " |  | mobile safari generic | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C01002-K1",
+        "dst": " |  | mobile safari generic | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C11362-K2",
+        "dst": "region 284.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C10837-K2",
+        "dst": "region 284.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C02545-K2",
+        "dst": "region 284.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C06243-K1",
+        "dst": "region 284.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "CC-0351",
+        "dst": "C01890-K1",
+        "type": "ON_CARD"
+      },
+      {
+        "src": "CC-1608",
+        "dst": "C01890-K1",
+        "type": "ON_CARD"
+      },
+      {
+        "src": "CC-4983",
+        "dst": "C01890-K1",
+        "type": "ON_CARD"
+      },
+      {
+        "src": "CC-2368",
+        "dst": "C01890-K1",
+        "type": "ON_CARD"
+      },
+      {
+        "src": "CASE-SEN-010",
+        "dst": "C01890-K1",
+        "type": "ON_CARD"
+      },
+      {
+        "src": "CASE-SEN-010",
+        "dst": "CASE-SEN-011",
+        "type": "SIMILAR_TO"
+      },
+      {
+        "src": "CASE-SEN-010",
+        "dst": "CASE-SEN-008",
+        "type": "SIMILAR_TO"
+      },
+      {
+        "src": "CASE-SEN-010",
+        "dst": "CASE-SEN-013",
+        "type": "SIMILAR_TO"
+      }
+    ]
+  },
+  "rag_context": "CASE\nSEN-010 opened 2016-11-23 20:27:00 by analyst_request trigger: \"Sentinel sweep (near_threshold_scan): card C01890-K1 made 4 online purchases between $450 and $500 within 27 minutes on 2016-11-23 (transactions 3481356, 3481393, 3481403, 3481444), amounts kept just under a $500 threshold. Review transaction 3481444 and look for related activity.\"\nFlagged txn 3481444 on card C01890-K1 (customer C01890).\nGraph analysis: pattern undocumented (structuring: several online purchases within an hour, each just under $500); fraud probability 0.90; verdict fraud; 4 affected txns, first 3481356, exposure $1,921.59.\n\nGRAPH EVIDENCE\n- Device profile Moto E (4) Plus Build/NMA26.42-69 |  | chrome generic |  was used by 16 other card(s) in the 30 days before the alert (11 as a New device; 32 cards ever); their cases: CC-0031, CC-0086, CC-0094, CC-0097, CC-0122, CC-0180 (query:device_neighbors(device_id=Moto E (4) Plus Build/NMA26.42-69 |  | chrome generic | , window=30d))\n- Device profile  |  | mobile safari generic |  was used by 307 other card(s) in the 30 days before the alert (86 as a New device; 711 cards ever); their cases: CASE-HHG-002, CASE-HHG-014, CASE-SEN-011, CASE-SEN-012, CC-0001, CC-0005 (query:device_neighbors(device_id= |  | mobile safari generic | , window=30d))\n- 4 card(s) made their first purchase in billing region 284.0 in the 7 days before the alert (2 linked to cases; 120 cards ever billed there) (query:region_cluster(region=284.0, window=7d))\n- Customer C01890 cards: C01890-K1; prior cases on them: CC-0351 (confirmed_fraud, card_not_present_fraud), CC-1608 (confirmed_fraud, card_not_present_fraud), CC-4983 (confirmed_fraud, card_not_present_fraud), CC-2368 (confirmed_fraud, card_not_present_new_device), CASE-SEN-010 (agent_fraud, undocumented) (query:customer_cases)\n- [prosecution 0.70] 4 card txns from 2016-11-23 18:00:00 to 2016-11-23 18:27:00 form one episode (grouped by the episode model fitted on closed cases, gaps under 48 h), total $1,921.59 (ref: query:card_history(card_id=C01890-K1, window=60d); ids: 3481356, 3481393, 3481403, 3481444)\n- [prosecution 0.90] 4 online purchases within 27 minutes, each just under $500 ($469.82, $467.06, $496.08, $488.63): amounts kept under an authorization threshold (ref: query:card_history(card_id=C01890-K1, window=60d); ids: 3481356, 3481393, 3481403, 3481444)\n- [prosecution 0.60] 1 episode txn(s) came from a device marked New for this account (Moto E (4) Plus Build/NMA26.42-69 |  | chrome generic | ) (ref: query:card_history(card_id=C01890-K1, window=60d); ids: 3481403)\n- [prosecution 0.40] Customer has 4 earlier confirmed fraud case(s): CC-0351, CC-1608, CC-4983, CC-2368 (ref: query:customer_cases; ids: CC-0351, CC-1608, CC-4983, CC-2368)\n- [defence 0.79] Closed-case classifier scores flagged txn 3481444 at 0.21, in line with this card's legitimate history (bank risk score 0.21 is often high on false alarms) (ref: model:closed_case_classifier; ids: 3481444)\n\nSIMILAR PAST CASES (vector search over closed and agent cases; same pattern first)\n- [CASE-SEN-011] AgentCase fraud, pattern undocumented, distance 0.078: Case SEN-011 was opened following a Sentinel sweep on 2016-11-21 after card [other id] executed four online purchases totaling $1,860.43 within 24 minutes. Graph analysis confirmed a fraud probability of 0.93 due to structuring tactics keeping amounts just under the $500 threshold. The closed-case classifier ...\n- [CASE-SEN-008] AgentCase fraud, pattern undocumented, distance 0.084: Case SEN-008 was opened on 2016-11-21 following a Sentinel sweep on card [other id] belonging to customer [other id]. The investigation identified four online transactions (3475933, 3475959, 3475998, 3476008) executed within 24 minutes with amounts structured just under the $500 authorization threshold, totaling $1,926.93. With ...\n- [CASE-SEN-013] AgentCase fraud, pattern undocumented, distance 0.103: Case SEN-013 was opened on 2016-11-21 via a Sentinel sweep targeting card [other id] belonging to customer [other id]. The investigation revealed an undocumented pattern of structuring, consisting of 4 online purchases made within 30 minutes on 2016-11-21 with amounts kept just under $500, totaling ...\n\nPOLICY & GUIDANCE\n- [POLICY-R1] R1. Verify before you block on a weak signal: R1. Verify before you block on a weak signal. If the case rests on a single signal (including a risk score alone) and your assessed fraud probability is below 0.70, recommend VERIFY_WITH_CUSTOMER or STEP_UP_AUTH before any block. Blocking a legitimate customer on one signal is a policy breach. Related actions (\u00a71): VERIFY_WITH_CUSTOMER -- ask the cardholder whether they made the transaction; the card stays active pending reply (low customer impact, ...\n- [PATTERN-card_not_present_fraud] Card-not-present fraud: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 2. Card-not-present fraud. The number is used online without the card. Amounts and products that don't fit the cardholder's history, often in a burst of two to four within 48 hours. On its ...\n- [PATTERN-card_testing] Card testing: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 1. Card testing. A stolen card number is checked before use: three or more tiny online authorizations, often under $5, then a larger purchase. Confirmed by the sequence itself. Policy R5.\n- [POLICY-R3] R3. Customer confirms the transaction: R3. Customer confirms the transaction. Recommend CLOSE_NO_FRAUD. Note the confirmation in the case file. Compare R2, where the customer instead denies the transaction and the agent recommends BLOCK_CARD and CREATE_CASE. Related action (\u00a71): CLOSE_NO_FRAUD -- close the alert as legitimate (no customer impact, route auto). Per the Answer Format notes, for a legitimate verdict affected_txn_ids is empty, exposure_usd is 0, and sar.file is false.\n- [PATTERN-account_takeover] Account takeover: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 5. Account takeover. Mixed-channel activity inconsistent with the cardholder, often with device and match-flag anomalies, pointing to stolen credentials rather than a stolen number. The README glossary defines an identity record as the ...\n- [POLICY-R5] R5. Card testing: R5. Card testing. Three or more small online authorizations on one card within an hour, followed by a larger purchase: recommend DECLINE_TRANSACTION and STEP_UP_AUTH. If a purchase over $100 has already cleared, recommend BLOCK_CARD. Related actions (\u00a71): DECLINE_TRANSACTION -- decline the flagged authorization only, card stays active (route L1). STEP_UP_AUTH -- require a one-time passcode or app confirmation before further activity (route auto). BLOCK_CARD -- block this card and reissue ...\n- [POLICY-S1-ACTIONS] Actions the agent may recommend: The Fraud Policy defines a fixed set of action identifiers the agent must use exactly as named. ALLOW_TRANSACTION lets the flagged transaction stand (no customer impact). DECLINE_TRANSACTION declines the flagged authorization only; the card stays active (low impact). MONITOR_CARD keeps the card active and raises monitoring sensitivity for 72 hours (no impact). MONITOR_CONNECTED_CARDS puts other cards linked to the same device profile, region cluster, or ring under monitoring (no impact). ...\n\nINSTRUCTIONS\nUse only the facts above. Cite the ids in square brackets and the txn/card/device ids shown; never invent an id, amount or date. Past cases are memory, not this customer's activity: their ids are not connected cards. The bank risk score is not a verdict. Actions come from the policy engine: explain them, do not change them."
+}

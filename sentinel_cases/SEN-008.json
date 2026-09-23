@@ -1,0 +1,209 @@
+{
+  "case_id": "SEN-008",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.9,
+    "pattern": "undocumented",
+    "pattern_description": "The pattern is characterized by structuring, where several online purchases are made within a brief time window, each kept just under the $500 threshold to evade detection limits. It affects card-not-present transactions on vulnerable customer accounts and was uncovered via a Sentinel near-threshold scan.",
+    "affected_txn_ids": [
+      "3475933",
+      "3475959",
+      "3475998",
+      "3476008"
+    ],
+    "first_suspicious_txn_id": "3475933",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 1926.93,
+    "evidence": [
+      {
+        "claim": "Four card transactions from 2016-11-21 16:00:00 to 2016-11-21 16:24:00 form a single episode with gaps under 48 hours, totaling $1,926.93.",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C10990-K1, window=60d)",
+        "entity_ids": [
+          "3475933",
+          "3475959",
+          "3475998",
+          "3476008"
+        ]
+      },
+      {
+        "claim": "Four online purchases within 24 minutes, each just under $500 ($477.19, $484.81, $468.87, $496.06), kept under an authorization threshold.",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C10990-K1, window=60d)",
+        "entity_ids": [
+          "3475933",
+          "3475959",
+          "3475998",
+          "3476008"
+        ]
+      },
+      {
+        "claim": "Closed-case classifier scores flagged txn 3476008 at 0.03, aligning with legitimate history, while bank risk score is 0.17.",
+        "source": "graph",
+        "ref": "model:closed_case_classifier",
+        "entity_ids": [
+          "3476008"
+        ]
+      },
+      {
+        "claim": "Device chrome 64.0 is New but reused on this card across 1 transaction, consistent with a new phone.",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C10990-K1, window=60d)",
+        "entity_ids": [
+          "3476008",
+          "3352911"
+        ]
+      },
+      {
+        "claim": "Device profile chrome 64.0 was used by 41 other cards in the 30 days before the alert, with cases CC-0015, CC-0031, CC-0056, CC-0067, CC-0070, and CC-0073.",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id= |  | chrome 64.0 | , window=30d)",
+        "entity_ids": [
+          "C04597-K2",
+          "C02147-K2",
+          "C02897-K1",
+          "C04965-K2",
+          "C07508-K2",
+          "C05381-K2",
+          "C13447-K1",
+          "C09791-K1",
+          "C06855-K1",
+          "C13370-K1",
+          "CC-0015",
+          "CC-0031",
+          "CC-0056",
+          "CC-0067",
+          "CC-0070",
+          "CC-0073"
+        ]
+      },
+      {
+        "claim": "Device profile Windows chrome 63.0 was used by 15 other cards in the 30 days before the alert, with cases CASE-SEN-010, CC-0015, CC-0031, CC-0073, CC-0098, and CC-0206.",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id=Windows |  | chrome 63.0 | , window=30d)",
+        "entity_ids": [
+          "C04597-K2",
+          "C13406-K1",
+          "C12438-K1",
+          "C05031-K2",
+          "C11214-K1",
+          "C11923-K2",
+          "C11509-K2",
+          "C12028-K2",
+          "C06947-K2",
+          "C00294-K2",
+          "CC-0015",
+          "CC-0031",
+          "CC-0073",
+          "CC-0098",
+          "CC-0206",
+          "CC-0211"
+        ]
+      },
+      {
+        "claim": "Device profile SAMSUNG SM-J701M Build/NRD90M samsung browser 5.2 was used by 0 other cards in the 30 days before the alert.",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id=SAMSUNG SM-J701M Build/NRD90M |  | samsung browser 5.2 | , window=30d)",
+        "entity_ids": []
+      },
+      {
+        "claim": "Nearest cases in case memory: CASE-SEN-013 (fraud, undocumented).",
+        "source": "graph",
+        "ref": "query:similar_cases",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R1. Verify before you block on a weak signal: basis for BLOCK_CARD.",
+        "source": "document",
+        "ref": "POLICY-R1",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R3. Customer confirms the transaction: retrieved as context.",
+        "source": "document",
+        "ref": "POLICY-R3",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R5. Card testing: retrieved as context.",
+        "source": "document",
+        "ref": "POLICY-R5",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy Actions the agent may recommend: retrieved as context.",
+        "source": "document",
+        "ref": "POLICY-S1-ACTIONS",
+        "entity_ids": []
+      },
+      {
+        "claim": "Typology and regulatory guidance retrieved: Card-not-present fraud; Card testing; Account takeover.",
+        "source": "document",
+        "ref": "PATTERN-card_not_present_fraud, PATTERN-card_testing, PATTERN-account_takeover",
+        "entity_ids": []
+      }
+    ],
+    "similar_prior_cases": [],
+    "summary": "Case SEN-008 was opened on 2016-11-21 following a Sentinel sweep on card C10990-K1 belonging to customer C10990. The investigation identified four online transactions (3475933, 3475959, 3475998, 3476008) executed within 24 minutes with amounts structured just under the $500 authorization threshold, totaling $1,926.93. With a fraud probability of 0.90, the verdict is confirmed as fraud. Recommended final actions include BLOCK_CARD routed to L1, CREATE_CASE routed to auto, and FILE_REPORT routed to L2 under \u00a73a.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-SEN-008"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R1 not triggered: 2 independent signals at probability 0.90; exposure $1,926.93 is under $2,500 (\u00a72)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "\u00a73a: fraud probability 0.90 reaches 0.30"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,926.93 exceeds $1,000"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R1 not triggered: 2 independent signals at probability 0.90; exposure $1,926.93 is under $2,500 (\u00a72)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "\u00a73a: fraud probability 0.90 reaches 0.30"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,926.93 exceeds $1,000"
+      }
+    ],
+    "what_changed": "nothing"
+  },
+  "sar": {
+    "file": true,
+    "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,926.93 exceeds $1,000",
+    "narrative": "Customer C10990 utilizing card C10990-K1 was subjected to fraudulent account activity on 2016-11-21. The fraudulent activity comprised four online card transactions totaling $1,926.93 under IDs 3475933, 3475959, 3475998, and 3476008. These transactions occurred on 2016-11-21 between 16:00:00 and 16:24:00. The activity was conducted entirely online through device profile chrome 64.0. The scheme involved structuring amounts just under $500 to bypass authorization thresholds. This activity is suspicious due to the rapid burst of transactions and amount manipulation. Connected cards include no additional flagged cards within the immediate review window. Regulatory and policy actions include BLOCK_CARD, CREATE_CASE, and FILE_REPORT.",
+    "subjects": [
+      "C10990",
+      "C10990-K1"
+    ],
+    "total_amount_usd": 1926.93,
+    "activity_dates": [
+      "2016-11-21",
+      "2016-11-21"
+    ]
+  },
+  "stop_reason": "\u00a76: probability 0.90 is decisive and rests on 2 independent pieces of evidence",
+  "tool_calls": 13,
+  "tokens": 5713,
+  "latency_s": 22.5
+}

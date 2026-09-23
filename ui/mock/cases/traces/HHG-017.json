@@ -1,0 +1,79 @@
+{
+  "case_id": "HHG-017",
+  "trigger": {
+    "case_id": "HHG-017",
+    "opened_at": "2016-11-14T09:12:00",
+    "trigger_type": "risk_score",
+    "trigger_text": "Real-time model scored transaction T0412877 ($1.10, online) at 0.57. Review and decide.",
+    "flagged_txn_id": "T0412877",
+    "card_id": "C00377-K1",
+    "customer_id": "C00377",
+    "risk_score": 0.57
+  },
+  "steps": [
+    {"step": 1, "name": "Trigger received", "tool": null, "args": {}, "summary": "Risk-score alert opened on card C00377-K1, transaction T0412877, score 0.57.", "ms": 4},
+    {"step": 2, "name": "Pull card window", "tool": "tigergraph__run_installed_query", "args": {"query": "card_window", "card_id": "C00377-K1", "hours": 2}, "summary": "Found 3 sub-$3 online auths within 40 minutes, then a $259.98 purchase 39 minutes later.", "ms": 812},
+    {"step": 3, "name": "Inspect device profile", "tool": "tigergraph__run_installed_query", "args": {"query": "device_neighbors", "device_id": "D000731"}, "summary": "Device marked New for this account; also seen on closed case CC-0141 and on card C00877-K1 this month.", "ms": 634},
+    {"step": 4, "name": "Retrieve similar closed cases", "tool": "tigergraph__vector_search", "args": {"query": "card testing new device small auths then large purchase", "top_k": 5}, "summary": "Closest match: CC-0141, confirmed fraud, card testing, same device profile.", "ms": 1180},
+    {"step": 5, "name": "Check cardholder history", "tool": "tigergraph__run_installed_query", "args": {"query": "region_history", "card_id": "C00377-K1"}, "summary": "Cardholder has no prior purchases in this product category; billing region unchanged.", "ms": 401},
+    {"step": 6, "name": "Score hypotheses", "tool": null, "args": {}, "summary": "Prosecution evidence (testing sequence + shared device) outweighs defence; initial probability 0.62.", "ms": 6},
+    {"step": 7, "name": "Request customer validation", "tool": null, "args": {"type": "customer_validation"}, "summary": "Evidence gate selected customer_validation as the cheapest decisive request.", "ms": 3},
+    {"step": 8, "name": "Apply assumed response", "tool": null, "args": {"assumed_response": "deny"}, "summary": "Customer denies making the purchases; probability recalibrated to 0.86.", "ms": 5},
+    {"step": 9, "name": "Write case to graph", "tool": "tigergraph__upsert", "args": {"vertex": "ClosedCase", "id": "CASE-2016-1187"}, "summary": "Case CASE-2016-1187 written to graph with evidence and connected card C00877-K1.", "ms": 298}
+  ],
+  "hypotheses": {
+    "prosecution": [
+      {"claim": "Three online authorizations under $3 within 40 minutes, then a $259.98 purchase under a product code this card has never used", "score": 0.8, "entity_ids": ["T0412877", "T0412878", "T0412879", "T0412883"], "ref": "query:card_window(card_id=C00377-K1, hours=2)"},
+      {"claim": "All four transactions came from a device profile marked New for this account, also seen on closed case CC-0141 (confirmed fraud) and on card C00877-K1 this month", "score": 0.78, "entity_ids": ["D000731", "CC-0141", "C00877-K1"], "ref": "query:device_neighbors(device_id=D000731)"},
+      {"claim": "Customer denied making the purchases when asked", "score": 0.7, "entity_ids": ["C00377"], "ref": "evidence_request:1"}
+    ],
+    "defence": [
+      {"claim": "Cardholder has transacted online before, so device change alone is not proof of compromise", "score": 0.25, "entity_ids": ["C00377-K1"], "ref": "query:region_history(card_id=C00377-K1)"},
+      {"claim": "Billing region is unchanged from the cardholder's normal pattern", "score": 0.2, "entity_ids": ["C00377-K1"], "ref": "query:region_history(card_id=C00377-K1)"}
+    ]
+  },
+  "probability": {
+    "initial": 0.62,
+    "final": 0.86,
+    "features": {"testing_sequence": 0.32, "shared_device": 0.28, "customer_denial": 0.24, "region_consistency": -0.05, "prior_online_use": -0.03}
+  },
+  "evidence_gate": {
+    "type": "customer_validation",
+    "why": "Probability 0.62 rests on the pattern alone (R1); the customer's response is the cheapest way to settle whether to block.",
+    "outcomes": {
+      "deny": ["BLOCK_CARD", "CREATE_CASE", "FILE_REPORT", "MONITOR_CONNECTED_CARDS"],
+      "confirm": ["CLOSE_NO_FRAUD"],
+      "no_reply": ["MONITOR_CARD", "DECLINE_TRANSACTION"]
+    }
+  },
+  "graph": {
+    "nodes": [
+      {"id": "C00377", "type": "Customer", "label": "C00377", "flag": "subject"},
+      {"id": "C00377-K1", "type": "Card", "label": "C00377-K1", "flag": "subject"},
+      {"id": "C00877-K1", "type": "Card", "label": "C00877-K1", "flag": "suspicious"},
+      {"id": "D000731", "type": "DeviceProfile", "label": "SAMSUNG SM-G892A | Android 7.0", "flag": "suspicious"},
+      {"id": "T0412877", "type": "Transaction", "label": "T0412877 ($1.10)", "flag": "subject"},
+      {"id": "T0412878", "type": "Transaction", "label": "T0412878 ($2.40)", "flag": "subject"},
+      {"id": "T0412879", "type": "Transaction", "label": "T0412879 ($0.95)", "flag": "subject"},
+      {"id": "T0412883", "type": "Transaction", "label": "T0412883 ($259.98)", "flag": "subject"},
+      {"id": "CC-0141", "type": "ClosedCase", "label": "CC-0141 (confirmed_fraud)", "flag": "suspicious"},
+      {"id": "BR-444", "type": "BillingRegion", "label": "region 444", "flag": "normal"}
+    ],
+    "edges": [
+      {"src": "C00377", "dst": "C00377-K1", "type": "OWNS"},
+      {"src": "C00377-K1", "dst": "T0412877", "type": "MADE"},
+      {"src": "C00377-K1", "dst": "T0412878", "type": "MADE"},
+      {"src": "C00377-K1", "dst": "T0412879", "type": "MADE"},
+      {"src": "C00377-K1", "dst": "T0412883", "type": "MADE"},
+      {"src": "T0412877", "dst": "D000731", "type": "FROM_DEVICE"},
+      {"src": "T0412878", "dst": "D000731", "type": "FROM_DEVICE"},
+      {"src": "T0412879", "dst": "D000731", "type": "FROM_DEVICE"},
+      {"src": "T0412883", "dst": "D000731", "type": "FROM_DEVICE"},
+      {"src": "C00877-K1", "dst": "D000731", "type": "FROM_DEVICE"},
+      {"src": "CC-0141", "dst": "D000731", "type": "INVOLVES"},
+      {"src": "C00377-K1", "dst": "BR-444", "type": "BILLED_IN"}
+    ]
+  },
+  "rag_context": "POLICY R1: Verify before you block on a weak signal. POLICY R5: Card testing - three or more small online authorizations within an hour, then a larger purchase: recommend DECLINE_TRANSACTION and STEP_UP_AUTH; if a purchase over $100 already cleared, recommend BLOCK_CARD. POLICY R2: Customer denies the transaction - recommend BLOCK_CARD and CREATE_CASE; add FILE_REPORT if exposure exceeds $1,000 or the case connects to a shared device profile or another card's fraud.\n\nCLOSED CASE CC-0141 (confirmed_fraud, card_testing): 'Three sub-$3 authorizations at 08:50-09:28 on 2016-08-03, followed by a $214 purchase. Device profile marked New, Android/Samsung browser. Customer denied. Card blocked, case filed.'\n\nGRAPH EVIDENCE: card_window(C00377-K1, 2h) -> T0412877 ($1.10, 09:12), T0412878 ($2.40, 09:31), T0412879 ($0.95, 09:44), T0412883 ($259.98, 10:31, ProductCD=S, never used by this card before). device_neighbors(D000731) -> also linked to C00877-K1 (txn on 2016-11-12) and ClosedCase CC-0141.",
+  "telemetry": {"tool_calls": 9, "tokens": 12480, "latency_s": 18.7}
+}

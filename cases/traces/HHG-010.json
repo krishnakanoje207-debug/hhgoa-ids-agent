@@ -1,0 +1,735 @@
+{
+  "case_id": "HHG-010",
+  "trigger": {
+    "case_id": "HHG-010",
+    "opened_at": "2016-12-02 18:18:27",
+    "trigger_type": "risk_score",
+    "trigger_text": "Real-time model scored transaction 3506725 ($1,000.03, online) at 0.90. Review and decide.",
+    "flagged_txn_id": "3506725",
+    "card_id": "C10434-K1",
+    "customer_id": "C10434",
+    "risk_score": 0.9
+  },
+  "steps": [
+    {
+      "step": 1,
+      "name": "Trigger received",
+      "tool": null,
+      "args": {
+        "trigger_type": "risk_score"
+      },
+      "summary": "risk_score alert on card C10434-K1, flagged txn 3506725, bank risk score 0.90 (a reason to look, not a verdict)",
+      "ms": 0
+    },
+    {
+      "step": 2,
+      "name": "Card history (60 days to opening)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "card_history",
+        "card_id": "C10434-K1",
+        "t_from": "2016-10-03 18:18:27",
+        "t_to": "2016-12-02 18:18:27"
+      },
+      "summary": "10 txns on C10434-K1",
+      "ms": 264
+    },
+    {
+      "step": 2,
+      "name": "Customer cards and prior cases",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "customer_cases",
+        "customer_id": "C10434"
+      },
+      "summary": "1 card(s), 2 case(s)",
+      "ms": 266
+    },
+    {
+      "step": 2,
+      "name": "Device neighbourhood (30 days)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "device_neighbors",
+        "device_id": "Windows | Windows 10 | edge 16.0 | 1366x768",
+        "t_from": "2016-11-02 18:18:27",
+        "t_to": "2016-12-02 18:18:27"
+      },
+      "summary": "37 card(s) used it in the window, 208 ever",
+      "ms": 1069
+    },
+    {
+      "step": 2,
+      "name": "Plan optional queries",
+      "tool": "llm",
+      "args": {
+        "source": "llm",
+        "choices": [
+          {
+            "tool": "device_neighbors",
+            "arg": "MacOS | Mac OS X 10_13_4 | safari generic | 1440x900",
+            "why": "Check the second recent device profile to see if it is tied to suspicious or clean cards."
+          },
+          {
+            "tool": "region_cluster",
+            "arg": "469.0",
+            "why": "Analyze the billing region cluster to check for coordinated fraud activity in region 469.0."
+          }
+        ],
+        "catalogue": 2
+      },
+      "summary": "The flagged transaction involves a new device profile and a billing region with multiple recent transactions, making it useful to investigate both the alternate device neighbors and the region cluster to assess fraud risk.",
+      "ms": 1800
+    },
+    {
+      "step": 2,
+      "name": "Device neighbourhood (30 days)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "device_neighbors",
+        "device_id": "MacOS | Mac OS X 10_13_4 | safari generic | 1440x900",
+        "t_from": "2016-11-02 18:18:27",
+        "t_to": "2016-12-02 18:18:27"
+      },
+      "summary": "22 card(s) used it in the window, 27 ever",
+      "ms": 568
+    },
+    {
+      "step": 2,
+      "name": "Region cluster (7 days)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "region_cluster",
+        "region": "469.0",
+        "t_from": "2016-11-25 18:18:27",
+        "t_to": "2016-12-02 18:18:27"
+      },
+      "summary": "7 card(s) new to region 469.0 in the window",
+      "ms": 284
+    },
+    {
+      "step": 3,
+      "name": "Gather evidence (card analytics)",
+      "tool": null,
+      "args": {
+        "device_ctx": "Windows | Windows 10 | edge 16.0 | 1366x768"
+      },
+      "summary": "pattern card_not_present_new_device (online episode with a device marked New for this account); 1 episode txn(s), exposure $1,000.03; 1 prosecution / 1 defence items",
+      "ms": 1
+    },
+    {
+      "step": 4,
+      "name": "Assess uncertainty",
+      "tool": null,
+      "args": {
+        "fraud_probability": 0.09,
+        "verdict": "uncertain"
+      },
+      "summary": "probability 0.09, verdict uncertain, 1 independent evidence, single_signal=True, conflicts=False; initial: VERIFY_WITH_CUSTOMER, CREATE_CASE, ESCALATE_TO_ANALYST",
+      "ms": 0
+    },
+    {
+      "step": 5,
+      "name": "Request more evidence",
+      "tool": null,
+      "args": {
+        "type": "customer_validation",
+        "assumed_response": "confirm"
+      },
+      "summary": "§3b/§5: VERIFY_WITH_CUSTOMER is recommended and the customer_validation response changes the actions (deny -> BLOCK_CARD, CREATE_CASE, FILE_REPORT; confirm -> CREATE_CASE, CLOSE_NO_FRAUD; no_reply -> DECLINE_TRANSACTION, MONITOR_CARD, CREATE_CASE, ESCALATE_TO_ANALYST) Assumed 'confirm': probability 0.09 -> 0.09",
+      "ms": 0
+    },
+    {
+      "step": 6,
+      "name": "Next best actions",
+      "tool": null,
+      "args": {
+        "final": [
+          "CREATE_CASE",
+          "CLOSE_NO_FRAUD"
+        ]
+      },
+      "summary": "executed (auto): CREATE_CASE, CLOSE_NO_FRAUD; awaiting approval: none",
+      "ms": 0
+    },
+    {
+      "step": 7,
+      "name": "GraphRAG retrieval",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "queries": [
+          "similar_cases",
+          "search_docs"
+        ],
+        "calls": 2
+      },
+      "summary": "2 similar case(s), 7 passage(s)",
+      "ms": 4985
+    },
+    {
+      "step": 7,
+      "name": "Explain decision",
+      "tool": "llm",
+      "args": {
+        "fallback": []
+      },
+      "summary": "LLM text validated",
+      "ms": 3676
+    },
+    {
+      "step": 8,
+      "name": "Update case memory",
+      "tool": "tigergraph__add_node",
+      "args": {
+        "vertex": "AgentCase",
+        "id": "CASE-HHG-010",
+        "edges": 8
+      },
+      "summary": "wrote CASE-HHG-010",
+      "ms": 3070
+    }
+  ],
+  "hypotheses": {
+    "prosecution": [
+      {
+        "claim": "1 episode txn(s) came from a device marked New for this account (Windows | Windows 10 | edge 16.0 | 1366x768); the flagged device was never seen on this card before",
+        "score": 0.6,
+        "entity_ids": [
+          "3506725"
+        ],
+        "ref": "query:card_history(card_id=C10434-K1, window=60d)"
+      }
+    ],
+    "defence": [
+      {
+        "claim": "Closed-case classifier scores flagged txn 3506725 at 0.01, in line with this card's legitimate history (bank risk score 0.90 is often high on false alarms)",
+        "score": 0.99,
+        "entity_ids": [
+          "3506725"
+        ],
+        "ref": "model:closed_case_classifier"
+      }
+    ]
+  },
+  "probability": {
+    "initial": 0.09,
+    "final": 0.09,
+    "features": {
+      "logit_flag": -4.9161,
+      "logit_ep_max": -4.9126,
+      "logit_ep_mean": -4.9126,
+      "log_ep_n": 0.0,
+      "trip_signature": 0.0,
+      "new_phone_signature": 0.0,
+      "card_testing": 0.0,
+      "structuring": 0.0,
+      "ring": 0.0
+    }
+  },
+  "evidence_gate": {
+    "type": "customer_validation",
+    "why": "§3b/§5: VERIFY_WITH_CUSTOMER is recommended and the customer_validation response changes the actions (deny -> BLOCK_CARD, CREATE_CASE, FILE_REPORT; confirm -> CREATE_CASE, CLOSE_NO_FRAUD; no_reply -> DECLINE_TRANSACTION, MONITOR_CARD, CREATE_CASE, ESCALATE_TO_ANALYST)",
+    "outcomes": {
+      "deny": [
+        "BLOCK_CARD",
+        "CREATE_CASE",
+        "FILE_REPORT"
+      ],
+      "confirm": [
+        "CREATE_CASE",
+        "CLOSE_NO_FRAUD"
+      ],
+      "no_reply": [
+        "DECLINE_TRANSACTION",
+        "MONITOR_CARD",
+        "CREATE_CASE",
+        "ESCALATE_TO_ANALYST"
+      ]
+    },
+    "assumed_response": "confirm"
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "C10434",
+        "type": "Customer",
+        "label": "C10434",
+        "flag": "subject"
+      },
+      {
+        "id": "C10434-K1",
+        "type": "Card",
+        "label": "C10434-K1",
+        "flag": "subject"
+      },
+      {
+        "id": "3506725",
+        "type": "Transaction",
+        "label": "3506725 $1,000.03",
+        "flag": "cleared"
+      },
+      {
+        "id": "Windows | Windows 10 | edge 16.0 | 1366x768",
+        "type": "DeviceProfile",
+        "label": "Windows | Windows 10 | edge 16.0 | 1366x768",
+        "flag": "normal"
+      },
+      {
+        "id": "region 469.0",
+        "type": "BillingRegion",
+        "label": "region 469.0",
+        "flag": "normal"
+      },
+      {
+        "id": "C05625-K2",
+        "type": "Card",
+        "label": "C05625-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C03169-K1",
+        "type": "Card",
+        "label": "C03169-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C08918-K2",
+        "type": "Card",
+        "label": "C08918-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C11309-K1",
+        "type": "Card",
+        "label": "C11309-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C04269-K1",
+        "type": "Card",
+        "label": "C04269-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C03738-K2",
+        "type": "Card",
+        "label": "C03738-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C11000-K2",
+        "type": "Card",
+        "label": "C11000-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C02231-K1",
+        "type": "Card",
+        "label": "C02231-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C04024-K2",
+        "type": "Card",
+        "label": "C04024-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C09241-K2",
+        "type": "Card",
+        "label": "C09241-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C03533-K1",
+        "type": "Card",
+        "label": "C03533-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C09065-K1",
+        "type": "Card",
+        "label": "C09065-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C10149-K1",
+        "type": "Card",
+        "label": "C10149-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C10308-K1",
+        "type": "Card",
+        "label": "C10308-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "MacOS | Mac OS X 10_13_4 | safari generic | 1440x900",
+        "type": "DeviceProfile",
+        "label": "MacOS | Mac OS X 10_13_4 | safari generic | 1440x900",
+        "flag": "normal"
+      },
+      {
+        "id": "C03218-K2",
+        "type": "Card",
+        "label": "C03218-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C03100-K2",
+        "type": "Card",
+        "label": "C03100-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C11677-K2",
+        "type": "Card",
+        "label": "C11677-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C07878-K1",
+        "type": "Card",
+        "label": "C07878-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C03185-K1",
+        "type": "Card",
+        "label": "C03185-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C02354-K2",
+        "type": "Card",
+        "label": "C02354-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C06224-K2",
+        "type": "Card",
+        "label": "C06224-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C12690-K2",
+        "type": "Card",
+        "label": "C12690-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C07997-K1",
+        "type": "Card",
+        "label": "C07997-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C11539-K2",
+        "type": "Card",
+        "label": "C11539-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C05245-K2",
+        "type": "Card",
+        "label": "C05245-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C11375-K1",
+        "type": "Card",
+        "label": "C11375-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C12833-K1",
+        "type": "Card",
+        "label": "C12833-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C01782-K2",
+        "type": "Card",
+        "label": "C01782-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C10599-K1",
+        "type": "Card",
+        "label": "C10599-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C08637-K2",
+        "type": "Card",
+        "label": "C08637-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C05782-K2",
+        "type": "Card",
+        "label": "C05782-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C07297-K1",
+        "type": "Card",
+        "label": "C07297-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "CC-0873",
+        "type": "ClosedCase",
+        "label": "CC-0873",
+        "flag": "cleared"
+      },
+      {
+        "id": "CASE-HHG-010",
+        "type": "AgentCase",
+        "label": "CASE-HHG-010",
+        "flag": "subject"
+      },
+      {
+        "id": "CASE-HHG-015",
+        "type": "AgentCase",
+        "label": "CASE-HHG-015",
+        "flag": "cleared"
+      },
+      {
+        "id": "CASE-HHG-017",
+        "type": "AgentCase",
+        "label": "CASE-HHG-017",
+        "flag": "normal"
+      }
+    ],
+    "edges": [
+      {
+        "src": "C10434",
+        "dst": "C10434-K1",
+        "type": "OWNS"
+      },
+      {
+        "src": "C10434-K1",
+        "dst": "3506725",
+        "type": "MADE"
+      },
+      {
+        "src": "3506725",
+        "dst": "Windows | Windows 10 | edge 16.0 | 1366x768",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "3506725",
+        "dst": "region 469.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C05625-K2",
+        "dst": "Windows | Windows 10 | edge 16.0 | 1366x768",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C03169-K1",
+        "dst": "Windows | Windows 10 | edge 16.0 | 1366x768",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C08918-K2",
+        "dst": "Windows | Windows 10 | edge 16.0 | 1366x768",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C11309-K1",
+        "dst": "Windows | Windows 10 | edge 16.0 | 1366x768",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C04269-K1",
+        "dst": "Windows | Windows 10 | edge 16.0 | 1366x768",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C03738-K2",
+        "dst": "Windows | Windows 10 | edge 16.0 | 1366x768",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C11000-K2",
+        "dst": "Windows | Windows 10 | edge 16.0 | 1366x768",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C02231-K1",
+        "dst": "Windows | Windows 10 | edge 16.0 | 1366x768",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C10434-K1",
+        "dst": "Windows | Windows 10 | edge 16.0 | 1366x768",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C04024-K2",
+        "dst": "Windows | Windows 10 | edge 16.0 | 1366x768",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C09241-K2",
+        "dst": "Windows | Windows 10 | edge 16.0 | 1366x768",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C03533-K1",
+        "dst": "Windows | Windows 10 | edge 16.0 | 1366x768",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C09065-K1",
+        "dst": "Windows | Windows 10 | edge 16.0 | 1366x768",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C10149-K1",
+        "dst": "Windows | Windows 10 | edge 16.0 | 1366x768",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C10308-K1",
+        "dst": "Windows | Windows 10 | edge 16.0 | 1366x768",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C11309-K1",
+        "dst": "MacOS | Mac OS X 10_13_4 | safari generic | 1440x900",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C08918-K2",
+        "dst": "MacOS | Mac OS X 10_13_4 | safari generic | 1440x900",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C03218-K2",
+        "dst": "MacOS | Mac OS X 10_13_4 | safari generic | 1440x900",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C11000-K2",
+        "dst": "MacOS | Mac OS X 10_13_4 | safari generic | 1440x900",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C10434-K1",
+        "dst": "MacOS | Mac OS X 10_13_4 | safari generic | 1440x900",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C03100-K2",
+        "dst": "MacOS | Mac OS X 10_13_4 | safari generic | 1440x900",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C11677-K2",
+        "dst": "MacOS | Mac OS X 10_13_4 | safari generic | 1440x900",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C07878-K1",
+        "dst": "MacOS | Mac OS X 10_13_4 | safari generic | 1440x900",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C03185-K1",
+        "dst": "MacOS | Mac OS X 10_13_4 | safari generic | 1440x900",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C02354-K2",
+        "dst": "MacOS | Mac OS X 10_13_4 | safari generic | 1440x900",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C06224-K2",
+        "dst": "MacOS | Mac OS X 10_13_4 | safari generic | 1440x900",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C12690-K2",
+        "dst": "MacOS | Mac OS X 10_13_4 | safari generic | 1440x900",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C07997-K1",
+        "dst": "MacOS | Mac OS X 10_13_4 | safari generic | 1440x900",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C11539-K2",
+        "dst": "MacOS | Mac OS X 10_13_4 | safari generic | 1440x900",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C05245-K2",
+        "dst": "MacOS | Mac OS X 10_13_4 | safari generic | 1440x900",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C11375-K1",
+        "dst": "region 469.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C12833-K1",
+        "dst": "region 469.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C01782-K2",
+        "dst": "region 469.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C10599-K1",
+        "dst": "region 469.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C08637-K2",
+        "dst": "region 469.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C05782-K2",
+        "dst": "region 469.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "C07297-K1",
+        "dst": "region 469.0",
+        "type": "BILLED_IN"
+      },
+      {
+        "src": "CC-0873",
+        "dst": "C10434-K1",
+        "type": "ON_CARD"
+      },
+      {
+        "src": "CASE-HHG-010",
+        "dst": "C10434-K1",
+        "type": "ON_CARD"
+      },
+      {
+        "src": "CASE-HHG-010",
+        "dst": "CASE-HHG-015",
+        "type": "SIMILAR_TO"
+      },
+      {
+        "src": "CASE-HHG-010",
+        "dst": "CASE-HHG-017",
+        "type": "SIMILAR_TO"
+      }
+    ]
+  },
+  "rag_context": "CASE\nHHG-010 opened 2016-12-02 18:18:27 by risk_score trigger: \"Real-time model scored transaction 3506725 ($1,000.03, online) at 0.90. Review and decide.\"\nFlagged txn 3506725 on card C10434-K1 (customer C10434). Bank risk score 0.9 is a reason to look, not a verdict (§0).\nGraph analysis: pattern none (online episode with a device marked New for this account); fraud probability 0.09; verdict legitimate; 0 affected txns, first none, exposure $0.00.\n\nGRAPH EVIDENCE\n- Device profile Windows | Windows 10 | edge 16.0 | 1366x768 was used by 36 other card(s) in the 30 days before the alert (17 as a New device; 208 cards ever); their cases: CASE-HHG-014, CASE-HHG-019, CASE-SEN-012, CC-0023, CC-0036, CC-0045 (query:device_neighbors(device_id=Windows | Windows 10 | edge 16.0 | 1366x768, window=30d))\n- Device profile MacOS | Mac OS X 10_13_4 | safari generic | 1440x900 was used by 21 other card(s) in the 30 days before the alert (16 as a New device; 27 cards ever); their cases: CASE-HHG-018, CASE-HHG-019, CC-0023, CC-0033, CC-0048, CC-0063 (query:device_neighbors(device_id=MacOS | Mac OS X 10_13_4 | safari generic | 1440x900, window=30d))\n- 7 card(s) made their first purchase in billing region 469.0 in the 7 days before the alert (5 linked to cases; 474 cards ever billed there) (query:region_cluster(region=469.0, window=7d))\n- Customer C10434 cards: C10434-K1; prior cases on them: CC-0873 (cleared, none) (query:customer_cases)\n- [prosecution 0.60] 1 episode txn(s) came from a device marked New for this account (Windows | Windows 10 | edge 16.0 | 1366x768); the flagged device was never seen on this card before (ref: query:card_history(card_id=C10434-K1, window=60d); ids: 3506725)\n- [defence 0.99] Closed-case classifier scores flagged txn 3506725 at 0.01, in line with this card's legitimate history (bank risk score 0.90 is often high on false alarms) (ref: model:closed_case_classifier; ids: 3506725)\n\nSIMILAR PAST CASES (vector search over closed and agent cases; same pattern first)\n- [CASE-HHG-015] AgentCase legitimate, pattern none, distance 0.142: Case HHG-015 was opened following a risk score trigger of 0.77 on online transaction 3464869 for $599.94 on card [other id] held by customer [other id]. Although the transaction originated from a new device (Trident/7.0 | Windows 8.1 | ie 11.0 for desktop | 1680x1050) ...\n- [CASE-HHG-017] AgentCase uncertain, pattern card_not_present_fraud, distance 0.138: Case HHG-017 was opened following a risk score trigger of 0.57 on online transaction 3450629 for $100.09 on card [other id] (customer [other id]). Graph analysis assessed a fraud probability of 0.60 with an uncertain verdict under the card-not-present fraud pattern. Following Policy R1 for ...\n\nPOLICY & GUIDANCE\n- [POLICY-R3] R3. Customer confirms the transaction: R3. Customer confirms the transaction. Recommend CLOSE_NO_FRAUD. Note the confirmation in the case file. Compare R2, where the customer instead denies the transaction and the agent recommends BLOCK_CARD and CREATE_CASE. Related action (§1): CLOSE_NO_FRAUD -- close the alert as legitimate (no customer impact, route auto). Per the Answer Format notes, for a legitimate verdict affected_txn_ids is empty, exposure_usd is 0, and sar.file is false.\n- [PATTERN-card_testing] Card testing: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 1. Card testing. A stolen card number is checked before use: three or more tiny online authorizations, often under $5, then a larger purchase. Confirmed by the sequence itself. Policy R5.\n- [PATTERN-card_not_present_new_device] Card-not-present fraud from a new device: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 3. Card-not-present fraud from a new device. Same as above, with the identity record marking the device as New for this account, sometimes behind a proxy. Stronger than pattern 2, still not proof: ...\n- [PATTERN-card_not_present_fraud] Card-not-present fraud: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 2. Card-not-present fraud. The number is used online without the card. Amounts and products that don't fit the cardholder's history, often in a burst of two to four within 48 hours. On its ...\n- [README-THINGS-TO-KNOW-01] Risk scores, legitimate cases, and undocumented patterns: \"From the README's \"\"Things to know\"\" section: a risk score is a reason to look -- never a verdict. Half the cases in the case pack are legitimate; many look suspicious\n- [POLICY-S0-SCORE] What the agent starts with: the risk score: Every transaction carries a risk_score between 0 and 1 from the bank's detection model. The model is useful and imperfect: many high scores are legitimate, and some fraud scores low. A score is a reason to look, never a verdict. The only confirmed outcomes are in the closed cases. As the README glossary puts it: Risk score -- a number from 0 to 1 the bank's model attached to every ...\n- [PATTERN-account_takeover] Account takeover: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 5. Account takeover. Mixed-channel activity inconsistent with the cardholder, often with device and match-flag anomalies, pointing to stolen credentials rather than a stolen number. The README glossary defines an identity record as the ...\n\nINSTRUCTIONS\nUse only the facts above. Cite the ids in square brackets and the txn/card/device ids shown; never invent an id, amount or date. Past cases are memory, not this customer's activity: their ids are not connected cards. The bank risk score is not a verdict. Actions come from the policy engine: explain them, do not change them."
+}

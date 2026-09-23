@@ -1,0 +1,498 @@
+{
+  "case_id": "HHG-016",
+  "trigger": {
+    "case_id": "HHG-016",
+    "opened_at": "2016-12-12 01:39:08",
+    "trigger_type": "customer_report",
+    "trigger_text": "Customer C09988 message: 'I never made this $59.67 purchase. Please check my card.' Refers to 3534820.",
+    "flagged_txn_id": "3534820",
+    "card_id": "C09988-K1",
+    "customer_id": "C09988",
+    "risk_score": null
+  },
+  "steps": [
+    {
+      "step": 1,
+      "name": "Trigger received",
+      "tool": null,
+      "args": {
+        "trigger_type": "customer_report"
+      },
+      "summary": "customer_report alert on card C09988-K1, flagged txn 3534820",
+      "ms": 0
+    },
+    {
+      "step": 2,
+      "name": "Card history (60 days to opening)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "card_history",
+        "card_id": "C09988-K1",
+        "t_from": "2016-10-13 01:39:08",
+        "t_to": "2016-12-12 01:39:08"
+      },
+      "summary": "12 txns on C09988-K1",
+      "ms": 263
+    },
+    {
+      "step": 2,
+      "name": "Customer cards and prior cases",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "customer_cases",
+        "customer_id": "C09988"
+      },
+      "summary": "1 card(s), 1 case(s)",
+      "ms": 275
+    },
+    {
+      "step": 2,
+      "name": "Device neighbourhood (30 days)",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "query": "device_neighbors",
+        "device_id": "Windows |  | edge 16.0 | ",
+        "t_from": "2016-11-12 01:39:08",
+        "t_to": "2016-12-12 01:39:08"
+      },
+      "summary": "53 card(s) used it in the window, 160 ever",
+      "ms": 1084
+    },
+    {
+      "step": 2,
+      "name": "Plan optional queries",
+      "tool": null,
+      "args": {
+        "source": "none",
+        "choices": [],
+        "catalogue": 0
+      },
+      "summary": "no optional query left in the catalogue",
+      "ms": 0
+    },
+    {
+      "step": 3,
+      "name": "Gather evidence (card analytics)",
+      "tool": null,
+      "args": {
+        "device_ctx": "Windows |  | edge 16.0 | "
+      },
+      "summary": "pattern card_not_present_new_device (online episode with a device marked New for this account); 1 episode txn(s), exposure $59.67; 3 prosecution / 1 defence items",
+      "ms": 1
+    },
+    {
+      "step": 4,
+      "name": "Assess uncertainty",
+      "tool": null,
+      "args": {
+        "fraud_probability": 0.831,
+        "verdict": "uncertain"
+      },
+      "summary": "probability 0.83, verdict uncertain, 3 independent evidence, single_signal=False, conflicts=True; initial: VERIFY_WITH_CUSTOMER, CREATE_CASE, WARN_CUSTOMER, ESCALATE_TO_ANALYST",
+      "ms": 0
+    },
+    {
+      "step": 5,
+      "name": "Request more evidence",
+      "tool": null,
+      "args": {
+        "type": "analyst_info",
+        "assumed_response": "fraud"
+      },
+      "summary": "§3b/§5: ESCALATE_TO_ANALYST is recommended and the analyst_info response changes the actions (fraud -> VERIFY_WITH_CUSTOMER, CREATE_CASE, WARN_CUSTOMER; legitimate -> VERIFY_WITH_CUSTOMER, CREATE_CASE, WARN_CUSTOMER) Assumed 'fraud': probability 0.83 -> 0.85",
+      "ms": 0
+    },
+    {
+      "step": 5,
+      "name": "Request more evidence",
+      "tool": null,
+      "args": {
+        "type": "customer_validation",
+        "assumed_response": "deny"
+      },
+      "summary": "§3b/§5: VERIFY_WITH_CUSTOMER is recommended and the customer_validation response changes the actions (deny -> BLOCK_CARD, CREATE_CASE; confirm -> CREATE_CASE, WARN_CUSTOMER, CLOSE_NO_FRAUD; no_reply -> DECLINE_TRANSACTION, MONITOR_CARD, CREATE_CASE) Assumed 'deny': probability 0.85 -> 0.90",
+      "ms": 0
+    },
+    {
+      "step": 6,
+      "name": "Next best actions",
+      "tool": null,
+      "args": {
+        "final": [
+          "BLOCK_CARD",
+          "CREATE_CASE"
+        ]
+      },
+      "summary": "executed (auto): CREATE_CASE; awaiting approval: BLOCK_CARD (L1)",
+      "ms": 0
+    },
+    {
+      "step": 7,
+      "name": "GraphRAG retrieval",
+      "tool": "tigergraph__run_installed_query",
+      "args": {
+        "queries": [
+          "similar_cases",
+          "search_docs"
+        ],
+        "calls": 2
+      },
+      "summary": "4 similar case(s), 7 passage(s)",
+      "ms": 4863
+    },
+    {
+      "step": 7,
+      "name": "Explain decision",
+      "tool": "llm",
+      "args": {
+        "fallback": []
+      },
+      "summary": "LLM text validated",
+      "ms": 37295
+    },
+    {
+      "step": 8,
+      "name": "Update case memory",
+      "tool": "tigergraph__add_node",
+      "args": {
+        "vertex": "AgentCase",
+        "id": "CASE-HHG-016",
+        "edges": 9
+      },
+      "summary": "wrote CASE-HHG-016",
+      "ms": 8837
+    }
+  ],
+  "hypotheses": {
+    "prosecution": [
+      {
+        "claim": "Closed-case classifier scores flagged txn 3534820 at 0.70 (learned from the bank's confirmed/cleared cases; the bank risk score 0.37 is not used as a verdict)",
+        "score": 0.7,
+        "entity_ids": [
+          "3534820"
+        ],
+        "ref": "model:closed_case_classifier"
+      },
+      {
+        "claim": "1 episode txn(s) came from a device marked New for this account (Windows |  | edge 16.0 | ); the flagged device was never seen on this card before",
+        "score": 0.6,
+        "entity_ids": [
+          "3534820"
+        ],
+        "ref": "query:card_history(card_id=C09988-K1, window=60d)"
+      },
+      {
+        "claim": "Flagged amount $59.67 is 3.0x the card's median $19.64",
+        "score": 0.4,
+        "entity_ids": [
+          "3534820"
+        ],
+        "ref": "query:card_history(card_id=C09988-K1, window=60d)"
+      }
+    ],
+    "defence": [
+      {
+        "claim": "Disputed $59.67 (C) matches earlier charges of the same amount and product roughly monthly: 3368735, 3368763",
+        "score": 0.8,
+        "entity_ids": [
+          "3534820",
+          "3368735",
+          "3368763"
+        ],
+        "ref": "query:card_history(card_id=C09988-K1, window=60d)"
+      }
+    ]
+  },
+  "probability": {
+    "initial": 0.831,
+    "final": 0.9,
+    "features": {
+      "logit_flag": 0.8325,
+      "logit_ep_max": 0.8326,
+      "logit_ep_mean": 0.8326,
+      "log_ep_n": 0.0,
+      "trip_signature": 0.0,
+      "new_phone_signature": 0.0,
+      "card_testing": 0.0,
+      "structuring": 0.0,
+      "ring": 0.0
+    }
+  },
+  "evidence_gate": {
+    "type": "analyst_info",
+    "why": "§3b/§5: ESCALATE_TO_ANALYST is recommended and the analyst_info response changes the actions (fraud -> VERIFY_WITH_CUSTOMER, CREATE_CASE, WARN_CUSTOMER; legitimate -> VERIFY_WITH_CUSTOMER, CREATE_CASE, WARN_CUSTOMER)",
+    "outcomes": {
+      "fraud": [
+        "VERIFY_WITH_CUSTOMER",
+        "CREATE_CASE",
+        "WARN_CUSTOMER"
+      ],
+      "legitimate": [
+        "VERIFY_WITH_CUSTOMER",
+        "CREATE_CASE",
+        "WARN_CUSTOMER"
+      ]
+    },
+    "assumed_response": "fraud"
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "C09988",
+        "type": "Customer",
+        "label": "C09988",
+        "flag": "subject"
+      },
+      {
+        "id": "C09988-K1",
+        "type": "Card",
+        "label": "C09988-K1",
+        "flag": "subject"
+      },
+      {
+        "id": "3534820",
+        "type": "Transaction",
+        "label": "3534820 $59.67",
+        "flag": "suspicious"
+      },
+      {
+        "id": "Windows |  | edge 16.0 | ",
+        "type": "DeviceProfile",
+        "label": "Windows |  | edge 16.0 | ",
+        "flag": "normal"
+      },
+      {
+        "id": "C04597-K2",
+        "type": "Card",
+        "label": "C04597-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C08374-K1",
+        "type": "Card",
+        "label": "C08374-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C01521-K2",
+        "type": "Card",
+        "label": "C01521-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C01002-K1",
+        "type": "Card",
+        "label": "C01002-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C08391-K2",
+        "type": "Card",
+        "label": "C08391-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C05381-K1",
+        "type": "Card",
+        "label": "C05381-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C04965-K2",
+        "type": "Card",
+        "label": "C04965-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C07508-K2",
+        "type": "Card",
+        "label": "C07508-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C05381-K2",
+        "type": "Card",
+        "label": "C05381-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C08610-K1",
+        "type": "Card",
+        "label": "C08610-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C07981-K1",
+        "type": "Card",
+        "label": "C07981-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "C02181-K2",
+        "type": "Card",
+        "label": "C02181-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C13171-K2",
+        "type": "Card",
+        "label": "C13171-K2",
+        "flag": "normal"
+      },
+      {
+        "id": "C08106-K1",
+        "type": "Card",
+        "label": "C08106-K1",
+        "flag": "normal"
+      },
+      {
+        "id": "CASE-HHG-016",
+        "type": "AgentCase",
+        "label": "CASE-HHG-016",
+        "flag": "subject"
+      },
+      {
+        "id": "CASE-HHG-013",
+        "type": "AgentCase",
+        "label": "CASE-HHG-013",
+        "flag": "normal"
+      },
+      {
+        "id": "CASE-HHG-019",
+        "type": "AgentCase",
+        "label": "CASE-HHG-019",
+        "flag": "suspicious"
+      },
+      {
+        "id": "CASE-HHG-017",
+        "type": "AgentCase",
+        "label": "CASE-HHG-017",
+        "flag": "normal"
+      },
+      {
+        "id": "CASE-HHG-018",
+        "type": "AgentCase",
+        "label": "CASE-HHG-018",
+        "flag": "normal"
+      }
+    ],
+    "edges": [
+      {
+        "src": "C09988",
+        "dst": "C09988-K1",
+        "type": "OWNS"
+      },
+      {
+        "src": "C09988-K1",
+        "dst": "3534820",
+        "type": "MADE"
+      },
+      {
+        "src": "3534820",
+        "dst": "Windows |  | edge 16.0 | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C04597-K2",
+        "dst": "Windows |  | edge 16.0 | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C08374-K1",
+        "dst": "Windows |  | edge 16.0 | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C01521-K2",
+        "dst": "Windows |  | edge 16.0 | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C01002-K1",
+        "dst": "Windows |  | edge 16.0 | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C08391-K2",
+        "dst": "Windows |  | edge 16.0 | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C09988-K1",
+        "dst": "Windows |  | edge 16.0 | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C05381-K1",
+        "dst": "Windows |  | edge 16.0 | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C04965-K2",
+        "dst": "Windows |  | edge 16.0 | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C07508-K2",
+        "dst": "Windows |  | edge 16.0 | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C05381-K2",
+        "dst": "Windows |  | edge 16.0 | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C08610-K1",
+        "dst": "Windows |  | edge 16.0 | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C07981-K1",
+        "dst": "Windows |  | edge 16.0 | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C02181-K2",
+        "dst": "Windows |  | edge 16.0 | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C13171-K2",
+        "dst": "Windows |  | edge 16.0 | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "C08106-K1",
+        "dst": "Windows |  | edge 16.0 | ",
+        "type": "FROM_DEVICE"
+      },
+      {
+        "src": "CASE-HHG-016",
+        "dst": "C09988-K1",
+        "type": "ON_CARD"
+      },
+      {
+        "src": "CASE-HHG-016",
+        "dst": "CASE-HHG-013",
+        "type": "SIMILAR_TO"
+      },
+      {
+        "src": "CASE-HHG-016",
+        "dst": "CASE-HHG-019",
+        "type": "SIMILAR_TO"
+      },
+      {
+        "src": "CASE-HHG-016",
+        "dst": "CASE-HHG-017",
+        "type": "SIMILAR_TO"
+      },
+      {
+        "src": "CASE-HHG-016",
+        "dst": "CASE-HHG-018",
+        "type": "SIMILAR_TO"
+      }
+    ]
+  },
+  "rag_context": "CASE\nHHG-016 opened 2016-12-12 01:39:08 by customer_report trigger: \"Customer C09988 message: 'I never made this $59.67 purchase. Please check my card.' Refers to 3534820.\"\nFlagged txn 3534820 on card C09988-K1 (customer C09988).\nGraph analysis: pattern card_not_present_new_device (online episode with a device marked New for this account); fraud probability 0.90; verdict fraud; 1 affected txns, first 3534820, exposure $59.67.\n\nGRAPH EVIDENCE\n- Device profile Windows |  | edge 16.0 |  was used by 52 other card(s) in the 30 days before the alert (28 as a New device; 160 cards ever); their cases: CASE-HHG-019, CASE-SEN-001, CC-0014, CC-0015, CC-0031, CC-0056 (query:device_neighbors(device_id=Windows |  | edge 16.0 | , window=30d))\n- Customer C09988 cards: C09988-K1; prior cases on them: none (query:customer_cases)\n- [prosecution 0.70] Closed-case classifier scores flagged txn 3534820 at 0.70 (learned from the bank's confirmed/cleared cases; the bank risk score 0.37 is not used as a verdict) (ref: model:closed_case_classifier; ids: 3534820)\n- [prosecution 0.60] 1 episode txn(s) came from a device marked New for this account (Windows |  | edge 16.0 | ); the flagged device was never seen on this card before (ref: query:card_history(card_id=C09988-K1, window=60d); ids: 3534820)\n- [prosecution 0.40] Flagged amount $59.67 is 3.0x the card's median $19.64 (ref: query:card_history(card_id=C09988-K1, window=60d); ids: 3534820)\n- [defence 0.80] Disputed $59.67 (C) matches earlier charges of the same amount and product roughly monthly: 3368735, 3368763 (ref: query:card_history(card_id=C09988-K1, window=60d); ids: 3534820, 3368735, 3368763)\n\nSIMILAR PAST CASES (vector search over closed and agent cases; same pattern first)\n- [CASE-HHG-013] AgentCase uncertain, pattern card_not_present_new_device, distance 0.105: Case HHG-013 was opened on 2016-12-09 05:39:29 after a real-time model risk score trigger of 0.76 flagged online transaction 3526826 for $35.66 on card [other id] held by customer [other id]. Graph analysis identified a card_not_present_new_device pattern with an uncertain verdict and a fraud probability ...\n- [CASE-HHG-019] AgentCase fraud, pattern card_not_present_new_device, distance 0.133: Case HHG-019 was opened following a risk score trigger on online transaction 3503878 for $99.92 on card [other id] (customer [other id]). Graph analysis assessed a fraud probability of 0.86 under the card-not-present fraud from a new device pattern, identifying risk factors including a closed-case ...\n- [CASE-HHG-017] AgentCase uncertain, pattern card_not_present_fraud, distance 0.135: Case HHG-017 was opened following a risk score trigger of 0.57 on online transaction 3450629 for $100.09 on card [other id] (customer [other id]). Graph analysis assessed a fraud probability of 0.60 with an uncertain verdict under the card-not-present fraud pattern. Following Policy R1 for ...\n- [CASE-HHG-018] AgentCase uncertain, pattern out_of_region_use, distance 0.138: Customer [other id] reported an unrecognized charge of $39.08 on card [other id] via transaction 3491361, which occurred in billing region 126.0 while their home region is 325.0. Graph analysis flagged out_of_region_use with a fraud probability of 0.67 and an uncertain verdict due to conflicting ...\n\nPOLICY & GUIDANCE\n- [POLICY-R2] R2. Customer denies the transaction: R2. Customer denies the transaction. Recommend BLOCK_CARD and CREATE_CASE. Add FILE_REPORT if exposure exceeds $1,000 or the case connects to a shared device profile or another card's fraud. Related actions (§1): BLOCK_CARD -- block this card and reissue (high customer impact; route L1 if exposure is $2,500 or less, otherwise L2). CREATE_CASE -- open an internal fraud case with the evidence attached and write it to the graph (route auto). ...\n- [PATTERN-card_not_present_new_device] Card-not-present fraud from a new device: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 3. Card-not-present fraud from a new device. Same as above, with the identity record marking the device as New for this account, sometimes behind a proxy. Stronger than pattern 2, still not proof: ...\n- [PATTERN-card_not_present_fraud] Card-not-present fraud: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 2. Card-not-present fraud. The number is used online without the card. Amounts and products that don't fit the cardholder's history, often in a burst of two to four within 48 hours. On its ...\n- [POLICY-R3] R3. Customer confirms the transaction: R3. Customer confirms the transaction. Recommend CLOSE_NO_FRAUD. Note the confirmation in the case file. Compare R2, where the customer instead denies the transaction and the agent recommends BLOCK_CARD and CREATE_CASE. Related action (§1): CLOSE_NO_FRAUD -- close the alert as legitimate (no customer impact, route auto). Per the Answer Format notes, for a legitimate verdict affected_txn_ids is empty, exposure_usd is 0, and sar.file is false.\n- [POLICY-R7] R7. Disputed but legitimate: R7. Disputed but legitimate. When the customer disputes a charge that matches their own recurring pattern (same merchant, same amount, monthly), recommend CREATE_CASE, VERIFY_WITH_CUSTOMER, and WARN_CUSTOMER. Do not block. Related actions (§1): WARN_CUSTOMER -- send an informational message, such as a recurring-charge reminder (no customer impact, route auto). VERIFY_WITH_CUSTOMER -- ask the cardholder whether they made the transaction; card stays active pending reply (low impact, route auto). CREATE_CASE -- open ...\n- [PATTERN-card_testing] Card testing: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 1. Card testing. A stolen card number is checked before use: three or more tiny online authorizations, often under $5, then a larger purchase. Confirmed by the sequence itself. Policy R5.\n- [PATTERN-account_takeover] Account takeover: These are the patterns the bank's analysts recognize. They are not the only patterns in the data. Noticing activity that fits none of them, describing it in your own words, and recommending a defensible action is scored. 5. Account takeover. Mixed-channel activity inconsistent with the cardholder, often with device and match-flag anomalies, pointing to stolen credentials rather than a stolen number. The README glossary defines an identity record as the ...\n\nINSTRUCTIONS\nUse only the facts above. Cite the ids in square brackets and the txn/card/device ids shown; never invent an id, amount or date. Past cases are memory, not this customer's activity: their ids are not connected cards. The bank risk score is not a verdict. Actions come from the policy engine: explain them, do not change them."
+}

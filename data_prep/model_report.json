@@ -1,0 +1,7 @@
+{
+  "train_rows": 40313,
+  "test_rows": 35136,
+  "auc_all_test": 0.951,
+  "auc_case_txns_confirmed_vs_cleared": 0.8862,
+  "auc_risk_score_case_txns": 0.0524
+}

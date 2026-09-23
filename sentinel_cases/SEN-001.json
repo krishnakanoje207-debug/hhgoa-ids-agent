@@ -1,0 +1,351 @@
+{
+  "case_id": "SEN-001",
+  "case": {
+    "status": "escalated",
+    "verdict": "fraud",
+    "fraud_probability": 0.9,
+    "pattern": "undocumented",
+    "pattern_description": "The undocumented pattern involves coordinated device-profile ring abuse where multiple cards utilize a rare device profile marked as New behind an anonymous proxy. It affects customers whose cards are integrated into shared device clusters across multiple fraudulent episodes. It was discovered through Sentinel sweeps identifying shared device profiles linked to prior cases like CASE-HHG-014 and CASE-SEN-001.",
+    "affected_txn_ids": [
+      "3500431",
+      "3512563"
+    ],
+    "first_suspicious_txn_id": "3500431",
+    "connected_card_ids": [
+      "C01289-K1",
+      "C01996-K2",
+      "C02910-K1",
+      "C02975-K1",
+      "C03676-K2",
+      "C04108-K2",
+      "C04274-K1",
+      "C05448-K2",
+      "C06031-K2",
+      "C06650-K2",
+      "C06710-K1",
+      "C08168-K1",
+      "C08972-K2",
+      "C09049-K1",
+      "C09195-K1",
+      "C09906-K1",
+      "C09975-K1",
+      "C10020-K1",
+      "C10193-K2",
+      "C10326-K1",
+      "C11082-K1",
+      "C11670-K2",
+      "C11702-K1",
+      "C12645-K1",
+      "C12796-K1",
+      "C13291-K1",
+      "C13487-K1"
+    ],
+    "connected_device_profiles": [
+      "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080"
+    ],
+    "exposure_usd": 265.85,
+    "evidence": [
+      {
+        "claim": "Closed-case classifier scores flagged transaction 3512563 at 0.74, learned from confirmed and cleared bank cases while excluding the 0.10 bank risk score.",
+        "source": "graph",
+        "ref": "model:closed_case_classifier",
+        "entity_ids": [
+          "3512563"
+        ]
+      },
+      {
+        "claim": "Two card transactions from 2016-11-30 15:47:00 to 2016-12-04 11:47:00 form a single episode on the ring device, totaling $265.85 across transactions 3500431 and 3512563.",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C07472-K1, window=60d)",
+        "entity_ids": [
+          "3500431",
+          "3512563"
+        ]
+      },
+      {
+        "claim": "Device profile SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080 was used as New by 27 other cards behind an anonymous proxy out of 52 total ever, with 57 linked closed cases including CASE-HHG-014, CASE-SEN-001, CC-0020, CC-0100, and CC-0118.",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id=SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080)",
+        "entity_ids": [
+          "C01289-K1",
+          "C01996-K2",
+          "C02910-K1",
+          "C02975-K1",
+          "C03676-K2",
+          "C04108-K2",
+          "C04274-K1",
+          "C05448-K2",
+          "C06031-K2",
+          "C06650-K2",
+          "CASE-HHG-014",
+          "CASE-SEN-001",
+          "CC-0020",
+          "CC-0100",
+          "CC-0118",
+          "CC-0359",
+          "CC-0422",
+          "CC-0462",
+          "CC-0601",
+          "CC-0612",
+          "CC-1102",
+          "CC-1484",
+          "CC-1622",
+          "CC-1854",
+          "CC-1947",
+          "CC-2047",
+          "CC-2245",
+          "CC-2503",
+          "CC-2734",
+          "CC-2736",
+          "CC-2818",
+          "CC-2940",
+          "CC-3023",
+          "CC-3132",
+          "CC-3419",
+          "CC-3421",
+          "CC-3508",
+          "CC-3599",
+          "CC-3623",
+          "CC-3664",
+          "CC-3696",
+          "CC-3805",
+          "CC-3878",
+          "CC-3906",
+          "CC-3908",
+          "CC-3976",
+          "CC-3998",
+          "CC-4022",
+          "CC-4046",
+          "CC-4085",
+          "CC-4131",
+          "CC-4172",
+          "CC-4332",
+          "CC-4591",
+          "CC-4592",
+          "CC-4647",
+          "CC-4752",
+          "CC-4808",
+          "CC-4820",
+          "CC-4952",
+          "CC-5033",
+          "CC-5155",
+          "CC-5177",
+          "CC-5256",
+          "CC-5345",
+          "CC-5410",
+          "CC-5531"
+        ]
+      },
+      {
+        "claim": "2 episode txn(s) came from a device marked New for this account (SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080); the flagged device was never seen on this card before",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C07472-K1, window=60d)",
+        "entity_ids": [
+          "3500431",
+          "3512563"
+        ]
+      },
+      {
+        "claim": "2 episode txn(s) went through an anonymous proxy",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C07472-K1, window=60d)",
+        "entity_ids": [
+          "3500431",
+          "3512563"
+        ]
+      },
+      {
+        "claim": "Product code C never used on this card in the prior window",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C07472-K1, window=60d)",
+        "entity_ids": [
+          "3512563"
+        ]
+      },
+      {
+        "claim": "Device profile SM-G950U Build/R16NW | Android 8.0.0 | chrome 65.0 for android | 2220x1080 was used by 12 other cards in 30 days, with 7 as New and 15 ever, linked to cases CASE-HHG-019, CC-0005, CC-0070, CC-0090, CC-0107, and CC-0121.",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id=SM-G950U Build/R16NW | Android 8.0.0 | chrome 65.0 for android | 2220x1080, window=30d)",
+        "entity_ids": [
+          "C03218-K2",
+          "C02348-K1",
+          "C08989-K2",
+          "C03318-K1",
+          "C06224-K2",
+          "C06726-K1",
+          "C08945-K2",
+          "C00750-K2",
+          "C01909-K2",
+          "C03005-K1",
+          "CC-0005",
+          "CC-0070",
+          "CC-0090",
+          "CC-0107",
+          "CC-0121",
+          "CC-0145"
+        ]
+      },
+      {
+        "claim": "Sixteen cards made their first purchase in billing region 315.0 in 7 days, with 3 linked to cases out of 1386 ever billed there.",
+        "source": "graph",
+        "ref": "query:region_cluster(region=315.0, window=7d)",
+        "entity_ids": [
+          "C07284-K1",
+          "C05160-K1",
+          "C07516-K1",
+          "C12123-K1",
+          "C10506-K1",
+          "C02314-K1",
+          "C04944-K1",
+          "C10590-K1",
+          "C00616-K1",
+          "C01116-K2"
+        ]
+      },
+      {
+        "claim": "Nearest cases in memory are CASE-HHG-014, CASE-SEN-010, CASE-SEN-008, and CASE-HHG-019.",
+        "source": "graph",
+        "ref": "query:similar_cases",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R1 provides the framework for evaluating block actions on weak signals.",
+        "source": "document",
+        "ref": "POLICY-R1",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R6 governs shared origin detections supporting CREATE_CASE, FILE_REPORT, and MONITOR_CONNECTED_CARDS.",
+        "source": "document",
+        "ref": "POLICY-R6",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R9 addresses undocumented patterns requiring CREATE_CASE, FILE_REPORT, and ESCALATE_TO_ANALYST.",
+        "source": "document",
+        "ref": "POLICY-R9",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy Actions outline the standardized terminology for agent recommendations.",
+        "source": "document",
+        "ref": "POLICY-S1-ACTIONS",
+        "entity_ids": []
+      },
+      {
+        "claim": "Typology and regulatory guidance retrieved covers card-not-present new device fraud, account takeover, and card testing.",
+        "source": "document",
+        "ref": "PATTERN-card_not_present_new_device, PATTERN-account_takeover, PATTERN-card_testing",
+        "entity_ids": []
+      }
+    ],
+    "similar_prior_cases": [],
+    "summary": "Investigation SEN-001 was opened following a Sentinel sweep on card C07472-K1 belonging to customer C07472 due to an unusual device profile ring. Graph analysis confirmed a fraud verdict with a probability of 0.90 based on 5 independent signals, including two transactions totaling $265.85 routed through an anonymous proxy. The closed-case classifier scored transaction 3512563 at 0.74, while the device profile SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080 was shared across multiple cards and linked to prior cases such as CASE-HHG-014 and CASE-SEN-001. Recommended actions include blocking card C07472-K1, creating a case, filing a report, monitoring connected cards, and escalating to an analyst under policies R1, R6, and R9.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-SEN-001"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R1 not triggered: 5 independent signals at probability 0.90; exposure $265.85 is under $2,500 (\u00a72)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "R6: several cards show fraud from shared device SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080; R9: undocumented pattern with coordinated abuse across cards/customers; \u00a73a: fraud probability 0.90 reaches 0.30"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "\u00a73a/R6: fraud confirmed or strongly suspected and shared device SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080 links cards C01289-K1, C01996-K2, C02910-K1, C02975-K1, C03676-K2, C04108-K2, C04274-K1, C05448-K2, C06031-K2, C06650-K2, C06710-K1, C08168-K1, C08972-K2, C09049-K1, C09195-K1, C09906-K1, C09975-K1, C10020-K1, C10193-K2, C10326-K1, C11082-K1, C11670-K2, C11702-K1, C12645-K1, C12796-K1, C13291-K1, C13487-K1; activity connects to another card's or customer's fraud; coordinated undocumented pattern (R9)"
+      },
+      {
+        "action": "MONITOR_CONNECTED_CARDS",
+        "route": "auto",
+        "reason": "R6: monitor every card sharing device SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080: C01289-K1, C01996-K2, C02910-K1, C02975-K1, C03676-K2, C04108-K2, C04274-K1, C05448-K2, C06031-K2, C06650-K2, C06710-K1, C08168-K1, C08972-K2, C09049-K1, C09195-K1, C09906-K1, C09975-K1, C10020-K1, C10193-K2, C10326-K1, C11082-K1, C11670-K2, C11702-K1, C12645-K1, C12796-K1, C13291-K1, C13487-K1"
+      },
+      {
+        "action": "ESCALATE_TO_ANALYST",
+        "route": "auto",
+        "reason": "R9: undocumented coordinated pattern needs analyst review"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R1 not triggered: 5 independent signals at probability 0.90; exposure $265.85 is under $2,500 (\u00a72)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "R6: several cards show fraud from shared device SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080; R9: undocumented pattern with coordinated abuse across cards/customers; \u00a73a: fraud probability 0.90 reaches 0.30"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "\u00a73a/R6: fraud confirmed or strongly suspected and shared device SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080 links cards C01289-K1, C01996-K2, C02910-K1, C02975-K1, C03676-K2, C04108-K2, C04274-K1, C05448-K2, C06031-K2, C06650-K2, C06710-K1, C08168-K1, C08972-K2, C09049-K1, C09195-K1, C09906-K1, C09975-K1, C10020-K1, C10193-K2, C10326-K1, C11082-K1, C11670-K2, C11702-K1, C12645-K1, C12796-K1, C13291-K1, C13487-K1; activity connects to another card's or customer's fraud; coordinated undocumented pattern (R9)"
+      },
+      {
+        "action": "MONITOR_CONNECTED_CARDS",
+        "route": "auto",
+        "reason": "R6: monitor every card sharing device SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080: C01289-K1, C01996-K2, C02910-K1, C02975-K1, C03676-K2, C04108-K2, C04274-K1, C05448-K2, C06031-K2, C06650-K2, C06710-K1, C08168-K1, C08972-K2, C09049-K1, C09195-K1, C09906-K1, C09975-K1, C10020-K1, C10193-K2, C10326-K1, C11082-K1, C11670-K2, C11702-K1, C12645-K1, C12796-K1, C13291-K1, C13487-K1"
+      },
+      {
+        "action": "ESCALATE_TO_ANALYST",
+        "route": "auto",
+        "reason": "R9: undocumented coordinated pattern needs analyst review"
+      }
+    ],
+    "what_changed": "nothing"
+  },
+  "sar": {
+    "file": true,
+    "reason": "\u00a73a/R6: fraud confirmed or strongly suspected and shared device SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080 links cards C01289-K1, C01996-K2, C02910-K1, C02975-K1, C03676-K2, C04108-K2, C04274-K1, C05448-K2, C06031-K2, C06650-K2, C06710-K1, C08168-K1, C08972-K2, C09049-K1, C09195-K1, C09906-K1, C09975-K1, C10020-K1, C10193-K2, C10326-K1, C11082-K1, C11670-K2, C11702-K1, C12645-K1, C12796-K1, C13291-K1, C13487-K1; activity connects to another card's or customer's fraud; coordinated undocumented pattern (R9)",
+    "narrative": "Customer C07472 utilizing card C07472-K1 has been identified in a coordinated fraud scheme involving unauthorized online transactions. Between 2016-11-30 and 2016-12-04, a total of 2 transactions amounting to $265.85 were executed. The activity occurred online via an anonymous proxy using a rare device profile SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080 marked as New. This activity is suspicious because the device profile is shared across 27 other cards in a fraudulent device ring tied to cases such as CASE-HHG-014 and CASE-SEN-001. Connected cards sharing this origin include C01289-K1, C01996-K2, C02910-K1, C02975-K1, C03676-K2, C04108-K2, C04274-K1, C05448-K2, C06031-K2, C06650-K2, C06710-K1, C08168-K1, C08972-K2, C09049-K1, C09195-K1, C09906-K1, C09975-K1, C10020-K1, C10193-K2, C10326-K1, C11082-K1, C11670-K2, C11702-K1, C12645-K1, C12796-K1, C13291-K1, and C13487-K1. Recommended actions include blocking card C07472-K1, creating a case, filing a regulatory report, monitoring connected cards, and escalating to an analyst under policies R1, R6, and R9.",
+    "subjects": [
+      "C07472",
+      "C07472-K1",
+      "C01289-K1",
+      "C01996-K2",
+      "C02910-K1",
+      "C02975-K1",
+      "C03676-K2",
+      "C04108-K2",
+      "C04274-K1",
+      "C05448-K2",
+      "C06031-K2",
+      "C06650-K2",
+      "C06710-K1",
+      "C08168-K1",
+      "C08972-K2",
+      "C09049-K1",
+      "C09195-K1",
+      "C09906-K1",
+      "C09975-K1",
+      "C10020-K1",
+      "C10193-K2",
+      "C10326-K1",
+      "C11082-K1",
+      "C11670-K2",
+      "C11702-K1",
+      "C12645-K1",
+      "C12796-K1",
+      "C13291-K1",
+      "C13487-K1",
+      "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080"
+    ],
+    "total_amount_usd": 265.85,
+    "activity_dates": [
+      "2016-11-30",
+      "2016-12-04"
+    ]
+  },
+  "stop_reason": "\u00a76: probability 0.90 is decisive and rests on 5 independent pieces of evidence",
+  "tool_calls": 16,
+  "tokens": 9855,
+  "latency_s": 21.3
+}

@@ -1,0 +1,229 @@
+{
+  "case_id": "HHG-008",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.99,
+    "pattern": "card_not_present_new_device",
+    "pattern_description": "",
+    "affected_txn_ids": [
+      "3557979",
+      "3557987",
+      "3558054"
+    ],
+    "first_suspicious_txn_id": "3557979",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 166.97,
+    "evidence": [
+      {
+        "claim": "Closed-case classifier scores flagged transaction 3558054 at 1.00 based on confirmed and cleared bank cases, while the bank risk score is 0.38",
+        "source": "graph",
+        "ref": "model:closed_case_classifier",
+        "entity_ids": [
+          "3558054"
+        ]
+      },
+      {
+        "claim": "Three card transactions from 2016-12-19 21:48:32 to 2016-12-19 22:08:56 form a single episode totaling $166.97, comprising transactions 3557979, 3557987, and 3558054",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C13171-K2, window=60d)",
+        "entity_ids": [
+          "3557979",
+          "3557987",
+          "3558054"
+        ]
+      },
+      {
+        "claim": "One episode transaction originated from a device marked New for this account using chrome 66.0 (transaction 3557987)",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C13171-K2, window=60d)",
+        "entity_ids": [
+          "3557987"
+        ]
+      },
+      {
+        "claim": "Customer has 18 earlier confirmed fraud case(s): CC-3728, CC-5010, CC-1715, CC-3422, CC-2244",
+        "source": "graph",
+        "ref": "query:customer_cases",
+        "entity_ids": [
+          "CC-3728",
+          "CC-5010",
+          "CC-1715",
+          "CC-3422",
+          "CC-2244"
+        ]
+      },
+      {
+        "claim": "Flagged device  |  | chrome 66.0 |  was already used on this card before",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C13171-K2, window=60d)",
+        "entity_ids": [
+          "3558054"
+        ]
+      },
+      {
+        "claim": "The disputed $55.68 transaction C matches earlier monthly charges of the same amount and product under transactions 3421195 and 3469864",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C13171-K2, window=60d)",
+        "entity_ids": [
+          "3558054",
+          "3421195",
+          "3469864"
+        ]
+      },
+      {
+        "claim": "Device profile chrome 66.0 was used by 128 other cards in the 30 days before the alert, including 66 as a New device and 175 cards ever, with associated cases CASE-HHG-002, CASE-HHG-019, CASE-SEN-003, CASE-SEN-010, CC-0001, and CC-0012",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id= |  | chrome 66.0 | , window=30d)",
+        "entity_ids": [
+          "C04597-K2",
+          "C02416-K1",
+          "C02147-K2",
+          "C13364-K1",
+          "C01521-K2",
+          "C08391-K2",
+          "C03218-K2",
+          "C12092-K2",
+          "C07347-K1",
+          "C08682-K1",
+          "CC-0001",
+          "CC-0012",
+          "CC-0015",
+          "CC-0031",
+          "CC-0033",
+          "CC-0052"
+        ]
+      },
+      {
+        "claim": "Device profile mobile safari 11.0 was used by 153 other cards in the 30 days before the alert, including 16 as a New device and 609 cards ever, with associated cases CASE-HHG-016, CASE-HHG-019, CASE-SEN-003, CC-0015, CC-0031, and CC-0036",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id= |  | mobile safari 11.0 | , window=30d)",
+        "entity_ids": [
+          "C07204-K1",
+          "C09365-K2",
+          "C04597-K2",
+          "C01138-K2",
+          "C10224-K1",
+          "C00978-K1",
+          "C01864-K1",
+          "C11881-K1",
+          "C02652-K1",
+          "C04703-K1",
+          "CC-0015",
+          "CC-0031",
+          "CC-0036",
+          "CC-0037",
+          "CC-0051",
+          "CC-0054"
+        ]
+      },
+      {
+        "claim": "Customer C13171 disputed transaction 3558054 stating they never made the $55.68 purchase",
+        "source": "customer",
+        "ref": "case_pack:trigger_text",
+        "entity_ids": [
+          "3558054",
+          "C13171"
+        ]
+      },
+      {
+        "claim": "Customer validation assumed a denial of transaction 3558054 and related activity due to a fraud probability of 0.99 and a closed-case classifier score of 1.00",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": []
+      },
+      {
+        "claim": "Nearest cases in memory include CASE-HHG-016, CASE-HHG-013, CASE-HHG-019, and CASE-HHG-017",
+        "source": "graph",
+        "ref": "query:similar_cases",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R2 applied for customer denial, providing the basis for BLOCK_CARD and CREATE_CASE",
+        "source": "document",
+        "ref": "POLICY-R2",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R3 retrieved as context for customer confirmation",
+        "source": "document",
+        "ref": "POLICY-R3",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R7 retrieved as context for disputed but legitimate transactions",
+        "source": "document",
+        "ref": "POLICY-R7",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy Actions retrieved as context for agent recommendations",
+        "source": "document",
+        "ref": "POLICY-S1-ACTIONS",
+        "entity_ids": []
+      },
+      {
+        "claim": "Typology and regulatory guidance retrieved for card-not-present fraud from a new device, card-not-present fraud, and card testing",
+        "source": "document",
+        "ref": "PATTERN-card_not_present_new_device, PATTERN-card_not_present_fraud, PATTERN-card_testing",
+        "entity_ids": []
+      }
+    ],
+    "similar_prior_cases": [],
+    "summary": "Case HHG-008 was opened on 2016-12-20 following a report from customer C13171 disputing transaction 3558054 for $55.68 on card C13171-K2. Graph analysis and the closed-case classifier assigned a fraud probability of 0.99 with a verdict of fraud under the card_not_present_new_device pattern. The investigation identified a 3-transaction fraudulent episode totaling $166.97 between 2016-12-19 21:48:32 and 2016-12-19 22:08:56. Customer validation confirmed the denial, leading to final recommended actions under Policy R2.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-HHG-008"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 4,
+      "assumed_response": "Assumed the customer denies making transaction 3558054 and the related activity and still holds the card, because the evidence leans towards fraud (probability 0.99 >= 0.50; strongest point: Closed-case classifier scores flagged txn 3558054 at 1.00 (learned from the bank's confirmed/cleared cases; the bank risk score 0.38 is not used as a verdict))."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R7: confirm the recurring charge with the customer; do not block"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "R7: disputed charge matches the customer's recurring pattern; §3a: customer disputed a charge"
+      },
+      {
+        "action": "WARN_CUSTOMER",
+        "route": "auto",
+        "reason": "R7: send a recurring-charge reminder"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: customer denied the transaction; exposure $166.97 is under $2,500 (§2)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "R2: customer denied the transaction; §3a: customer disputed a charge"
+      }
+    ],
+    "what_changed": "Initial actions recommended verifying and warning the customer under Policy R7 based on a potential recurring charge match, but upon customer validation showing the transaction was denied, the final actions were updated to BLOCK_CARD (routed L1) and CREATE_CASE under Policy R2."
+  },
+  "sar": {
+    "file": false,
+    "reason": "§3a: no report; exposure is under $1,000, no shared element or other fraud, pattern not coordinated",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0,
+    "activity_dates": []
+  },
+  "stop_reason": "§6: the verification response settles the question",
+  "tool_calls": 12,
+  "tokens": 8092,
+  "latency_s": 29.4
+}

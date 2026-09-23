@@ -1,0 +1,199 @@
+{
+  "case_id": "HHG-001",
+  "case": {
+    "status": "closed_legitimate",
+    "verdict": "legitimate",
+    "fraud_probability": 0.15,
+    "pattern": "none",
+    "pattern_description": "",
+    "affected_txn_ids": [],
+    "first_suspicious_txn_id": "",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 0,
+    "evidence": [
+      {
+        "claim": "Closed-case classifier evaluated flagged transaction 3514030 at a score of 0.79 based on historical bank data, separate from the initial bank risk score of 0.61.",
+        "source": "graph",
+        "ref": "model:closed_case_classifier",
+        "entity_ids": [
+          "3514030"
+        ]
+      },
+      {
+        "claim": "Card-present use in billing region 444.0; the customer's home region is 433.0 (6 earlier txns there)",
+        "source": "graph",
+        "ref": "query:region_history(customer_id=C12382)",
+        "entity_ids": [
+          "3514030"
+        ]
+      },
+      {
+        "claim": "Customer has 4 earlier confirmed fraud case(s): CC-1066, CC-3587, CC-2964, CC-1673",
+        "source": "graph",
+        "ref": "query:customer_cases",
+        "entity_ids": [
+          "CC-1066",
+          "CC-3587",
+          "CC-2964",
+          "CC-1673"
+        ]
+      },
+      {
+        "claim": "6 txns on the same underlying account as flagged txn 3514030 (billing region 444.0, account first seen 2016-09-13 = txn date minus D1, within a day), from 2016-10-11 to 2016-11-26 (at least 7 days before the flag), and none of its txns is in any closed case; in the bank's Sep-Oct history 0.17% of in-person txns on such an account were fraud (9.9% even when risk and classifier scores were both >= 0.50)",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C12382-K1, window=60d)",
+        "entity_ids": [
+          "3356278",
+          "3376974",
+          "3400970",
+          "3441958",
+          "3471020",
+          "3490282"
+        ]
+      },
+      {
+        "claim": "Card-present purchases in region 444.0 on 7 different days while 9 txns continued in home region 433.0: looks like a trip, not a clone",
+        "source": "graph",
+        "ref": "query:region_history(customer_id=C12382)",
+        "entity_ids": [
+          "3356278",
+          "3376974",
+          "3400970",
+          "3441958",
+          "3471020",
+          "3490282"
+        ]
+      },
+      {
+        "claim": "The disputed $77.07 transaction for product W matches earlier recurring monthly charges of the same amount on transactions 3349967 and 3425206.",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C12382-K1, window=60d)",
+        "entity_ids": [
+          "3514030",
+          "3349967",
+          "3425206"
+        ]
+      },
+      {
+        "claim": "Query region_cluster for region 444.0 and a 7-day window identified 8 cards making their first purchase, with 6 linked to cases out of 303 total cards ever billed there.",
+        "source": "graph",
+        "ref": "query:region_cluster(region=444.0, window=7d)",
+        "entity_ids": [
+          "C11201-K1",
+          "C05289-K2",
+          "C12634-K1",
+          "C09092-K1",
+          "C11965-K1",
+          "C06692-K1",
+          "C00768-K2",
+          "C09267-K1"
+        ]
+      },
+      {
+        "claim": "Query region_cluster for region 203.0 and a 7-day window identified 10 cards making their first purchase, with 4 linked to cases out of 394 total cards ever billed there.",
+        "source": "graph",
+        "ref": "query:region_cluster(region=203.0, window=7d)",
+        "entity_ids": [
+          "C02597-K1",
+          "C07568-K1",
+          "C09421-K3",
+          "C07614-K2",
+          "C04080-K1",
+          "C02930-K1",
+          "C10045-K1",
+          "C02845-K1",
+          "C01596-K2",
+          "C11543-K2"
+        ]
+      },
+      {
+        "claim": "Query region_cluster for region 204.0 and a 7-day window identified 28 cards making their first purchase, with 7 linked to cases out of 2006 total cards ever billed there.",
+        "source": "graph",
+        "ref": "query:region_cluster(region=204.0, window=7d)",
+        "entity_ids": [
+          "C04683-K1",
+          "C10364-K1",
+          "C09651-K1",
+          "C09343-K1",
+          "C10622-K1",
+          "C10238-K1",
+          "C00354-K1",
+          "C07053-K1",
+          "C08170-K1",
+          "C09507-K1"
+        ]
+      },
+      {
+        "claim": "Similar past cases retrieved from vector search include CASE-HHG-010, CASE-HHG-017, and CASE-HHG-018.",
+        "source": "graph",
+        "ref": "query:similar_cases",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R3 addressing customer confirmation was retrieved as context.",
+        "source": "document",
+        "ref": "POLICY-R3",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy regarding risk scores as the starting point served as the basis for the CLOSE_NO_FRAUD action.",
+        "source": "document",
+        "ref": "POLICY-S0-SCORE",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R7 regarding disputed but legitimate charges was retrieved as context.",
+        "source": "document",
+        "ref": "POLICY-R7",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy actions available to the agent were retrieved as context.",
+        "source": "document",
+        "ref": "POLICY-S1-ACTIONS",
+        "entity_ids": []
+      },
+      {
+        "claim": "Typology and regulatory guidance regarding risk scores, card-not-present fraud, and card testing were retrieved.",
+        "source": "document",
+        "ref": "README-THINGS-TO-KNOW-01, PATTERN-card_not_present_fraud, PATTERN-card_testing",
+        "entity_ids": []
+      }
+    ],
+    "similar_prior_cases": [],
+    "summary": "Case HHG-001 was initiated for transaction 3514030 on card C12382-K1 held by customer C12382, following a bank risk score trigger of 0.61. Graph analysis determined a fraud probability of 0.15 and assigned a legitimate verdict, as the activity is consistent with a trip rather than a clone based on region history. The closed-case classifier scored the transaction at 0.79, but historical patterns of recurring monthly charges and multiple in-person transactions in region 444.0 alongside home region activity support a legitimate determination under Policy R3. Consequently, the final action is CLOSE_NO_FRAUD routed via auto.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-HHG-001"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "CLOSE_NO_FRAUD",
+        "route": "auto",
+        "reason": "§0/§6: evidence supports a legitimate verdict (probability 0.15)"
+      }
+    ],
+    "final": [
+      {
+        "action": "CLOSE_NO_FRAUD",
+        "route": "auto",
+        "reason": "§0/§6: evidence supports a legitimate verdict (probability 0.15)"
+      }
+    ],
+    "what_changed": "nothing"
+  },
+  "sar": {
+    "file": false,
+    "reason": "§3a: no report; activity closed as legitimate (R3)",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0,
+    "activity_dates": []
+  },
+  "stop_reason": "§6: probability 0.15 is decisive and rests on 3 independent pieces of evidence",
+  "tool_calls": 11,
+  "tokens": 6456,
+  "latency_s": 16.4
+}

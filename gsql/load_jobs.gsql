@@ -1,0 +1,57 @@
+USE GRAPH FraudGraph
+
+CREATE LOADING JOB load_txn FOR GRAPH FraudGraph {
+  DEFINE FILENAME f;
+  LOAD f
+    TO VERTEX Txn VALUES ($0, $1, $2, $3, $4, $5, $6, $7, $8,
+                         $9, $10, $11, $12, $13, $14, $15, $23),
+    TO VERTEX Customer VALUES ($17),
+    TO VERTEX Card VALUES ($16, $18, $19),
+    TO EDGE OWNS VALUES ($17, $16),
+    TO EDGE MADE VALUES ($16, $0),
+    TO EDGE FROM_DEVICE VALUES ($0, $20, $21, $22) WHERE $20 != "",
+    TO VERTEX Region VALUES ($6) WHERE $6 != "",
+    TO EDGE BILLED_IN VALUES ($0, $6) WHERE $6 != "",
+    TO VERTEX EmailDomain VALUES ($9) WHERE $9 != "",
+    TO EDGE PURCHASER_EMAIL VALUES ($0, $9) WHERE $9 != "",
+    TO VERTEX EmailDomain VALUES ($10) WHERE $10 != "",
+    TO EDGE RECIPIENT_EMAIL VALUES ($0, $10) WHERE $10 != ""
+  USING header="true", separator=",", QUOTE="double";
+}
+
+CREATE LOADING JOB load_device FOR GRAPH FraudGraph {
+  DEFINE FILENAME f;
+  LOAD f TO VERTEX DeviceProfile VALUES ($0, $1, $2, $3, $4, $5)
+  USING header="true", separator=",", QUOTE="double";
+}
+
+CREATE LOADING JOB load_closed_cases FOR GRAPH FraudGraph {
+  DEFINE FILENAME cases;
+  DEFINE FILENAME rel;
+  LOAD cases TO VERTEX ClosedCase VALUES ($0, $1, $2, $3, $4, $5,
+                                          $6, $7, $8, $9)
+  USING header="true", separator=",", QUOTE="double";
+  LOAD rel
+    TO EDGE INVOLVES VALUES ($0 ClosedCase, $2 Txn) WHERE $1 == "INVOLVES",
+    TO EDGE ON_CARD VALUES ($0 ClosedCase, $2 Card) WHERE $1 == "ON_CARD",
+    TO EDGE CONNECTED_TO VALUES ($0 ClosedCase, $2 Card) WHERE $1 == "CONNECTED_TO"
+  USING header="true", separator=",";
+}
+
+CREATE LOADING JOB load_docs FOR GRAPH FraudGraph {
+  DEFINE FILENAME f;
+  LOAD f TO VERTEX Doc VALUES ($0, $1, $2, $3, $4)
+  USING header="true", separator=",", QUOTE="double";
+}
+
+# Columns are positional; header="true" skips the header row written by scripts/prepare_data.py.
+
+# Embeddings: one row per vertex, "id|v1:v2:...".
+CREATE LOADING JOB load_emb_closed FOR GRAPH FraudGraph {
+  DEFINE FILENAME f;
+  LOAD f TO VECTOR ATTRIBUTE emb ON VERTEX ClosedCase VALUES ($0, SPLIT($1, ":")) USING SEPARATOR="|";
+}
+CREATE LOADING JOB load_emb_doc FOR GRAPH FraudGraph {
+  DEFINE FILENAME f;
+  LOAD f TO VECTOR ATTRIBUTE emb ON VERTEX Doc VALUES ($0, SPLIT($1, ":")) USING SEPARATOR="|";
+}

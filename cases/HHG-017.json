@@ -1,0 +1,155 @@
+{
+  "case_id": "HHG-017",
+  "case": {
+    "status": "open",
+    "verdict": "uncertain",
+    "fraud_probability": 0.597,
+    "pattern": "card_not_present_fraud",
+    "pattern_description": "",
+    "affected_txn_ids": [
+      "3450629"
+    ],
+    "first_suspicious_txn_id": "3450629",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 100.09,
+    "evidence": [
+      {
+        "claim": "Closed-case classifier scores flagged txn 3450629 at 0.28, in line with this card's legitimate history (bank risk score 0.57 is often high on false alarms)",
+        "source": "graph",
+        "ref": "model:closed_case_classifier",
+        "entity_ids": [
+          "3450629"
+        ]
+      },
+      {
+        "claim": "Flagged device Windows | Windows 10 | chrome 65.0 | 1920x1080 was already used on this card before",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C04570-K1, window=60d)",
+        "entity_ids": [
+          "3450629"
+        ]
+      },
+      {
+        "claim": "Device profile Windows | Windows 10 | chrome 65.0 | 1920x1080 was utilized by 163 other cards in the 30 days prior to the alert (73 as a new device, 299 cards historically), with associated cases CC-0004, CC-0006, CC-0013, CC-0016, CC-0019, and CC-0022.",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id=Windows | Windows 10 | chrome 65.0 | 1920x1080, window=30d)",
+        "entity_ids": [
+          "C13007-K1",
+          "C08605-K1",
+          "C11198-K1",
+          "C02975-K1",
+          "C08918-K2",
+          "C04016-K1",
+          "C07735-K1",
+          "C05560-K2",
+          "C09981-K2",
+          "C07194-K1",
+          "CC-0004",
+          "CC-0006",
+          "CC-0013",
+          "CC-0016",
+          "CC-0019",
+          "CC-0022"
+        ]
+      },
+      {
+        "claim": "A total of 36 cards made their first purchase in billing region 204.0 within the 7 days prior to the alert, including 10 linked to cases out of 2,006 historical cards billed in that region.",
+        "source": "graph",
+        "ref": "query:region_cluster(region=204.0, window=7d)",
+        "entity_ids": [
+          "C06001-K1",
+          "C10482-K1",
+          "C11113-K1",
+          "C04346-K2",
+          "C12502-K1",
+          "C00551-K1",
+          "C11519-K1",
+          "C00053-K1",
+          "C06889-K1",
+          "C00866-K1"
+        ]
+      },
+      {
+        "claim": "No customer response has been assumed yet because the evidence is balanced at a 0.60 probability, keeping the case open until a response is received.",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R1 requires verification before blocking on a weak signal, serving as the basis for VERIFY_WITH_CUSTOMER.",
+        "source": "document",
+        "ref": "POLICY-R1",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy guidance on starting risk scores was retrieved as context.",
+        "source": "document",
+        "ref": "POLICY-S0-SCORE",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R3 regarding customer transaction confirmation was retrieved as context.",
+        "source": "document",
+        "ref": "POLICY-R3",
+        "entity_ids": []
+      },
+      {
+        "claim": "Typology and regulatory guidance were retrieved for card-not-present fraud, risk scores and legitimate cases, card testing, and transaction pattern red flags.",
+        "source": "document",
+        "ref": "PATTERN-card_not_present_fraud, README-THINGS-TO-KNOW-01, PATTERN-card_testing, FATF-CYBERFRAUD-04",
+        "entity_ids": []
+      }
+    ],
+    "similar_prior_cases": [],
+    "summary": "Case HHG-017 was opened following a risk score trigger of 0.57 on online transaction 3450629 for $100.09 on card C04570-K1 (customer C04570). Graph analysis assessed a fraud probability of 0.60 with an uncertain verdict under the card-not-present fraud pattern. Following Policy R1 for single-signal cases below 0.70 probability, the recommended actions are VERIFY_WITH_CUSTOMER and CREATE_CASE.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-HHG-017"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 4,
+      "assumed_response": "No response assumed yet: the evidence is balanced (probability 0.60), so the agent does not presume the customer_validation outcome; the case stays open until it arrives."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R1: single signal at probability 0.60 < 0.70; verify before any block"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "§3a: fraud probability 0.60 reaches 0.30"
+      }
+    ],
+    "final": [
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R1: single signal at probability 0.60 < 0.70; verify before any block"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "§3a: fraud probability 0.60 reaches 0.30"
+      }
+    ],
+    "what_changed": "nothing"
+  },
+  "sar": {
+    "file": false,
+    "reason": "§3a: no report; fraud is not confirmed or strongly suspected",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0,
+    "activity_dates": []
+  },
+  "stop_reason": "§3b/§5: VERIFY_WITH_CUSTOMER is recommended and the customer_validation response changes the actions (deny -> BLOCK_CARD, CREATE_CASE; confirm -> CREATE_CASE, CLOSE_NO_FRAUD; no_reply -> DECLINE_TRANSACTION, MONITOR_CARD, CREATE_CASE)",
+  "tool_calls": 12,
+  "tokens": 4274,
+  "latency_s": 19.9
+}

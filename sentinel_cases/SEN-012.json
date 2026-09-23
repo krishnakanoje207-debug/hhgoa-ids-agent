@@ -1,0 +1,233 @@
+{
+  "case_id": "SEN-012",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.976,
+    "pattern": "undocumented",
+    "pattern_description": "An undocumented structuring pattern involving multiple online purchases executed within a short timeframe, each kept just under the $500 authorization threshold. This pattern affects customer accounts with high-value digital transactions and was discovered via Sentinel sweep near-threshold transaction monitoring.",
+    "affected_txn_ids": [
+      "3493524",
+      "3493535",
+      "3493537",
+      "3493541"
+    ],
+    "first_suspicious_txn_id": "3493524",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 1999.89,
+    "evidence": [
+      {
+        "claim": "Closed-case classifier evaluated flagged transaction 3493541 at 0.98 probability using historical bank cases, excluding the bank risk score of 0.39.",
+        "source": "graph",
+        "ref": "model:closed_case_classifier",
+        "entity_ids": [
+          "3493541"
+        ]
+      },
+      {
+        "claim": "Four card transactions spanning 2016-11-28 01:34:22 to 2016-11-28 01:44:44 constitute an episode with a total exposure of $1,999.89 across transactions 3493524, 3493535, 3493537, and 3493541.",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C12897-K1, window=60d)",
+        "entity_ids": [
+          "3493524",
+          "3493535",
+          "3493537",
+          "3493541"
+        ]
+      },
+      {
+        "claim": "Three online purchases (3493524, 3493535, and 3493541) occurred within a 10-minute window with amounts of $499.93, $499.96, and $499.96 structured under the authorization threshold.",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C12897-K1, window=60d)",
+        "entity_ids": [
+          "3493524",
+          "3493535",
+          "3493541"
+        ]
+      },
+      {
+        "claim": "1 episode txn(s) came from a device marked New for this account (iOS Device | iOS 11.0.3 | mobile safari generic | 2208x1242); the flagged device was never seen on this card before",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C12897-K1, window=60d)",
+        "entity_ids": [
+          "3493537"
+        ]
+      },
+      {
+        "claim": "The flagged amount of $499.96 for transaction 3493541 represents 3.3 times the historical card median of $149.93.",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C12897-K1, window=60d)",
+        "entity_ids": [
+          "3493541"
+        ]
+      },
+      {
+        "claim": "The customer is associated with 15 prior confirmed fraud cases including CC-5094, CC-1803, CC-0167, CC-2801, and CC-1312.",
+        "source": "graph",
+        "ref": "query:customer_cases",
+        "entity_ids": [
+          "CC-5094",
+          "CC-1803",
+          "CC-0167",
+          "CC-2801",
+          "CC-1312"
+        ]
+      },
+      {
+        "claim": "The disputed amount of $499.96 on transaction 3493541 aligns with historical charges such as transaction 3420034.",
+        "source": "graph",
+        "ref": "query:card_history(card_id=C12897-K1, window=60d)",
+        "entity_ids": [
+          "3493541",
+          "3420034"
+        ]
+      },
+      {
+        "claim": "Device profile iOS Device | iOS 11.0.3 | mobile safari generic | 2208x1242 was utilized by 2 other cards within 30 days prior, linked to cases CC-0115, CC-0274, CC-0398, CC-0495, CC-0753, and CC-1074.",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id=iOS Device | iOS 11.0.3 | mobile safari generic | 2208x1242, window=30d)",
+        "entity_ids": [
+          "C05245-K2",
+          "C00915-K2",
+          "CC-0115",
+          "CC-0274",
+          "CC-0398",
+          "CC-0495",
+          "CC-0753",
+          "CC-1074"
+        ]
+      },
+      {
+        "claim": "Device profile iOS Device | iOS 11.3.0 | mobile safari generic | 2001x1125 was utilized by 26 other cards within 30 days prior, linked to cases CASE-SEN-004, CC-0003, CC-0023, CC-0026, CC-0033, and CC-0048.",
+        "source": "graph",
+        "ref": "query:device_neighbors(device_id=iOS Device | iOS 11.3.0 | mobile safari generic | 2001x1125, window=30d)",
+        "entity_ids": [
+          "C12992-K1",
+          "C11309-K1",
+          "C11413-K1",
+          "C05977-K1",
+          "C11000-K2",
+          "C09265-K1",
+          "C00995-K1",
+          "C10683-K1",
+          "C03273-K1",
+          "C06224-K2",
+          "CC-0003",
+          "CC-0023",
+          "CC-0026",
+          "CC-0033",
+          "CC-0048",
+          "CC-0063"
+        ]
+      },
+      {
+        "claim": "A total of 20 cards recorded their initial purchase within billing region 299.0 during the 7 days prior to the alert, with 8 linked to existing cases.",
+        "source": "graph",
+        "ref": "query:region_cluster(region=299.0, window=7d)",
+        "entity_ids": [
+          "C00509-K1",
+          "C03484-K1",
+          "C07116-K2",
+          "C02959-K1",
+          "C07533-K1",
+          "C11637-K1",
+          "C00555-K1",
+          "C06597-K1",
+          "C05753-K1",
+          "C05647-K1"
+        ]
+      },
+      {
+        "claim": "Similar historical cases retrieved from memory include CASE-SEN-008, CASE-SEN-013, and CASE-SEN-004.",
+        "source": "graph",
+        "ref": "query:similar_cases",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R1 regarding verification prior to blocking on weak signals was reviewed as part of policy context for BLOCK_CARD.",
+        "source": "document",
+        "ref": "POLICY-R1",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy R3 addressing customer transaction confirmation was retrieved as contextual guidance.",
+        "source": "document",
+        "ref": "POLICY-R3",
+        "entity_ids": []
+      },
+      {
+        "claim": "Fraud Policy agent action guidelines were reviewed for appropriate remediation steps.",
+        "source": "document",
+        "ref": "POLICY-S1-ACTIONS",
+        "entity_ids": []
+      },
+      {
+        "claim": "Regulatory and typology guidance covering card testing, card-not-present fraud, account takeover, and transaction pattern red flags were evaluated.",
+        "source": "document",
+        "ref": "PATTERN-card_testing, PATTERN-card_not_present_fraud, PATTERN-account_takeover, FATF-CYBERFRAUD-04",
+        "entity_ids": []
+      }
+    ],
+    "similar_prior_cases": [],
+    "summary": "Case SEN-012 was opened on 2016-11-28 following a Sentinel sweep on card C12897-K1 held by customer C12897, triggered by a rapid sequence of online transactions kept just under the $500 threshold. The closed-case classifier scored the flagged transaction 3493541 at a fraud probability of 0.98 based on multiple independent risk signals. The episode comprises four transactions (3493524, 3493535, 3493537, 3493541) totaling $1,999.89 executed between 2016-11-28 01:34:22 and 2016-11-28 01:44:44. Because the probability reaches 0.98 and the exposure exceeds $1,000, recommended actions include BLOCK_CARD on route L1, CREATE_CASE automatically, and FILE_REPORT on route L2 under \u00a73a.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-SEN-012"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R1 not triggered: 6 independent signals at probability 0.98; exposure $1,999.89 is under $2,500 (\u00a72)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "\u00a73a: fraud probability 0.98 reaches 0.30"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,999.89 exceeds $1,000"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R1 not triggered: 6 independent signals at probability 0.98; exposure $1,999.89 is under $2,500 (\u00a72)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "\u00a73a: fraud probability 0.98 reaches 0.30"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,999.89 exceeds $1,000"
+      }
+    ],
+    "what_changed": "nothing"
+  },
+  "sar": {
+    "file": true,
+    "reason": "\u00a73a: fraud confirmed or strongly suspected and exposure $1,999.89 exceeds $1,000",
+    "narrative": "Customer C12897 utilizing card C12897-K1 was subjected to a fraud investigation following anomalous transactional activity. A series of four online purchases totaling $1,999.89 was executed on the account. The activity occurred on 2016-11-28 between 01:34:22 and 01:44:44. The transactions took place online with billing region attributes associated with region 299.0. The transactions utilized mobile safari generic device profiles including iOS Device | iOS 11.0.3 | mobile safari generic | 2208x1242, marking a new device for the card. The activity is highly suspicious due to rapid structuring just under the $500 threshold, representing 3.3x the card's median amount alongside prior confirmed fraud history. Connected entities include prior cases such as CC-5094, CC-1803, CC-0167, CC-2801, and CC-1312. Recommended actions include blocking the card, creating a formal case, and filing a regulatory report.",
+    "subjects": [
+      "C12897",
+      "C12897-K1"
+    ],
+    "total_amount_usd": 1999.89,
+    "activity_dates": [
+      "2016-11-28",
+      "2016-11-28"
+    ]
+  },
+  "stop_reason": "\u00a76: probability 0.98 is decisive and rests on 6 independent pieces of evidence",
+  "tool_calls": 13,
+  "tokens": 8883,
+  "latency_s": 623.0
+}
