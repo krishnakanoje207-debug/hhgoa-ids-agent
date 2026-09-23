@@ -2,6 +2,12 @@
 
 *Technical write-up for the TigerGraph Agentic Fraud Investigation hackathon (Hacker House Goa).*
 
+> **The numbers, up front.** On 1,376 of the bank's own closed cases that nothing was fitted on:
+> **99.3%** verdict accuracy when the agent decides, only **2 of 1,258** frauds called
+> legitimate, **99.6%** of its fraud calls right, and the fraud pattern named correctly
+> **92.8%** of the time. Our model scores **0.886** AUC where the bank's own risk score scores
+> **0.052**. All **20 of 20** exam answers are valid and written back to the graph.
+
 ## What we built
 
 A fraud team's real job isn't scoring transactions — a model already does that, badly, at the
@@ -160,6 +166,13 @@ the `auto` actions. A card block or a SAR waits for a team lead or fraud manager
 in the console. Each sign-off is appended to an audit log, together with the evidence replies it
 was based on.
 
+The customer has a screen too. In the cardholder portal a customer answers "Did you make this
+purchase?" for their own open cases, and the analyst console picks up that answer. They can also
+report a transaction they don't recognise, which opens a new case that the agent investigates
+live. Customers only ever see plain next steps. A SAR is never disclosed to its subject, so the
+portal says nothing about one. An analyst can likewise open a case from any transaction ID: the
+graph supplies the card, customer, amount and risk score, and the agent does the rest.
+
 **Case memory that compounds.** Every closed case becomes an `AgentCase` vertex with edges to
 the transactions, cards, devices, closed cases, and documents it relied on, plus its own
 embedding. The next investigation's `similar_cases` query searches both the bank's original
@@ -194,9 +207,9 @@ We had a few days, so we cut things. Here is what we left out, why, and what we 
 ### What we cut for time
 
 **Real evidence channels.** The agent decides *whether* to ask the customer, the cardholder or an
-analyst, but the replies are simulated, as the brief allows. In the console an analyst can type
-in the reply that came back, and the policy engine decides again. Nothing sends an SMS, runs a
-real one-time passcode or waits on an inbox. R4's timers ("no reply within 24 hours", "monitor
+analyst, but the replies are simulated, as the brief allows. A demo cardholder portal and the
+analyst console take real answers, and the policy engine decides again. But the portal's sign-in
+is a demo, and nothing sends an SMS, runs a real one-time passcode or waits on an inbox. R4's timers ("no reply within 24 hours", "monitor
 for 72 hours") are recorded as actions. They are not running clocks.
 
 **Real sign-in and a tamper-proof audit trail.** Only a person can approve `L1` and `L2` actions,

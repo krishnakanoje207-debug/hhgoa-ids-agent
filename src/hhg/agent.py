@@ -61,12 +61,12 @@ def _dt(s):
 
 
 def _later_case_ids(opened):
-    """AgentCase ids of this case and every case (case pack or sentinel) opened at/after it: hidden from
+    """AgentCase ids of this case and every case (case pack, sentinel or new) opened at/after it: hidden from
     memory (no look-ahead)."""
     with open(config.DATASET / "case_pack.csv", newline="", encoding="utf-8") as fh:
         rows = list(csv.DictReader(fh))
     rows += [json.loads(p.read_text(encoding="utf-8"))["trigger"]
-             for p in (config.ROOT / "sentinel_cases" / "traces").glob("*.json")]
+             for d in ("sentinel_cases", "cases_new") for p in (config.ROOT / d / "traces").glob("*.json")]
     return {"CASE-" + r["case_id"] for r in rows if _dt(r["opened_at"]) >= opened}
 
 

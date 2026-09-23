@@ -6,6 +6,11 @@ streamed). Narration lines are suggestions, not a transcript to read verbatim.
 
 ---
 
+**Numbers to say on camera** (put them on screen too; the console's Overview shows them):
+**99.3%** verdict accuracy when it decides, on **1,376** held-out closed cases · only **2 of
+1,258** frauds called legitimate · **99.6%** of fraud calls right · pattern right **92.8%** ·
+model AUC **0.886** vs the bank's **0.052** · **20/20** exam answers valid.
+
 ## 0:00–0:20 — Cold open
 
 **Show:** Console overview screen, cases list, badges for status/verdict/pattern/route.
@@ -161,6 +166,11 @@ explained, memory out. Thanks for watching."
 ### Recording notes
 - Pre-load the console with `cases/` and `cases/traces/` already populated from
   `run_benchmark.py` so no live latency (including Savanna auto-resume) is on camera.
+- Optional customer clip: open **Cardholder portal** in the sidebar, sign in as `C04570`,
+  click **No, it wasn't me** on HHG-017, then switch back to the console. HHG-017's reply is now
+  preset to deny, with `BLOCK_CARD` waiting for a team lead. Clear `audit/` before recording.
+- Optional new-case clip: **New case** in the sidebar, transaction `3450629`, *Risk-score alert*
+  (about 20–40 s). The console jumps to the new case when it finishes.
 - Optional live clip: click **Investigate live** on HHG-017 (about 30 s). The steps stream in
   as the agent queries TigerGraph, and the result is checked against the recorded answer. Wake
   Savanna first (run it once off camera). If it fails, fall back to the recorded case.

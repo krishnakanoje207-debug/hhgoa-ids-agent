@@ -4,7 +4,9 @@ Reads cases/*.json (answer files, README "Answer Format") and cases/traces/*.jso
 (trace files, SPEC.md "Trace file"). The "Evidence & approval" tab replays evidence replies through the
 policy engine (hhg.policy) and records L1/L2 sign-offs (hhg.approvals); neither touches TigerGraph.
 "Investigate live" runs the real agent (hhg.agent: TigerGraph over MCP + LLM) on the case's trigger as a
-dry run, streaming its steps; it needs .env and a reachable Savanna workspace.
+dry run, streaming its steps; it needs .env and a reachable Savanna workspace. "New case" opens a case from
+any transaction ID (hhg.intake); new cases live in cases_new/. Cardholder replies sent from the cardholder
+portal (ui/pages) preset the customer_validation reply.
 
 Run:  D:\\hhgoa\\.venv\\Scripts\\streamlit.exe run ui/app.py   (from D:\\hhgoa)
 """
@@ -17,13 +19,22 @@ import streamlit as st
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from hhg import approvals, policy  # noqa: E402
+from hhg import replies as portal  # noqa: E402
 
 st.set_page_config(page_title="HHGOA Fraud Console", layout="wide")
 
 APP_DIR = Path(__file__).resolve().parent
 REAL_CASES_DIR = Path("cases")
 MOCK_CASES_DIR = APP_DIR / "mock" / "cases"
+NEW_CASES_DIR = APP_DIR.parent / "cases_new"
 PENDING = "awaiting reply"
+# headline results (README "Accuracy"): scripts/eval_analytics.py --no-fit --no-write on the 1,376 closed cases
+# opened in September (held out from all fitting), and data_prep/model_report.json
+HEADLINE = [("Verdict accuracy when it decides", "99.3%", "95.8% class-balanced"),
+            ("Fraud called legitimate", "2 of 1,258", "was 121 before two fixes"),
+            ("Fraud calls that were fraud", "99.6%", "751 of 754"),
+            ("Pattern named correctly", "92.8%", "on confirmed fraud"),
+            ("Model AUC vs bank score", "0.886 vs 0.052", "confirmed vs cleared")]
 
 VERDICT_COLOR = {"fraud": "#e5484d", "legitimate": "#30a46c", "uncertain": "#e2a336"}
 STATUS_COLOR = {
@@ -352,9 +363,14 @@ def render_evidence_replies(case_id, case, trace):
             break
         options = [PENDING] + policy.RESPONSES[gate["type"]]
         default = recorded[i][1] if i < len(recorded) and recorded[i][0] == gate["type"] else None
+        real = portal.latest(case_id) if gate["type"] == "customer_validation" else None
+        if real:
+            default = real["response"]
         resp = st.radio(f'{i + 1}. `{gate["type"]}` reply', options, horizontal=True,
                         index=options.index(default) if default in options else 0,
-                        key=f"reply-{case_id}-{i}-{gate['type']}")
+                        key=f"reply-{case_id}-{i}-{gate['type']}-{real['at'] if real else ''}")
+        if real:
+            st.caption(f'The cardholder answered **{real["response"]}** in the cardholder portal ({real["at"]}).')
         st.caption(md(gate["why"]))
         if resp == PENDING:
             st.caption("Waiting for this reply: the case stays open with the actions below.")
@@ -534,6 +550,11 @@ def render_case_view(case_id, case, trace, role, analyst):
 
 
 def render_overview(cases, traces):
+    st.subheader("Results")
+    st.caption("Measured on 1,376 of the bank's closed cases from September, none used for fitting.")
+    for col, (label, value, note) in zip(st.columns(len(HEADLINE)), HEADLINE):
+        col.metric(label, value, note, delta_color="off")
+    st.divider()
     st.subheader("Overview — all cases")
     rows = []
     counts = {"fraud": 0, "legitimate": 0, "uncertain": 0}
@@ -560,6 +581,50 @@ def render_overview(cases, traces):
         col.metric(verdict, n)
 
 
+def render_new_case():
+    st.subheader("New case")
+    st.caption("Open a case from any transaction in the graph. The card, customer, amount, time and bank risk "
+               "score are read from TigerGraph; the agent then investigates it live (about 30 s).")
+    with st.form("new-case"):
+        txn_id = st.text_input("Transaction ID", placeholder="e.g. 3450629")
+        trigger = st.selectbox("Trigger", ["risk_score", "customer_report", "analyst_request"],
+                               format_func={"risk_score": "Risk-score alert", "customer_report": "Customer report",
+                                            "analyst_request": "Analyst request"}.get)
+        message = st.text_input("Message (customer's words or analyst's request; optional for alerts)")
+        opened_at = st.text_input("Opened at (optional, default one hour after the transaction)",
+                                  placeholder="YYYY-MM-DD HH:MM:SS")
+        write = st.checkbox("Write the case to the graph (case memory)", value=False)
+        go = st.form_submit_button("Investigate")
+    if not go:
+        return
+    try:
+        from hhg import intake  # needs .env (TigerGraph host/secret, LLM keys)
+    except Exception as e:
+        st.error(f"Live agent unavailable: {type(e).__name__}: {e}")
+        return
+    with st.status(f"Investigating transaction {txn_id.strip()}…", expanded=True) as box:
+        def on_step(s):
+            tool = f' · `{s["tool"]}`' if s.get("tool") else ""
+            st.markdown(f'**{s["step"]}. {s["name"]}**{tool} · {s["ms"]} ms  \n{md(s["summary"])}')
+
+        try:
+            answer, _, errors = intake.open_case(txn_id.strip(), trigger, message.strip(),
+                                                 opened_at.strip() or None, write, on_step)
+        except (LookupError, ValueError) as e:
+            box.update(label="Could not open the case", state="error")
+            st.caption(md(str(e)))
+            return
+        except Exception as e:
+            box.update(label=f"Live run failed: {type(e).__name__}", state="error")
+            st.caption(md(str(e)[:300]) + " (Savanna may be waking up or blocking this IP; retry in a minute.)")
+            return
+        box.update(label=f'{answer["case_id"]} investigated in {answer["latency_s"]} s', state="complete",
+                   expanded=False)
+    st.session_state["goto"] = answer["case_id"]
+    st.session_state["flash"] = ("Answer-format check failed: " + "; ".join(errors[:5])) if errors else         f'New case {answer["case_id"]} investigated live in {answer["latency_s"]} s; answer format valid.'
+    st.rerun()
+
+
 def main():
     st.markdown(CSS, unsafe_allow_html=True)
     st.sidebar.title("HHGOA Fraud Console")
@@ -568,6 +633,8 @@ def main():
     use_mock = st.sidebar.checkbox("Use mock data", value=default_mock)
     base_dir = MOCK_CASES_DIR if use_mock else REAL_CASES_DIR
     cases, traces = load_cases(str(base_dir))
+    new_cases, new_traces = ({}, {}) if use_mock else (_load_json_files(NEW_CASES_DIR),
+                                                       _load_json_files(NEW_CASES_DIR / "traces"))
     role = st.sidebar.selectbox("Signed in as", list(approvals.ROLES),
                                 format_func=lambda r: f"{approvals.ROLES[r]} ({r})")
     analyst = st.sidebar.text_input("Analyst name", value="analyst")
@@ -576,21 +643,30 @@ def main():
         st.warning(f"No case files found in `{base_dir}`.")
         return
 
+    everything, all_traces = {**cases, **new_cases}, {**traces, **new_traces}
+
     def case_label(cid):
-        c = cases[cid]["case"]
+        c = everything[cid]["case"]
         return f'{cid} · {c["verdict"]} · p={c["fraud_probability"]:.2f} · {c["status"]}'
 
-    options = ["Overview"] + sorted(cases.keys())
+    options = ["Overview", "New case"] + sorted(cases) + sorted(new_cases)
+    if st.session_state.get("goto") in options:  # jump to a case just opened by the New case form
+        st.session_state["case-choice"] = st.session_state.pop("goto")
     choice = st.sidebar.radio(
         "Case",
         options,
-        format_func=lambda o: o if o == "Overview" else case_label(o),
+        format_func=lambda o: o if o in ("Overview", "New case") else case_label(o),
+        key="case-choice",
     )
+    if st.session_state.get("flash"):
+        st.info(st.session_state.pop("flash"))
 
     if choice == "Overview":
         render_overview(cases, traces)
+    elif choice == "New case":
+        render_new_case()
     else:
-        render_case_view(choice, cases[choice], traces.get(choice), role, analyst)
+        render_case_view(choice, everything[choice], all_traces.get(choice), role, analyst)
 
 
 main()

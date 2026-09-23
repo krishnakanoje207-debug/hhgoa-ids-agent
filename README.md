@@ -12,6 +12,23 @@ becomes evidence for the next one.
 Built for the TigerGraph Agentic Fraud Investigation hackathon (Hacker House Goa), on
 TigerGraph Savanna's free tier.
 
+## Results at a glance
+
+Measured on **1,376 of the bank's own closed cases** (September, held out from all fitting); full
+table under *Accuracy*.
+
+| | |
+|---|---|
+| **Verdict accuracy when the agent decides** | **99.3%** (95.8% class-balanced) |
+| **Fraud wrongly called legitimate** | **2 of 1,258** (was 121 before two fixes) |
+| **"Fraud" calls that were fraud** | **99.6%** (751 of 754) |
+| **Innocent customers called fraud** | **3 of 118** (2.5%) |
+| **Fraud pattern named correctly** | **92.8%** of confirmed fraud |
+| **Our model vs the bank's risk score** (AUC, confirmed vs cleared) | **0.886 vs 0.052** |
+| **The 20 exam cases** | **20 / 20 valid**: 10 fraud, 6 legitimate, 4 uncertain; 4 SARs; every case written to the graph |
+| **Speed** | median **21 s** and **12 tool calls** per case |
+| **Tests** | **93** passing |
+
 ## Architecture
 
 ```mermaid
@@ -261,6 +278,19 @@ it, or the evidence gate returns no decisive question.
     TigerGraph over MCP plus the LLM, nothing written to `cases/` or the graph. It streams each
     step as it completes and compares the result with the recorded answer. It needs `.env` and a
     reachable Savanna workspace (about 30 s per case).
+    **New case** (sidebar) opens a case from **any transaction ID**: `hhg.intake` reads the
+    card, customer, amount, time and bank risk score from the graph over MCP, builds a
+    case-pack style trigger (risk-score alert, customer report or analyst request) and runs
+    the agent live. The case appears in the sidebar with the same tabs. New cases are kept in
+    `cases_new/` (git-ignored) and are hidden from earlier cases' memory like every other case.
+    A dry run by default; a checkbox writes it to the graph.
+    **Cardholder portal** (second page in the sidebar) is the bank customer's side. After a
+    demo sign-in with a customer ID (try `C04570`, HHG-017's cardholder), the customer
+    answers "Did you make this purchase?" for any of their cases still waiting on them. The
+    answer goes to `audit/replies.jsonl`, and the analyst console presets it on the *Evidence &
+    approval* tab. The customer can also list their own recent transactions and report one,
+    which opens a `customer_report` case. Customers see only plain-language next steps, never
+    probabilities, routes or anything about a SAR, which must not be disclosed to its subject.
 
 ## Repo layout
 
@@ -278,6 +308,8 @@ src/hhg/
   analytics.py              card/episode/device/region analytics and calibrated fraud probability
   policy.py                 deterministic Fraud Policy engine (pure functions)
   approvals.py              L1/L2 sign-off rules + append-only audit log
+  intake.py                 new cases from a transaction ID (graph lookup, trigger, agent run)
+  replies.py                cardholder replies from the portal; replays a case with them
   validate.py                answer-file validator
   llm.py                     OpenAI-compatible client (Gemini/Groq) + deterministic fallback text,
                              local bge-small embeddings (fastembed)
@@ -287,8 +319,9 @@ scripts/                  train_model.py, prepare_data.py, eval_analytics.py, bu
                            embed_corpus.py, load_graph.py, run_benchmark.py, sentinel.py
 cases/                    HHG-0xx.json answer files; cases/traces/ agent trace files
 sentinel_cases/           optional out-of-benchmark finds (device ring, structuring)
-ui/app.py                 Streamlit analyst console
-audit/                    approvals.jsonl, written by the console (git-ignored)
+ui/app.py                 Streamlit analyst console (+ ui/pages/Cardholder_portal.py)
+audit/                    approvals.jsonl, replies.jsonl, written by the UI (git-ignored)
+cases_new/                cases opened from the UI (git-ignored)
 tests/                    unittest (python -m unittest discover -s tests)
 docs/                     BLOG.md, SOCIAL.md, DEMO_SCRIPT.md
 ```
@@ -455,7 +488,7 @@ time") has the reasoning for each.
 
 | Area | What exists now | What is missing |
 |---|---|---|
-| Evidence channels | The agent decides when to ask; the console lets an analyst enter the reply | Real SMS/email/OTP; running R4 timers (24 h reply, 72 h monitoring) |
+| Evidence channels | The agent decides when to ask; a cardholder portal (demo sign-in) and the console take the reply | Authenticated portal, real SMS/email/OTP, running R4 timers (24 h reply, 72 h monitoring) |
 | Approvals | Role-gated L1/L2 sign-off, append-only local log | Real login (OAuth/RBAC), tamper-evident log, sign-off written to the graph and moving case status |
 | Live operation | "Investigate live" dry run; batch runs for the 20 cases and sentinel | An alert stream feeding the agent, scheduled sentinel sweeps |
 | Graph algorithms | 8 targeted GSQL queries + vector search | Louvain / connected components cross-checked against `device_ring_scan` |

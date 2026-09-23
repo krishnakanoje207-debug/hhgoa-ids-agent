@@ -16,6 +16,8 @@ src/hhg/config.py      load .env (python-dotenv)
 src/hhg/tg.py          TigerGraph REST client (token via secret, run installed query, upsert) — owner: lead
 src/hhg/policy.py      deterministic Fraud Policy engine (pure functions) — owner: policy agent
 src/hhg/approvals.py   L1/L2 sign-off rules + append-only audit log (audit/approvals.jsonl)
+src/hhg/intake.py      new cases from a transaction ID (graph lookup over MCP, trigger, agent run) -> cases_new/
+src/hhg/replies.py     cardholder replies from the portal (audit/replies.jsonl); replay a case with them
 src/hhg/validate.py    answer-file validator (CLI: python -m hhg.validate cases/) — owner: policy agent
 src/hhg/llm.py         OpenAI-compatible client (Gemini/Groq) + deterministic fallback text — owner: lead
 src/hhg/rag.py         GraphRAG retrieval (TigerGraph vectors + graph evidence -> context block) — owner: lead
