@@ -3,11 +3,11 @@
 ## X (≤280 chars)
 
 ```
-Built a fraud agent on @TigerGraphDB for HHGOA: 99.3% verdict accuracy on 1,376 held-out cases,
+Built a fraud agent on @TigerGraphDB for HHGOA @247pmstudio: 99.3% verdict accuracy on 1,376 held-out cases,
 just 2 of 1,258 frauds cleared by mistake. It argues both sides and writes every case back to the
-graph. Blog: [link] Demo: [link]
+graph. Blog: [blog link] Demo: https://drive.google.com/file/d/16rMjGdsbA4KBOAKjSAZYw7p_FWWT6k_b/view
 ```
-(260 characters as X counts them, with each link at 23)
+(272 characters as X counts them, with each link at 23)
 
 ## LinkedIn (~300 words)
 
@@ -37,8 +37,8 @@ proper sign-in and a tamper-proof audit trail for approvals, community detection
 and an agent that learns from how cases actually end, so every analyst decision sharpens the
 next investigation.
 
-Built with @TigerGraphDB Savanna, TigerGraph MCP, and GraphRAG over policy, regulatory, and
+Built for HHGOA by @247pmstudio, with @TigerGraphDB Savanna, TigerGraph MCP, and GraphRAG over policy, regulatory, and
 case-history text.
 
-Blog: [link]
-Demo: [link]
+Blog: [blog link]
+Demo: https://drive.google.com/file/d/16rMjGdsbA4KBOAKjSAZYw7p_FWWT6k_b/view

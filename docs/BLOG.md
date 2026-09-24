@@ -276,3 +276,5 @@ the device and region neighbourhoods that most alerts share.
 ---
 
 Code: https://github.com/krishnakanoje207-debug/hhgoa-ids-agent · Demo: https://drive.google.com/file/d/16rMjGdsbA4KBOAKjSAZYw7p_FWWT6k_b/view
+
+Built for HHGOA (@247pmstudio) on @TigerGraphDB Savanna.
