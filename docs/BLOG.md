@@ -275,4 +275,4 @@ the device and region neighbourhoods that most alerts share.
 
 ---
 
-Code: `github.com/krishnakanoje207-debug/hhgoa-fraud-agent` · Demo: `{{RESULT: demo video link}}`
+Code: https://github.com/krishnakanoje207-debug/hhgoa-ids-agent · Demo: https://drive.google.com/file/d/16rMjGdsbA4KBOAKjSAZYw7p_FWWT6k_b/view

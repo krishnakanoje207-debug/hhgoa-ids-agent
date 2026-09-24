@@ -514,5 +514,7 @@ time") has the reasoning for each.
 
 ---
 
+Demo video: https://drive.google.com/file/d/16rMjGdsbA4KBOAKjSAZYw7p_FWWT6k_b/view
+
 See `docs/BLOG.md` for the technical write-up, `docs/DEMO_SCRIPT.md` for the demo video script,
 and `docs/SOCIAL.md` for the submission social post.
