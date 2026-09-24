@@ -5,7 +5,7 @@
 ```
 Built a fraud agent on @TigerGraphDB for HHGOA @247pmstudio: 99.3% verdict accuracy on 1,376 held-out cases,
 just 2 of 1,258 frauds cleared by mistake. It argues both sides and writes every case back to the
-graph. Blog: [blog link] Demo: https://drive.google.com/file/d/16rMjGdsbA4KBOAKjSAZYw7p_FWWT6k_b/view
+graph. Blog: https://dev.to/krishnakanoje207debug/building-a-fraud-investigator-that-argues-with-itself-18e9 Demo: https://drive.google.com/file/d/16rMjGdsbA4KBOAKjSAZYw7p_FWWT6k_b/view
 ```
 (272 characters as X counts them, with each link at 23)
 
@@ -40,5 +40,5 @@ next investigation.
 Built for HHGOA by @247pmstudio, with @TigerGraphDB Savanna, TigerGraph MCP, and GraphRAG over policy, regulatory, and
 case-history text.
 
-Blog: [blog link]
+Blog: https://dev.to/krishnakanoje207debug/building-a-fraud-investigator-that-argues-with-itself-18e9
 Demo: https://drive.google.com/file/d/16rMjGdsbA4KBOAKjSAZYw7p_FWWT6k_b/view
